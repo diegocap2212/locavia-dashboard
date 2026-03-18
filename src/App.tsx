@@ -3,7 +3,7 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
 import { 
-  TrendingUp, Users, Activity, AlertCircle, ChevronDown, CheckCircle2, Clock
+  Users, Activity, AlertCircle, CheckCircle2, Clock
 } from 'lucide-react';
 import rawData from './data.json';
 
@@ -11,31 +11,29 @@ import rawData from './data.json';
 interface JiraItem {
   Type: string;
   Key: string;
-  Summary: string;
+  Summary: string | unknown;
   Status: string;
   Team: string;
   Created: string;
   Resolved: string | null;
   Release: string;
-  // Future JQL/XML support: flexible structure for custom fields
-  CustomFields?: Record<string, any>;
+  CustomFields?: Record<string, unknown>;
   Metadata?: {
     source: 'excel' | 'api';
     jql_context?: string;
   };
+  [key: string]: unknown;
 }
 
 // Data Normalization Layer (Future-proof for JQL/XML)
-const normalizeJqlData = (data: any[]): JiraItem[] => {
-  return data.map(item => {
-    // If the data comes from a future XML/JQL complex query, 
-    // we can add adapters here without breaking the UI.
+const normalizeJqlData = (data: unknown[]): JiraItem[] => {
+  return data.map(rawItem => {
+    const item = rawItem as Record<string, unknown>;
     return {
       ...item,
-      // Fix: Ensure Status is normalized even if coming from different JQL contexts
-      Status: item.Status?.toUpperCase() || 'UNKNOWN',
-      Metadata: item.Metadata || { source: 'excel' }
-    };
+      Status: typeof item.Status === 'string' ? item.Status.toUpperCase() : 'UNKNOWN',
+      Metadata: (item.Metadata as { source: 'excel' | 'api', jql_context?: string }) || { source: 'excel' }
+    } as JiraItem;
   });
 };
 
@@ -99,19 +97,34 @@ const App: React.FC = () => {
     const totalResolvedSoFar = timeline.reduce((acc, w) => acc + w.resolved, 0);
     const avgVelocity = timeline.length > 0 ? totalResolvedSoFar / timeline.length : 0;
 
-    let cumCreated = 0;
-    let cumResolved = 0;
-    const chartData = timeline.map((w, index) => {
-      cumCreated += w.created;
-      cumResolved += w.resolved;
-      
+    // Use reduce to build chartData with cumulative values to satisfy immutability rules
+    const initialAcc = {
+      cumCreated: 0,
+      cumResolved: 0,
+      list: [] as Array<Record<string, string | number | null>>
+    };
+
+    const result = timeline.reduce((acc, w, index) => {
+      const newCumCreated = acc.cumCreated + w.created;
+      const newCumResolved = acc.cumResolved + w.resolved;
       return {
-        name: formatDate(w.date),
-        "Scope (Total solicitado)": cumCreated,
-        "Deliveries (Concluído)": cumResolved,
-        "Forecast (Projeção)": index === timeline.length - 1 ? cumResolved : null
+        cumCreated: newCumCreated,
+        cumResolved: newCumResolved,
+        list: [
+          ...acc.list,
+          {
+            name: formatDate(w.date),
+            "Scope (Total solicitado)": newCumCreated,
+            "Deliveries (Concluído)": newCumResolved,
+            "Forecast (Projeção)": index === timeline.length - 1 ? newCumResolved : null
+          }
+        ]
       };
-    });
+    }, initialAcc);
+
+    const chartData = result.list;
+    const finalCumCreated = result.cumCreated;
+    const finalCumResolved = result.cumResolved;
 
     // Add 4 future weeks logic...
     if (timeline.length > 0) {
@@ -121,10 +134,10 @@ const App: React.FC = () => {
         nextWeek.setDate(nextWeek.getDate() + (i * 7));
         chartData.push({
           name: formatDate(nextWeek),
-          "Scope (Total solicitado)": cumCreated,
+          "Scope (Total solicitado)": finalCumCreated,
           "Deliveries (Concluído)": null,
-          "Forecast (Projeção)": Math.round(cumResolved + (avgVelocity * i))
-        } as any);
+          "Forecast (Projeção)": Math.round(finalCumResolved + (avgVelocity * i))
+        });
       }
     }
 
@@ -323,7 +336,7 @@ const App: React.FC = () => {
                 <tr key={item.Key} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
                   <td style={{ padding: '0.75rem', color: '#38bdf8', fontWeight: 'bold' }}>{item.Key}</td>
                   <td style={{ padding: '0.75rem' }}>{item.Type}</td>
-                  <td style={{ padding: '0.75rem' }}>{item.Summary.length > 60 ? item.Summary.substring(0, 60) + '...' : item.Summary}</td>
+                  <td style={{ padding: '0.75rem' }}>{typeof item.Summary === 'string' ? (item.Summary.length > 60 ? item.Summary.substring(0, 60) + '...' : item.Summary) : '-'}</td>
                   <td style={{ padding: '0.75rem' }}>
                     <span style={{ 
                       padding: '0.2rem 0.5rem', 
