@@ -92,8 +92,8 @@ const App: React.FC = () => {
         name: d.week,
         "A Fazer (Real)": currentReal,
         // Only show projections in the future or starting from current
-        "Melhor Cenário (2/sem)": null,
-        "Pior Cenário (1/sem)": null
+        "Melhor Cenário (2/sem)": null as number | null,
+        "Pior Cenário (1/sem)": null as number | null
       };
     });
 
