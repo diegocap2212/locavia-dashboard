@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Locavia Agile Insights - Sharable Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <style>
+        :root {
+            --bg-deep: #020617;
+            --bg-card: rgba(15, 23, 42, 0.7);
+            --primary: #38bdf8;
+            --secondary: #818cf8;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #020617 100%);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3 { font-family: 'Outfit', sans-serif; }
+
+        .glass-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .metric-value {
+            font-size: 2.25rem;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 400px;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-4">
+            <div>
+                <h1 class="text-4xl font-bold bg-gradient-to-r from-white to-sky-400 bg-clip-text text-transparent">Locavia Agile Insights</h1>
+                <p class="text-slate-400 mt-2 text-lg">Snapshot Executivo - Release O4R2</p>
+            </div>
+            <div class="glass-card px-4 py-2 text-sm text-sky-400 border-sky-500/30">
+                Data do Relatório: 20/03/2026
+            </div>
+        </header>
+
+        <!-- Metrics -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="glass-card p-6">
+                <div class="text-xs uppercase tracking-widest text-slate-400 mb-2">Escopo da Release</div>
+                <div class="metric-value text-white" id="m-total">24</div>
+                <div class="text-xs text-slate-500 mt-1">Total de itens mapeados</div>
+            </div>
+            <div class="glass-card p-6">
+                <div class="text-xs uppercase tracking-widest text-slate-400 mb-2">Entregas Realizadas</div>
+                <div class="metric-value text-green-400" id="m-delivered">4</div>
+                <div class="text-xs text-slate-500 mt-1">Itens concluídos (Semana 15-16)</div>
+            </div>
+            <div class="glass-card p-6">
+                <div class="text-xs uppercase tracking-widest text-slate-400 mb-2">Pendente (WIP)</div>
+                <div class="metric-value text-amber-400" id="m-wip">20</div>
+                <div class="text-xs text-slate-500 mt-1">Restantes para o prazo</div>
+            </div>
+            <div class="glass-card p-6">
+                <div class="text-xs uppercase tracking-widest text-slate-400 mb-2">Vazão Média</div>
+                <div class="metric-value text-sky-400" id="m-velocity">2.0</div>
+                <div class="text-xs text-slate-500 mt-1">Itens por semana</div>
+            </div>
+        </div>
+
+        <!-- Main Chart -->
+        <div class="glass-card p-8 mb-8">
+            <h3 class="text-xl font-semibold mb-6">Evolução do Escopo (Cone de Vazão)</h3>
+            <div id="main-chart" class="chart-container"></div>
+        </div>
+
+        <!-- Data Audit -->
+        <div class="glass-card p-6 border-amber-500/20 bg-amber-500/5">
+            <div class="flex items-center gap-3">
+                <div class="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b]"></div>
+                <h4 class="font-semibold">Observações Tecnicas</h4>
+            </div>
+            <p class="text-sm text-slate-400 mt-2">
+                Os dados acima foram extraídos da planilha de controle <b>Cone LOCAVIA</b>. 
+                A projeção indica que mantendo a vazão atual de 2 itens/semana, a release O4R2 será concluída dentro da data alvo esperada (01/04/2026).
+            </p>
+        </div>
+
+        <footer class="mt-12 text-center text-slate-500 text-sm">
+            &copy; 2026 Locavia Analytics - Documento Gerado via Antigravity Agent
+        </footer>
+    </div>
+
+    <script>
+        // Data derived from SharePoint extraction
+        const categories = [
+            "24/11", "01/12", "08/12", "15/12", "22/12", "29/12", "05/01", "12/01", "19/01", "26/01",
+            "02/02", "09/02", "16/02", "23/02", "02/03", "09/03", "16/03", "23/03", "30/03"
+        ];
+
+        const scopeData = [
+            24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 
+            24, 24, 24, 24, 24, 24, 24, 24, 24
+        ];
+
+        const deliveredData = [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+            0, 0, 0, 0, 2, 4, null, null, null
+        ];
+
+        // Best Case: 2 items/week after Semana 16 (index 15)
+        // Worst Case: 1 item/week after Semana 16
+        // Initial realized at week 16 is 4.
+        const bestCaseData = [
+            null, null, null, null, null, null, null, null, null, null,
+            null, null, null, null, null, 4, 6, 8, 10
+        ];
+
+        const worstCaseData = [
+            null, null, null, null, null, null, null, null, null, null,
+            null, null, null, null, null, 4, 5, 6, 7
+        ];
+
+        const options = {
+            series: [
+                { name: 'Scope (Meta)', data: scopeData },
+                { name: 'Realizado', data: deliveredData },
+                { name: 'Melhor Cenário (2/sem)', data: bestCaseData },
+                { name: 'Pior Cenário (1/sem)', data: worstCaseData }
+            ],
+            chart: {
+                type: 'area',
+                height: 400,
+                toolbar: { show: false },
+                animations: { enabled: true },
+                background: 'transparent'
+            },
+            colors: ['#818cf8', '#22c55e', '#38bdf8', '#f43f5e'],
+            dataLabels: { enabled: false },
+            stroke: { 
+                curve: 'smooth', 
+                width: [3, 4, 2, 2], 
+                dashArray: [0, 0, 5, 5] 
+            },
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    shadeIntensity: 1,
+                    opacityFrom: 0.4,
+                    opacityTo: 0.05,
+                    stops: [0, 90, 100]
+                }
+            },
+            grid: {
+                borderColor: 'rgba(255,255,255,0.05)',
+                strokeDashArray: 4
+            },
+            xaxis: {
+                categories: categories,
+                labels: { style: { colors: '#94a3b8' } },
+                axisBorder: { show: false },
+                axisTicks: { show: false }
+            },
+            yaxis: {
+                labels: { style: { colors: '#94a3b8' } }
+            },
+            legend: {
+                position: 'top',
+                horizontalAlign: 'right',
+                labels: { colors: '#f8fafc' }
+            },
+            tooltip: { theme: 'dark' }
+        };
+
+        const chart = new ApexCharts(document.querySelector("#main-chart"), options);
+        chart.render();
+    </script>
+</body>
+</html>

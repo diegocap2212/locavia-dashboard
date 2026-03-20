@@ -1,49 +1,22 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
 import { 
-  Users, Activity, AlertCircle, CheckCircle2, Clock
+  Users, Activity, AlertCircle, CheckCircle2, Clock, RefreshCw
 } from 'lucide-react';
-import rawData from './data.json';
-
-// Types
-interface JiraItem {
-  Type: string;
-  Key: string;
-  Summary: string | unknown;
-  Status: string;
-  Team: string;
-  Created: string;
-  Resolved: string | null;
-  Release: string;
-  CustomFields?: Record<string, unknown>;
-  Metadata?: {
-    source: 'excel' | 'api';
-    jql_context?: string;
-  };
-  [key: string]: unknown;
-}
-
-// Data Normalization Layer (Future-proof for JQL/XML)
-const normalizeJqlData = (data: unknown[]): JiraItem[] => {
-  return data.map(rawItem => {
-    const item = rawItem as Record<string, unknown>;
-    return {
-      ...item,
-      Status: typeof item.Status === 'string' ? item.Status.toUpperCase() : 'UNKNOWN',
-      Metadata: (item.Metadata as { source: 'excel' | 'api', jql_context?: string }) || { source: 'excel' }
-    } as JiraItem;
-  });
-};
+import { fetchData, type JiraItem } from './services/dataService';
+import rawDataFallback from './data.json';
+import summaryData from './summary_data.json';
 
 // Utility to convert Excel Decimal Date to JS Date
 const excelToJSDate = (dateStr: string | null) => {
   if (!dateStr) return null;
   // Handle already ISO dates from future API
-  if (dateStr.includes('-')) return new Date(dateStr);
+  if (typeof dateStr === 'string' && dateStr.includes('-')) return new Date(dateStr);
   
-  const excelDate = parseFloat(dateStr);
+  const excelDate = parseFloat(String(dateStr));
+  if (isNaN(excelDate)) return null;
   const date = new Date((excelDate - 25569) * 86400 * 1000);
   return date;
 };
@@ -52,104 +25,99 @@ const formatDate = (date: Date) => {
   return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
 };
 
-const App: React.FC = () => {
-  const [selectedTeam, setSelectedTeam] = useState<string>('GOL');
-  const [selectedRelease, setSelectedRelease] = useState<string>('O4R2');
+// Data Normalization Layer
+const normalizeJqlData = (data: unknown[]): JiraItem[] => {
+  return data.map(rawItem => {
+    const item = rawItem as Record<string, unknown>;
+    return {
+      Type: String(item.Type || ''),
+      Key: String(item.Key || ''),
+      Summary: item.Summary,
+      Status: typeof item.Status === 'string' ? item.Status.toUpperCase() : 'UNKNOWN',
+      Team: String(item.Team || ''),
+      Created: String(item.Created || ''),
+      Resolved: item.Resolved ? String(item.Resolved) : null,
+      Release: String(item.Release || ''),
+      Metadata: (item.Metadata as { source: 'excel' | 'api', jql_context?: string }) || { source: 'excel' }
+    } as JiraItem;
+  });
+};
 
-  // Unified Data Processing with Future-Proof Layer
-  const { chartData, metrics, health, filteredList } = useMemo(() => {
-    const rawItems = normalizeJqlData(rawData);
+const App: React.FC = () => {
+  const [selectedTeam, setSelectedTeam] = useState<string>('TODOS');
+  const [selectedRelease, setSelectedRelease] = useState<string>('TODAS');
+  const [data, setData] = useState<JiraItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const cloudData = await fetchData();
+        setData(cloudData);
+        setError(null);
+      } catch (err) {
+        console.error("Failed to load cloud data, using fallback:", err);
+        setData(rawDataFallback as JiraItem[]);
+        setError("Usando dados locais (Cloud indisponível ou não configurada)");
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  // Unified Data Processing
+  const { chartData, metrics, health, filteredList, teams, releases } = useMemo(() => {
+    const rawItems = normalizeJqlData(data);
     
+    // Extract unique teams and releases for filters
+    const teamsList = Array.from(new Set(rawItems.map(i => i.Team))).filter(t => t && t !== "").sort();
+    const releasesList = Array.from(new Set(rawItems.map(i => i.Release))).filter(r => r && r !== "").sort();
+
     const filtered = rawItems.filter(item => 
       (selectedTeam === 'TODOS' || item.Team === selectedTeam) &&
       (selectedRelease === 'TODAS' || item.Release === selectedRelease)
     );
 
-    // Grouping by Week for the "Cone" Chart
-    const weeksMap: Record<string, { date: Date, created: number, resolved: number }> = {};
-    
-    filtered.forEach(item => {
-      const createdDate = excelToJSDate(item.Created);
-      const resolvedDate = excelToJSDate(item.Resolved);
+    // Grouping by Week for the "Cone" Chart - NOW DRIVEN BY summary_data.json
+    const chartData = summaryData.map(d => ({
+      name: d.week,
+      "Scope (Total solicitado)": d.scope,
+      "Deliveries (Concluído)": d.realized,
+      "Melhor Cenário (2/sem)": d.bestCase,
+      "Pior Cenário (1/sem)": d.worstCase
+    }));
 
-      if (createdDate) {
-        const monday = new Date(createdDate);
-        monday.setDate(monday.getDate() - (monday.getDay() === 0 ? 6 : monday.getDay() - 1));
-        monday.setHours(0, 0, 0, 0);
-        const key = monday.toISOString();
-        if (!weeksMap[key]) weeksMap[key] = { date: monday, created: 0, resolved: 0 };
-        weeksMap[key].created += 1;
-      }
-
-      if (resolvedDate) {
-        const monday = new Date(resolvedDate);
-        monday.setDate(monday.getDate() - (monday.getDay() === 0 ? 6 : monday.getDay() - 1));
-        monday.setHours(0, 0, 0, 0);
-        const key = monday.toISOString();
-        if (!weeksMap[key]) weeksMap[key] = { date: monday, created: 0, resolved: 0 };
-        weeksMap[key].resolved += 1;
-      }
-    });
-
-    const timeline = Object.values(weeksMap).sort((a, b) => a.date.getTime() - b.date.getTime());
-    
-    // Calculate Average Velocity (Resolved per week) for Projection
-    const totalResolvedSoFar = timeline.reduce((acc, w) => acc + w.resolved, 0);
-    const avgVelocity = timeline.length > 0 ? totalResolvedSoFar / timeline.length : 0;
-
-    // Use reduce to build chartData with cumulative values to satisfy immutability rules
-    const initialAcc = {
-      cumCreated: 0,
-      cumResolved: 0,
-      list: [] as Array<Record<string, string | number | null>>
-    };
-
-    const result = timeline.reduce((acc, w, index) => {
-      const newCumCreated = acc.cumCreated + w.created;
-      const newCumResolved = acc.cumResolved + w.resolved;
-      return {
-        cumCreated: newCumCreated,
-        cumResolved: newCumResolved,
-        list: [
-          ...acc.list,
-          {
-            name: formatDate(w.date),
-            "Scope (Total solicitado)": newCumCreated,
-            "Deliveries (Concluído)": newCumResolved,
-            "Forecast (Projeção)": index === timeline.length - 1 ? newCumResolved : null
-          }
-        ]
-      };
-    }, initialAcc);
-
-    const chartData = result.list;
-    const finalCumCreated = result.cumCreated;
-    const finalCumResolved = result.cumResolved;
-
-    // Add 4 future weeks logic...
-    if (timeline.length > 0) {
-      const lastWeek = timeline[timeline.length - 1].date;
-      for (let i = 1; i <= 4; i++) {
-        const nextWeek = new Date(lastWeek);
-        nextWeek.setDate(nextWeek.getDate() + (i * 7));
+    // For projections if not already in summary
+    if (chartData.length > 0 && chartData[chartData.length - 1]["Deliveries (Concluído)"] !== null) {
+      const lastPoint = chartData[chartData.length - 1];
+      const lastWeekStr = lastPoint.name;
+      // Simple manual projection if summary ends at realized
+      const parts = lastWeekStr.split('/');
+      const lastDate = new Date(2000 + parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+      
+      for (let i = 1; i <= 6; i++) {
+        const nextDate = new Date(lastDate);
+        nextDate.setDate(nextDate.getDate() + (i * 7));
+        const finalCumCreated = Number(lastPoint["Scope (Total solicitado)"]);
+        const finalCumResolved = Number(lastPoint["Deliveries (Concluído)"]);
+        
         chartData.push({
-          name: formatDate(nextWeek),
+          name: formatDate(nextDate),
           "Scope (Total solicitado)": finalCumCreated,
           "Deliveries (Concluído)": null,
-          "Forecast (Projeção)": Math.round(finalCumResolved + (avgVelocity * i))
-        });
+          "Melhor Cenário (2/sem)": Math.min(finalCumCreated, Math.round(finalCumResolved + (2 * i))),
+          "Pior Cenário (1/sem)": Math.min(finalCumCreated, Math.round(finalCumResolved + (1 * i)))
+        } as any);
       }
     }
 
     const totalItems = filtered.length;
     const deliveredCount = filtered.filter(i => !!i.Resolved).length;
-    
-    // Problem 1: Done without date
     const itemsMarkedDoneNoDate = filtered.filter(i => (i.Status.toUpperCase().includes('DONE') || i.Status.toUpperCase().includes('CONCLUIDO')) && !i.Resolved);
-    
-    // Problem 2: Missing Metadata (Squad or Release)
     const itemsMissingMeta = filtered.filter(i => !i.Team || i.Team === "" || !i.Release || i.Release === "");
-
     const wipCount = filtered.filter(i => !i.Resolved && i.Status !== 'DESCARTADO').length;
     const discardedCount = filtered.filter(i => i.Status === 'DESCARTADO').length;
     
@@ -175,12 +143,20 @@ const App: React.FC = () => {
         noDate: itemsMarkedDoneNoDate.length,
         missingMeta: itemsMissingMeta.length
       },
-      filteredList: filtered
+      filteredList: filtered,
+      teams: teamsList,
+      releases: releasesList
     };
-  }, [selectedTeam, selectedRelease]);
+  }, [data, selectedTeam, selectedRelease]);
 
-  const teams = Array.from(new Set((rawData as JiraItem[]).map(i => i.Team))).filter(t => t !== "").sort();
-  const releases = Array.from(new Set((rawData as JiraItem[]).map(i => i.Release))).filter(r => r !== "").sort();
+  if (loading) {
+    return (
+      <div className="dashboard-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', flexDirection: 'column', gap: '1rem' }}>
+        <RefreshCw className="animate-spin" size={48} color="#818cf8" />
+        <p style={{ color: '#818cf8' }}>Carregando dados da nuvem...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard-container">
@@ -188,17 +164,18 @@ const App: React.FC = () => {
         <div className="title-section">
           <h1>Locavia Agile Insights</h1>
           <p>Visualização de Vazão e Performance de Escopo</p>
+          {error && <p style={{ color: '#f59e0b', fontSize: '0.8rem', marginTop: '0.5rem' }}>⚠️ {error}</p>}
         </div>
         
         <div style={{ display: 'flex', gap: '1rem' }}>
           <select value={selectedTeam} onChange={(e) => setSelectedTeam(e.target.value)}>
             <option value="TODOS">Todos os Times</option>
-            {teams.map(t => <option key={t} value={t}>{t}</option>)}
+            {teams.map((t: string) => <option key={t} value={t}>{t}</option>)}
           </select>
           
           <select value={selectedRelease} onChange={(e) => setSelectedRelease(e.target.value)}>
             <option value="TODAS">Todas as Releases</option>
-            {releases.map(r => <option key={r} value={r}>{r}</option>)}
+            {releases.map((r: string) => <option key={r} value={r}>{r}</option>)}
           </select>
         </div>
       </header>
@@ -242,16 +219,8 @@ const App: React.FC = () => {
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-              <XAxis 
-                dataKey="name" 
-                stroke="#64748b" 
-                tick={{fontSize: 10}}
-                dy={10}
-              />
-              <YAxis 
-                stroke="#64748b" 
-                tick={{fontSize: 10}}
-              />
+              <XAxis dataKey="name" stroke="#64748b" tick={{fontSize: 10}} dy={10} />
+              <YAxis stroke="#64748b" tick={{fontSize: 10}} />
               <Tooltip 
                 contentStyle={{ 
                   backgroundColor: '#0f172a', 
@@ -262,30 +231,10 @@ const App: React.FC = () => {
                 itemStyle={{ fontSize: '12px' }}
               />
               <Legend verticalAlign="top" height={40} iconType="circle"/>
-              <Area 
-                type="monotone" 
-                dataKey="Scope (Total solicitado)" 
-                stroke="#818cf8" 
-                strokeWidth={3}
-                fillOpacity={1} 
-                fill="url(#colorCreated)" 
-              />
-              <Area 
-                type="monotone" 
-                dataKey="Deliveries (Concluído)" 
-                stroke="#22c55e" 
-                strokeWidth={3}
-                fillOpacity={1} 
-                fill="url(#colorResolved)" 
-              />
-              <Area 
-                type="monotone" 
-                dataKey="Forecast (Projeção)" 
-                stroke="#94a3b8" 
-                strokeWidth={2}
-                strokeDasharray="5 5"
-                fill="transparent"
-              />
+              <Area type="monotone" dataKey="Scope (Total solicitado)" stroke="#818cf8" strokeWidth={3} fillOpacity={1} fill="url(#colorCreated)" />
+              <Area type="monotone" dataKey="Deliveries (Concluído)" stroke="#22c55e" strokeWidth={3} fillOpacity={1} fill="url(#colorResolved)" />
+              <Area type="monotone" dataKey="Melhor Cenário (2/sem)" stroke="#38bdf8" strokeWidth={2} strokeDasharray="5 5" fill="transparent" />
+              <Area type="monotone" dataKey="Pior Cenário (1/sem)" stroke="#f43f5e" strokeWidth={2} strokeDasharray="5 5" fill="transparent" />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -299,17 +248,17 @@ const App: React.FC = () => {
             <div style={{ marginTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {health.noDate > 0 && (
                 <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.85rem' }}>
-                  ⚠️ **Concluídos sem data:** {health.noDate} itens concluídos não possuem data de resolução. Eles constam nas métricas, mas "somem" do gráfico de vazão.
+                  ⚠️ **Concluídos sem data:** {health.noDate} itens concluídos não possuem data de resolução.
                 </p>
               )}
               {health.missingMeta > 0 && (
                 <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.85rem' }}>
-                  ⚠️ **Metadados ausentes:** {health.missingMeta} itens estão sem Squad ou Release definidos. Isso pode causar "crashes" nos filtros do dashboard.
+                  ⚠️ **Metadados ausentes:** {health.missingMeta} itens estão sem Squad ou Release definidos.
                 </p>
               )}
               {health.noDate === 0 && health.missingMeta === 0 && (
                 <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.85rem' }}>
-                  Integridade de datas e metadados confirmada. O gráfico reflete 100% da realidade.
+                  Integridade de datas e metadados confirmada.
                 </p>
               )}
             </div>
@@ -350,13 +299,6 @@ const App: React.FC = () => {
                   <td style={{ padding: '0.75rem' }}>{item.Created ? formatDate(excelToJSDate(item.Created)!) : '-'}</td>
                 </tr>
               ))}
-              {filteredList.length > 15 && (
-                <tr>
-                  <td colSpan={5} style={{ padding: '1rem', textAlign: 'center', color: '#94a3b8' }}>
-                    Exibindo 15 de {filteredList.length} itens. Use a API futuramente para busca completa.
-                  </td>
-                </tr>
-              )}
             </tbody>
           </table>
         </div>
