@@ -109,37 +109,39 @@
 
     <script>
         // Burndown Logic: Remaining items
-        const scopeItems = 24;
         const categories = [
             "24/11", "01/12", "08/12", "15/12", "22/12", "29/12", "05/01", "12/01", "19/01", "26/01",
-            "02/02", "09/02", "16/02", "23/02", "02/03", "09/03", "16/03", "23/03", "30/03"
+            "02/02", "09/02", "16/02", "23/02", "02/03", "09/03"
         ];
-
-        const scopeData = Array(categories.length).fill(scopeItems);
+        const projectionWeeks = ["16/03", "23/03", "30/03", "06/04", "13/04", "20/04", "27/04", "04/05"];
 
         // Realized (Remaining): scope - cumulative delivered
-        // S15: 2 delivered -> 22 remaining
-        // S16: 4 cumulative delivered -> 20 remaining
         const remainingReal = [
             24, 24, 24, 24, 24, 24, 24, 24, 24, 24,
-            24, 24, 24, 24, 22, 20, null, null, null
+            24, 24, 24, 24, 22, 20
         ];
 
-        // Projections starting from S16 (index 15) which is 20
-        const bestCaseData = [
-            null, null, null, null, null, null, null, null, null, null,
-            null, null, null, null, null, 20, 18, 16, 14
-        ];
+        // Combine categories
+        const fullCategories = [...categories, ...projectionWeeks];
+        const lastReal = remainingReal[remainingReal.length - 1];
 
-        const worstCaseData = [
-            null, null, null, null, null, null, null, null, null, null,
-            null, null, null, null, null, 20, 19, 18, 17
-        ];
+        const bestCaseData = Array(categories.length - 1).fill(null);
+        bestCaseData.push(lastReal); // Fork point
+        for(let i=1; i<=projectionWeeks.length; i++) {
+            bestCaseData.push(Math.max(0, lastReal - (2 * i)));
+        }
+
+        const worstCaseData = Array(categories.length - 1).fill(null);
+        worstCaseData.push(lastReal); // Fork point
+        for(let i=1; i<=projectionWeeks.length; i++) {
+            worstCaseData.push(Math.max(0, lastReal - (1 * i)));
+        }
+
+        const realDataPadded = [...remainingReal, ...Array(projectionWeeks.length).fill(null)];
 
         const options = {
             series: [
-                { name: 'Meta de Escopo', data: scopeData },
-                { name: 'A Fazer (Real)', data: remainingReal },
+                { name: 'A Fazer (Real)', data: realDataPadded },
                 { name: 'Melhor Cenário (2/sem)', data: bestCaseData },
                 { name: 'Pior Cenário (1/sem)', data: worstCaseData }
             ],
@@ -150,12 +152,16 @@
                 animations: { enabled: true },
                 background: 'transparent'
             },
-            colors: ['#818cf8', '#f8fafc', '#22c55e', '#f43f5e'],
+            colors: ['#f8fafc', '#22c55e', '#f43f5e'],
             dataLabels: { enabled: false },
             stroke: { 
                 curve: 'smooth', 
-                width: [2, 4, 2, 2], 
-                dashArray: [0, 0, 5, 5] 
+                width: [4, 2, 2], 
+                dashArray: [0, 5, 5] 
+            },
+            xaxis: {
+                categories: fullCategories,
+                labels: { style: { colors: '#64748b' } }
             },
             fill: {
                 type: 'gradient',

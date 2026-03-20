@@ -83,31 +83,42 @@ const App: React.FC = () => {
     );
 
     // Grouping by Week for the "Cone" Chart - BURNDOWN PROJECT-LEVEL
-    const chartData = summaryData.map(d => ({
-      name: d.week,
-      "A Fazer (Real)": d.scope - (d.realized || 0), 
-      "Melhor Cenário (2/sem)": d.bestCase,
-      "Pior Cenário (1/sem)": d.worstCase
-    }));
+    let lastRealValue = 24; // Default to scope
+    const historicalData = summaryData.map(d => {
+      const currentReal = d.realized !== null ? d.scope - (d.realized || 0) : null;
+      if (currentReal !== null) lastRealValue = currentReal;
+      
+      return {
+        name: d.week,
+        "A Fazer (Real)": currentReal,
+        // Only show projections in the future or starting from current
+        "Melhor Cenário (2/sem)": null,
+        "Pior Cenário (1/sem)": null
+      };
+    });
 
-    // Extend projections until floor (0)
+    // Start projections from the last real point
+    const chartData = [...historicalData];
     if (chartData.length > 0) {
       const lastPoint = chartData[chartData.length - 1];
       const lastWeekStr = lastPoint.name;
       const parts = lastWeekStr.split('/');
       const lastDate = new Date(2000 + parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
       
-      let currentBest = Number(lastPoint["Melhor Cenário (2/sem)"]);
-      let currentWorst = Number(lastPoint["Pior Cenário (1/sem)"]);
-      let i = 1;
+      let currentBest = lastRealValue;
+      let currentWorst = lastRealValue;
+      
+      // Set the "fork" point in the last historical week
+      lastPoint["Melhor Cenário (2/sem)"] = lastRealValue;
+      lastPoint["Pior Cenário (1/sem)"] = lastRealValue;
 
-      // Extend until worst case hits 0 or max 12 weeks
-      while ((currentBest > 0 || currentWorst > 0) && i <= 15) {
-        const nextDate = new Date(lastDate);
-        nextDate.setDate(nextDate.getDate() + (i * 7));
-        
+      // Extend projections
+      for (let i = 1; i <= 15; i++) {
         currentBest = Math.max(0, currentBest - 2);
         currentWorst = Math.max(0, currentWorst - 1);
+
+        const nextDate = new Date(lastDate);
+        nextDate.setDate(nextDate.getDate() + (i * 7));
 
         chartData.push({
           name: formatDate(nextDate),
@@ -115,7 +126,8 @@ const App: React.FC = () => {
           "Melhor Cenário (2/sem)": currentBest,
           "Pior Cenário (1/sem)": currentWorst
         } as any);
-        i++;
+
+        if (currentBest === 0 && currentWorst === 0) break;
       }
     }
 
