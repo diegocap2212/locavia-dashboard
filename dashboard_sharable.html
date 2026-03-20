@@ -108,39 +108,38 @@
     </div>
 
     <script>
-        // Data derived from SharePoint extraction
+        // Burndown Logic: Remaining items
+        const scopeItems = 24;
         const categories = [
             "24/11", "01/12", "08/12", "15/12", "22/12", "29/12", "05/01", "12/01", "19/01", "26/01",
             "02/02", "09/02", "16/02", "23/02", "02/03", "09/03", "16/03", "23/03", "30/03"
         ];
 
-        const scopeData = [
-            24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 
-            24, 24, 24, 24, 24, 24, 24, 24, 24
+        const scopeData = Array(categories.length).fill(scopeItems);
+
+        // Realized (Remaining): scope - cumulative delivered
+        // S15: 2 delivered -> 22 remaining
+        // S16: 4 cumulative delivered -> 20 remaining
+        const remainingReal = [
+            24, 24, 24, 24, 24, 24, 24, 24, 24, 24,
+            24, 24, 24, 24, 22, 20, null, null, null
         ];
 
-        const deliveredData = [
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-            0, 0, 0, 0, 2, 4, null, null, null
-        ];
-
-        // Best Case: 2 items/week after Semana 16 (index 15)
-        // Worst Case: 1 item/week after Semana 16
-        // Initial realized at week 16 is 4.
+        // Projections starting from S16 (index 15) which is 20
         const bestCaseData = [
             null, null, null, null, null, null, null, null, null, null,
-            null, null, null, null, null, 4, 6, 8, 10
+            null, null, null, null, null, 20, 18, 16, 14
         ];
 
         const worstCaseData = [
             null, null, null, null, null, null, null, null, null, null,
-            null, null, null, null, null, 4, 5, 6, 7
+            null, null, null, null, null, 20, 19, 18, 17
         ];
 
         const options = {
             series: [
-                { name: 'Scope (Meta)', data: scopeData },
-                { name: 'Realizado', data: deliveredData },
+                { name: 'Meta de Escopo', data: scopeData },
+                { name: 'A Fazer (Real)', data: remainingReal },
                 { name: 'Melhor Cenário (2/sem)', data: bestCaseData },
                 { name: 'Pior Cenário (1/sem)', data: worstCaseData }
             ],
@@ -151,11 +150,11 @@
                 animations: { enabled: true },
                 background: 'transparent'
             },
-            colors: ['#818cf8', '#22c55e', '#38bdf8', '#f43f5e'],
+            colors: ['#818cf8', '#f8fafc', '#22c55e', '#f43f5e'],
             dataLabels: { enabled: false },
             stroke: { 
                 curve: 'smooth', 
-                width: [3, 4, 2, 2], 
+                width: [2, 4, 2, 2], 
                 dashArray: [0, 0, 5, 5] 
             },
             fill: {

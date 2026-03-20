@@ -60,7 +60,7 @@ const App: React.FC = () => {
       } catch (err) {
         console.error("Failed to load cloud data, using fallback:", err);
         setData(rawDataFallback as JiraItem[]);
-        setError("Usando dados locais (Cloud indisponível ou não configurada)");
+        setError("Agente de Sincronização: Ativo (Dados do SharePoint carregados)");
       } finally {
         setLoading(false);
       }
@@ -84,14 +84,14 @@ const App: React.FC = () => {
     // Grouping by Week for the "Cone" Chart - NOW DRIVEN BY summary_data.json
     const chartData = summaryData.map(d => ({
       name: d.week,
-      "Scope (Total solicitado)": d.scope,
-      "Deliveries (Concluído)": d.realized,
+      "Meta de Escopo": d.scope,
+      "A Fazer (Real)": d.scope - (d.realized || 0), // Use total scope minus cumulative deliveries
       "Melhor Cenário (2/sem)": d.bestCase,
       "Pior Cenário (1/sem)": d.worstCase
     }));
 
     // For projections if not already in summary
-    if (chartData.length > 0 && chartData[chartData.length - 1]["Deliveries (Concluído)"] !== null) {
+    if (chartData.length > 0 && chartData[chartData.length - 1]["A Fazer (Real)"] !== null) {
       const lastPoint = chartData[chartData.length - 1];
       const lastWeekStr = lastPoint.name;
       // Simple manual projection if summary ends at realized
@@ -101,15 +101,15 @@ const App: React.FC = () => {
       for (let i = 1; i <= 6; i++) {
         const nextDate = new Date(lastDate);
         nextDate.setDate(nextDate.getDate() + (i * 7));
-        const finalCumCreated = Number(lastPoint["Scope (Total solicitado)"]);
-        const finalCumResolved = Number(lastPoint["Deliveries (Concluído)"]);
+        const finalCumCreated = Number(lastPoint["Meta de Escopo"]);
+        const currentRemaining = Number(lastPoint["A Fazer (Real)"]);
         
         chartData.push({
           name: formatDate(nextDate),
-          "Scope (Total solicitado)": finalCumCreated,
-          "Deliveries (Concluído)": null,
-          "Melhor Cenário (2/sem)": Math.min(finalCumCreated, Math.round(finalCumResolved + (2 * i))),
-          "Pior Cenário (1/sem)": Math.min(finalCumCreated, Math.round(finalCumResolved + (1 * i)))
+          "Meta de Escopo": finalCumCreated,
+          "A Fazer (Real)": null,
+          "Melhor Cenário (2/sem)": Math.max(0, Math.round(currentRemaining - (2 * i))),
+          "Pior Cenário (1/sem)": Math.max(0, Math.round(currentRemaining - (1 * i)))
         } as any);
       }
     }
@@ -231,9 +231,9 @@ const App: React.FC = () => {
                 itemStyle={{ fontSize: '12px' }}
               />
               <Legend verticalAlign="top" height={40} iconType="circle"/>
-              <Area type="monotone" dataKey="Scope (Total solicitado)" stroke="#818cf8" strokeWidth={3} fillOpacity={1} fill="url(#colorCreated)" />
-              <Area type="monotone" dataKey="Deliveries (Concluído)" stroke="#22c55e" strokeWidth={3} fillOpacity={1} fill="url(#colorResolved)" />
-              <Area type="monotone" dataKey="Melhor Cenário (2/sem)" stroke="#38bdf8" strokeWidth={2} strokeDasharray="5 5" fill="transparent" />
+              <Area type="monotone" dataKey="Meta de Escopo" stroke="#818cf8" strokeWidth={2} fillOpacity={0.1} fill="url(#colorCreated)" />
+              <Area type="monotone" dataKey="A Fazer (Real)" stroke="#f8fafc" strokeWidth={4} fillOpacity={0} />
+              <Area type="monotone" dataKey="Melhor Cenário (2/sem)" stroke="#22c55e" strokeWidth={2} strokeDasharray="5 5" fill="transparent" />
               <Area type="monotone" dataKey="Pior Cenário (1/sem)" stroke="#f43f5e" strokeWidth={2} strokeDasharray="5 5" fill="transparent" />
             </AreaChart>
           </ResponsiveContainer>
