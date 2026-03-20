@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
-  Bar, ComposedChart, Line
+  Bar, ComposedChart, Line, BarChart
 } from 'recharts';
 import { 
   Users, Activity, AlertCircle, CheckCircle2, Clock, RefreshCw
@@ -366,29 +366,43 @@ const App: React.FC = () => {
                 <XAxis dataKey="name" stroke="#64748b" tick={{fontSize: 10}} />
                 <YAxis yAxisId="left" orientation="left" stroke="#818cf8" label={{ value: 'Vazão', angle: -90, position: 'insideLeft', style: {fill: '#818cf8', fontSize: 10} }} />
                 <YAxis yAxisId="right" orientation="right" stroke="#eab308" label={{ value: 'Lead Time (dias)', angle: 90, position: 'insideRight', style: {fill: '#eab308', fontSize: 10} }} />
+                <Legend />
+                <Bar yAxisId="left" dataKey="Vazão Total" fill="#818cf8" radius={[4, 4, 0, 0]} />
+                <Line yAxisId="right" type="monotone" dataKey="Lead Time (Méd)" stroke="#eab308" strokeWidth={2} dot={{ r: 4 }} />
                 <Tooltip 
                   contentStyle={{ backgroundColor: '#0f172a', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px' }}
                 />
-                <Legend />
-                <Bar yAxisId="left" dataKey="Planejadas" stackId="a" fill="#22c55e" radius={[0, 0, 0, 0]} />
-                <Bar yAxisId="left" dataKey="Não Planejadas" stackId="a" fill="#f59e0b" radius={[4, 4, 0, 0]} />
-                <Line yAxisId="right" type="monotone" dataKey="Lead Time (Méd)" stroke="#eab308" strokeWidth={2} dot={{ r: 4 }} />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="glass-card fade-in-up" style={{ animationDelay: '0.5s', flex: 1 }}>
-          <h3 style={{ marginBottom: '1.5rem', fontSize: '1.1rem' }}>Sinal de Transbordo (Spillover)</h3>
-          <div style={{ padding: '1rem', textAlign: 'center' }}>
-            <div style={{ fontSize: '3rem', fontWeight: 'bold', color: metrics.totalCarryover > 5 ? '#f43f5e' : '#38bdf8' }}>
-              {metrics.totalCarryover}
-            </div>
-            <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Itens transferidos para a próxima semana</p>
+        <div className="glass-card fade-in-up" style={{ animationDelay: '0.5s', flex: 1.2 }}>
+          <h3 style={{ marginBottom: '1.5rem', fontSize: '1.1rem' }}>Detalhamento: Planejado vs Não Planejado</h3>
+          <div style={{ height: 200, width: '100%', marginBottom: '1rem' }}>
+            <ResponsiveContainer>
+              <BarChart data={weeklyPerformance.slice(-6)}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                <XAxis dataKey="name" stroke="#64748b" tick={{fontSize: 9}} />
+                <YAxis stroke="#64748b" tick={{fontSize: 9}} />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: '#0f172a', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '8px' }}
+                />
+                <Legend iconSize={8} wrapperStyle={{ fontSize: '10px' }} />
+                <Bar dataKey="Planejadas" stackId="a" fill="#22c55e" />
+                <Bar dataKey="Não Planejadas" stackId="a" fill="#f59e0b" />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
-          <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1rem' }}>
-            <p style={{ fontSize: '0.8rem', color: '#64748b' }}>Tendência de Transbordo (Últimas 4 semanas):</p>
-            <div style={{ height: 100, width: '100%', marginTop: '0.5rem' }}>
+          
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ fontSize: '0.85rem', color: '#94a3b8' }}>Transbordo para próxima semana:</div>
+              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: metrics.totalCarryover > 5 ? '#f43f5e' : '#38bdf8' }}>
+                {metrics.totalCarryover}
+              </div>
+            </div>
+            <div style={{ height: 60, width: '100%', marginTop: '0.5rem' }}>
               <ResponsiveContainer>
                 <AreaChart data={weeklyPerformance.slice(-4)}>
                   <Area type="monotone" dataKey="Transbordos" stroke="#f43f5e" fill="#f43f5e" fillOpacity={0.1} />
