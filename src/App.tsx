@@ -100,34 +100,50 @@ const App: React.FC = () => {
     // Start projections from the last real point
     const chartData = [...historicalData];
     if (chartData.length > 0) {
+      // Calculate Real Velocity (delivered items / weeks elapsed since first delivery)
+      const firstDelivery = filtered.reduce((min, item) => {
+        const r = excelToJSDate(item.Resolved);
+        return (r && r < min) ? r : min;
+      }, new Date());
+      const now = new Date();
+      const weeksElapsed = Math.max(1, Math.ceil((now.getTime() - firstDelivery.getTime()) / (7 * 86400000)));
+      const itemsDelivered = filtered.filter(i => !!i.Resolved).length;
+      const velocity = itemsDelivered / weeksElapsed;
+      const velocityLabel = `Tendência Real (${velocity.toFixed(1)}/sem)`;
+
       const lastPoint = chartData[chartData.length - 1];
       const lastWeekStr = lastPoint.name;
       const parts = lastWeekStr.split('/');
       const lastDate = new Date(2000 + parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
-      
+
       let currentBest = lastRealValue;
       let currentWorst = lastRealValue;
+      let currentTrend = lastRealValue;
       
       // Set the "fork" point in the last historical week
-      lastPoint["Melhor Cenário (2/sem)"] = lastRealValue;
+      lastPoint["Melhor Cenário (3/sem)"] = lastRealValue;
       lastPoint["Pior Cenário (1/sem)"] = lastRealValue;
+      lastPoint[velocityLabel] = lastRealValue;
 
       // Extend projections
-      for (let i = 1; i <= 15; i++) {
-        currentBest = Math.max(0, currentBest - 2);
+      for (let i = 1; i <= 20; i++) {
+        currentBest = Math.max(0, currentBest - 3);
         currentWorst = Math.max(0, currentWorst - 1);
+        currentTrend = Math.max(0, currentTrend - velocity);
 
         const nextDate = new Date(lastDate);
         nextDate.setDate(nextDate.getDate() + (i * 7));
 
-        chartData.push({
+        const newPoint: any = {
           name: formatDate(nextDate),
           "A Fazer (Real)": null,
-          "Melhor Cenário (2/sem)": currentBest,
+          "Melhor Cenário (3/sem)": currentBest,
           "Pior Cenário (1/sem)": currentWorst
-        } as any);
+        };
+        newPoint[velocityLabel] = currentTrend;
+        chartData.push(newPoint);
 
-        if (currentBest === 0 && currentWorst === 0) break;
+        if (currentBest === 0 && currentWorst === 0 && currentTrend === 0) break;
       }
     }
 
@@ -310,8 +326,12 @@ const App: React.FC = () => {
               />
               <Legend verticalAlign="top" height={40} iconType="circle"/>
               <Area type="monotone" dataKey="A Fazer (Real)" stroke="#f8fafc" strokeWidth={4} fillOpacity={0} />
-              <Area type="monotone" dataKey="Melhor Cenário (2/sem)" stroke="#22c55e" strokeWidth={2} strokeDasharray="5 5" fill="transparent" />
+              <Area type="monotone" dataKey="Melhor Cenário (3/sem)" stroke="#22c55e" strokeWidth={2} strokeDasharray="5 5" fill="transparent" />
               <Area type="monotone" dataKey="Pior Cenário (1/sem)" stroke="#f43f5e" strokeWidth={2} strokeDasharray="5 5" fill="transparent" />
+              {/* Dynamic Trend Line */}
+              {Object.keys(chartData[chartData.length-1] || {}).filter(k => k.startsWith('Tendência Real')).map(key => (
+                <Area key={key} type="monotone" dataKey={key} stroke="#eab308" strokeWidth={3} strokeDasharray="3 3" fill="transparent" />
+              ))}
             </AreaChart>
           </ResponsiveContainer>
         </div>
