@@ -111,7 +111,7 @@ const App: React.FC = () => {
       const velocity = itemsDelivered / weeksElapsed;
       const velocityLabel = `Tendência Real (${velocity.toFixed(1)}/sem)`;
 
-      const lastPoint = chartData[chartData.length - 1];
+      const lastPoint: any = chartData[chartData.length - 1];
       const lastWeekStr = lastPoint.name;
       const parts = lastWeekStr.split('/');
       const lastDate = new Date(2000 + parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
