@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { 
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
+  Bar, ComposedChart, Line
 } from 'recharts';
 import { 
   Users, Activity, AlertCircle, CheckCircle2, Clock, RefreshCw
@@ -69,7 +70,7 @@ const App: React.FC = () => {
   }, []);
 
   // Unified Data Processing
-  const { chartData, metrics, health, filteredList, teams, releases } = useMemo(() => {
+  const { chartData, weeklyPerformance, metrics, health, filteredList, teams, releases } = useMemo(() => {
     const rawItems = normalizeJqlData(data);
     
     // Extract unique teams and releases for filters
@@ -81,38 +82,101 @@ const App: React.FC = () => {
       (selectedRelease === 'TODAS' || item.Release === selectedRelease)
     );
 
-    // Grouping by Week for the "Cone" Chart - NOW DRIVEN BY summary_data.json
+    // Grouping by Week for the "Cone" Chart - BURNDOWN PROJECT-LEVEL
     const chartData = summaryData.map(d => ({
       name: d.week,
-      "Meta de Escopo": d.scope,
-      "A Fazer (Real)": d.scope - (d.realized || 0), // Use total scope minus cumulative deliveries
+      "A Fazer (Real)": d.scope - (d.realized || 0), 
       "Melhor Cenário (2/sem)": d.bestCase,
       "Pior Cenário (1/sem)": d.worstCase
     }));
 
-    // For projections if not already in summary
-    if (chartData.length > 0 && chartData[chartData.length - 1]["A Fazer (Real)"] !== null) {
+    // Extend projections until floor (0)
+    if (chartData.length > 0) {
       const lastPoint = chartData[chartData.length - 1];
       const lastWeekStr = lastPoint.name;
-      // Simple manual projection if summary ends at realized
       const parts = lastWeekStr.split('/');
       const lastDate = new Date(2000 + parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
       
-      for (let i = 1; i <= 6; i++) {
+      let currentBest = Number(lastPoint["Melhor Cenário (2/sem)"]);
+      let currentWorst = Number(lastPoint["Pior Cenário (1/sem)"]);
+      let i = 1;
+
+      // Extend until worst case hits 0 or max 12 weeks
+      while ((currentBest > 0 || currentWorst > 0) && i <= 15) {
         const nextDate = new Date(lastDate);
         nextDate.setDate(nextDate.getDate() + (i * 7));
-        const finalCumCreated = Number(lastPoint["Meta de Escopo"]);
-        const currentRemaining = Number(lastPoint["A Fazer (Real)"]);
         
+        currentBest = Math.max(0, currentBest - 2);
+        currentWorst = Math.max(0, currentWorst - 1);
+
         chartData.push({
           name: formatDate(nextDate),
-          "Meta de Escopo": finalCumCreated,
           "A Fazer (Real)": null,
-          "Melhor Cenário (2/sem)": Math.max(0, Math.round(currentRemaining - (2 * i))),
-          "Pior Cenário (1/sem)": Math.max(0, Math.round(currentRemaining - (1 * i)))
+          "Melhor Cenário (2/sem)": currentBest,
+          "Pior Cenário (1/sem)": currentWorst
         } as any);
+        i++;
       }
     }
+
+    // --- NEW: Weekly Performance & Transbordos based on filtered items ---
+    const getMon = (d: Date) => {
+      const mon = new Date(d);
+      mon.setDate(mon.getDate() - (mon.getDay() === 0 ? 6 : mon.getDay() - 1));
+      mon.setHours(0,0,0,0);
+      return mon;
+    };
+
+    let minD = new Date();
+    let maxD = new Date(0);
+    filtered.forEach(item => {
+      const c = excelToJSDate(item.Created);
+      const r = excelToJSDate(item.Resolved);
+      if (c && c < minD) minD = c;
+      if (c && c > maxD) maxD = c;
+      if (r && r > maxD) maxD = r;
+    });
+
+    const weeklyStatsMap: Record<string, { date: Date, throughput: number, leadTimeSum: number, resolvedInWeek: number, carry: number }> = {};
+    if (filtered.length > 0) {
+      let curr = getMon(minD);
+      const limit = getMon(new Date(maxD.getTime() + 7 * 86400000));
+      while (curr <= limit) {
+        weeklyStatsMap[curr.toISOString()] = { date: new Date(curr), throughput: 0, leadTimeSum: 0, resolvedInWeek: 0, carry: 0 };
+        curr.setDate(curr.getDate() + 7);
+      }
+
+      filtered.forEach(item => {
+        const c = excelToJSDate(item.Created);
+        const r = excelToJSDate(item.Resolved);
+        if (r) {
+          const key = getMon(r).toISOString();
+          if (weeklyStatsMap[key]) {
+            weeklyStatsMap[key].throughput += 1;
+            weeklyStatsMap[key].resolvedInWeek += 1;
+            if (c) weeklyStatsMap[key].leadTimeSum += (r.getTime() - c.getTime()) / 86400000;
+          }
+        }
+        // Carryover: item open at end of each week
+        Object.keys(weeklyStatsMap).forEach(key => {
+          const wStart = new Date(key);
+          const wEnd = new Date(wStart.getTime() + 7 * 86400000);
+          if (c && c < wEnd && (!r || r >= wEnd)) {
+            weeklyStatsMap[key].carry += 1;
+          }
+        });
+      });
+    }
+
+    const weeklyPerformance = Object.values(weeklyStatsMap)
+      .sort((a,b) => a.date.getTime() - b.date.getTime())
+      .filter(w => w.throughput > 0 || w.carry > 0) // Only show weeks with activity
+      .map(w => ({
+        name: formatDate(w.date),
+        "Vazão": w.throughput,
+        "Lead Time (Méd)": w.resolvedInWeek > 0 ? parseFloat((w.leadTimeSum / w.resolvedInWeek).toFixed(1)) : 0,
+        "Transbordos": w.carry
+      }));
 
     const totalItems = filtered.length;
     const deliveredCount = filtered.filter(i => !!i.Resolved).length;
@@ -132,12 +196,14 @@ const App: React.FC = () => {
 
     return { 
       chartData, 
+      weeklyPerformance,
       metrics: { 
         totalItems, 
         deliveredCount, 
         wipCount, 
         discardedCount,
-        avgCycleTime: avgCycleTime.toFixed(1) 
+        avgCycleTime: avgCycleTime.toFixed(1),
+        totalCarryover: weeklyPerformance.length > 0 ? weeklyPerformance[weeklyPerformance.length - 1]["Transbordos"] : 0
       }, 
       health: {
         noDate: itemsMarkedDoneNoDate.length,
@@ -231,12 +297,53 @@ const App: React.FC = () => {
                 itemStyle={{ fontSize: '12px' }}
               />
               <Legend verticalAlign="top" height={40} iconType="circle"/>
-              <Area type="monotone" dataKey="Meta de Escopo" stroke="#818cf8" strokeWidth={2} fillOpacity={0.1} fill="url(#colorCreated)" />
               <Area type="monotone" dataKey="A Fazer (Real)" stroke="#f8fafc" strokeWidth={4} fillOpacity={0} />
               <Area type="monotone" dataKey="Melhor Cenário (2/sem)" stroke="#22c55e" strokeWidth={2} strokeDasharray="5 5" fill="transparent" />
               <Area type="monotone" dataKey="Pior Cenário (1/sem)" stroke="#f43f5e" strokeWidth={2} strokeDasharray="5 5" fill="transparent" />
             </AreaChart>
           </ResponsiveContainer>
+        </div>
+      </div>
+
+      <div className="metrics-grid" style={{ marginTop: '2rem' }}>
+        <div className="glass-card main-chart fade-in-up" style={{ animationDelay: '0.45s', flex: 2 }}>
+          <h3 style={{ marginBottom: '1.5rem', fontSize: '1.1rem' }}>Vazão Semanal e Lead Time (Performance do Time)</h3>
+          <div style={{ width: '100%', height: 350 }}>
+            <ResponsiveContainer>
+              <ComposedChart data={weeklyPerformance}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                <XAxis dataKey="name" stroke="#64748b" tick={{fontSize: 10}} />
+                <YAxis yAxisId="left" orientation="left" stroke="#818cf8" label={{ value: 'Vazão', angle: -90, position: 'insideLeft', style: {fill: '#818cf8', fontSize: 10} }} />
+                <YAxis yAxisId="right" orientation="right" stroke="#eab308" label={{ value: 'Lead Time (dias)', angle: 90, position: 'insideRight', style: {fill: '#eab308', fontSize: 10} }} />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: '#0f172a', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px' }}
+                />
+                <Legend />
+                <Bar yAxisId="left" dataKey="Vazão" fill="#818cf8" radius={[4, 4, 0, 0]} />
+                <Line yAxisId="right" type="monotone" dataKey="Lead Time (Méd)" stroke="#eab308" strokeWidth={2} dot={{ r: 4 }} />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="glass-card fade-in-up" style={{ animationDelay: '0.5s', flex: 1 }}>
+          <h3 style={{ marginBottom: '1.5rem', fontSize: '1.1rem' }}>Sinal de Transbordo (Spillover)</h3>
+          <div style={{ padding: '1rem', textAlign: 'center' }}>
+            <div style={{ fontSize: '3rem', fontWeight: 'bold', color: metrics.totalCarryover > 5 ? '#f43f5e' : '#38bdf8' }}>
+              {metrics.totalCarryover}
+            </div>
+            <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Itens transferidos para a próxima semana</p>
+          </div>
+          <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1rem' }}>
+            <p style={{ fontSize: '0.8rem', color: '#64748b' }}>Tendência de Transbordo (Últimas 4 semanas):</p>
+            <div style={{ height: 100, width: '100%', marginTop: '0.5rem' }}>
+              <ResponsiveContainer>
+                <AreaChart data={weeklyPerformance.slice(-4)}>
+                  <Area type="monotone" dataKey="Transbordos" stroke="#f43f5e" fill="#f43f5e" fillOpacity={0.1} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
         </div>
       </div>
 
