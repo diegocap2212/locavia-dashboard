@@ -165,12 +165,20 @@ const App: React.FC = () => {
       if (r && r > maxD) maxD = r;
     });
 
-    const weeklyStatsMap: Record<string, { date: Date, throughput: number, leadTimeSum: number, resolvedInWeek: number, carry: number }> = {};
+    const weeklyStatsMap: Record<string, { date: Date, throughput: number, leadTimeSum: number, resolvedInWeek: number, carry: number, planned: number, unplanned: number }> = {};
     if (filtered.length > 0) {
       let curr = getMon(minD);
       const limit = getMon(new Date(maxD.getTime() + 7 * 86400000));
       while (curr <= limit) {
-        weeklyStatsMap[curr.toISOString()] = { date: new Date(curr), throughput: 0, leadTimeSum: 0, resolvedInWeek: 0, carry: 0 };
+        weeklyStatsMap[curr.toISOString()] = { 
+          date: new Date(curr), 
+          throughput: 0, 
+          leadTimeSum: 0, 
+          resolvedInWeek: 0, 
+          carry: 0,
+          planned: 0,
+          unplanned: 0
+        };
         curr.setDate(curr.getDate() + 7);
       }
 
@@ -178,10 +186,19 @@ const App: React.FC = () => {
         const c = excelToJSDate(item.Created);
         const r = excelToJSDate(item.Resolved);
         if (r) {
-          const key = getMon(r).toISOString();
+          const weekStart = getMon(r);
+          const key = weekStart.toISOString();
           if (weeklyStatsMap[key]) {
             weeklyStatsMap[key].throughput += 1;
             weeklyStatsMap[key].resolvedInWeek += 1;
+            
+            // Heuristic: Planned if created before the week it was resolved (sprint)
+            if (c && c < weekStart) {
+              weeklyStatsMap[key].planned += 1;
+            } else {
+              weeklyStatsMap[key].unplanned += 1;
+            }
+
             if (c) weeklyStatsMap[key].leadTimeSum += (r.getTime() - c.getTime()) / 86400000;
           }
         }
@@ -201,7 +218,9 @@ const App: React.FC = () => {
       .filter(w => w.throughput > 0 || w.carry > 0) // Only show weeks with activity
       .map(w => ({
         name: formatDate(w.date),
-        "Vazão": w.throughput,
+        "Planejadas": w.planned,
+        "Não Planejadas": w.unplanned,
+        "Vazão Total": w.throughput,
         "Lead Time (Méd)": w.resolvedInWeek > 0 ? parseFloat((w.leadTimeSum / w.resolvedInWeek).toFixed(1)) : 0,
         "Transbordos": w.carry
       }));
@@ -351,7 +370,8 @@ const App: React.FC = () => {
                   contentStyle={{ backgroundColor: '#0f172a', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px' }}
                 />
                 <Legend />
-                <Bar yAxisId="left" dataKey="Vazão" fill="#818cf8" radius={[4, 4, 0, 0]} />
+                <Bar yAxisId="left" dataKey="Planejadas" stackId="a" fill="#22c55e" radius={[0, 0, 0, 0]} />
+                <Bar yAxisId="left" dataKey="Não Planejadas" stackId="a" fill="#f59e0b" radius={[4, 4, 0, 0]} />
                 <Line yAxisId="right" type="monotone" dataKey="Lead Time (Méd)" stroke="#eab308" strokeWidth={2} dot={{ r: 4 }} />
               </ComposedChart>
             </ResponsiveContainer>
