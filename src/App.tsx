@@ -109,7 +109,7 @@ const App: React.FC = () => {
       const weeksElapsed = Math.max(1, Math.ceil((now.getTime() - firstDelivery.getTime()) / (7 * 86400000)));
       const itemsDelivered = filtered.filter(i => !!i.Resolved).length;
       const velocity = itemsDelivered / weeksElapsed;
-      const velocityLabel = `Tendência Real (${velocity.toFixed(1)}/sem)`;
+      const velocityLabel = `Tendência Real (${velocity.toFixed(1)} itens/semana)`;
 
       const lastPoint: any = chartData[chartData.length - 1];
       const lastWeekStr = lastPoint.name;
@@ -121,8 +121,8 @@ const App: React.FC = () => {
       let currentTrend = lastRealValue;
       
       // Set the "fork" point in the last historical week
-      lastPoint["Melhor Cenário (3/sem)"] = lastRealValue;
-      lastPoint["Pior Cenário (1/sem)"] = lastRealValue;
+      lastPoint["Melhor Cenário (3 itens/semana)"] = lastRealValue;
+      lastPoint["Pior Cenário (1 item/semana)"] = lastRealValue;
       lastPoint[velocityLabel] = lastRealValue;
 
       // Extend projections
@@ -137,8 +137,8 @@ const App: React.FC = () => {
         const newPoint: any = {
           name: formatDate(nextDate),
           "A Fazer (Real)": null,
-          "Melhor Cenário (3/sem)": currentBest,
-          "Pior Cenário (1/sem)": currentWorst
+          "Melhor Cenário (3 itens/semana)": currentBest,
+          "Pior Cenário (1 item/semana)": currentWorst
         };
         newPoint[velocityLabel] = currentTrend;
         chartData.push(newPoint);
@@ -326,8 +326,8 @@ const App: React.FC = () => {
               />
               <Legend verticalAlign="top" height={40} iconType="circle"/>
               <Area type="monotone" dataKey="A Fazer (Real)" stroke="#f8fafc" strokeWidth={4} fillOpacity={0} />
-              <Area type="monotone" dataKey="Melhor Cenário (3/sem)" stroke="#22c55e" strokeWidth={2} strokeDasharray="5 5" fill="transparent" />
-              <Area type="monotone" dataKey="Pior Cenário (1/sem)" stroke="#f43f5e" strokeWidth={2} strokeDasharray="5 5" fill="transparent" />
+              <Area type="monotone" dataKey="Melhor Cenário (3 itens/semana)" stroke="#22c55e" strokeWidth={2} strokeDasharray="5 5" fill="transparent" />
+              <Area type="monotone" dataKey="Pior Cenário (1 item/semana)" stroke="#f43f5e" strokeWidth={2} strokeDasharray="5 5" fill="transparent" />
               {/* Dynamic Trend Line */}
               {Object.keys(chartData[chartData.length-1] || {}).filter(k => k.startsWith('Tendência Real')).map(key => (
                 <Area key={key} type="monotone" dataKey={key} stroke="#eab308" strokeWidth={3} strokeDasharray="3 3" fill="transparent" />
