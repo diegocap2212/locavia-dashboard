@@ -22,6 +22,15 @@ const excelToJSDate = (dateStr: string | null) => {
   return date;
 };
 
+const formatWeekRange = (date: Date) => {
+  const start = new Date(date);
+  const end = new Date(date);
+  end.setDate(end.getDate() + 6);
+  
+  const f = (d: Date) => d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+  return `${f(start)} - ${f(end)}`;
+};
+
 const formatDate = (date: Date) => {
   return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
 };
@@ -235,9 +244,9 @@ const App: React.FC = () => {
 
     const weeklyPerformance = Object.values(weeklyStatsMap)
       .sort((a,b) => a.date.getTime() - b.date.getTime())
-      .filter(w => w.throughput > 0 || w.carry > 0) // Only show weeks with activity
+      .filter(w => w.throughput > 0 || w.carry > 0 || w.inflow > 0) // Only show weeks with activity
       .map(w => ({
-        name: formatDate(w.date),
+        name: formatWeekRange(w.date),
         "Planejadas": w.planned,
         "Não Planejadas": w.unplanned,
         "Entradas": w.inflow,
