@@ -240,8 +240,9 @@ const App: React.FC = () => {
         name: formatDate(w.date),
         "Planejadas": w.planned,
         "Não Planejadas": w.unplanned,
-        "Entradas": -w.inflow, // Negative for liquidity chart
+        "Entradas": w.inflow,
         "Saídas": w.throughput,
+        "Saldo": w.inflow - w.throughput, // Positive = backlow grew, Negative = backlog shrank
         "Vazão Total": w.throughput,
         "Lead Time (Méd)": w.resolvedInWeek > 0 ? parseFloat((w.leadTimeSum / w.resolvedInWeek).toFixed(1)) : 0,
         "Transbordos": w.carry
@@ -400,10 +401,10 @@ const App: React.FC = () => {
         </div>
 
         <div className="glass-card fade-in-up" style={{ animationDelay: '0.5s', flex: 1.2 }}>
-          <h3 style={{ marginBottom: '1.5rem', fontSize: '1.1rem' }}>Liquidez: Entradas vs Saídas</h3>
+          <h3 style={{ marginBottom: '1.5rem', fontSize: '1.1rem' }}>Saúde do Fluxo Semanal (Balanço)</h3>
           <div style={{ height: 200, width: '100%', marginBottom: '1rem' }}>
             <ResponsiveContainer>
-              <BarChart data={weeklyPerformance.slice(-8)} stackOffset="sign">
+              <BarChart data={weeklyPerformance.slice(-8)}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                 <XAxis dataKey="name" stroke="#64748b" tick={{fontSize: 9}} />
                 <YAxis stroke="#64748b" tick={{fontSize: 9}} />
@@ -411,20 +412,28 @@ const App: React.FC = () => {
                   contentStyle={{ backgroundColor: '#0f172a', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '8px' }}
                 />
                 <Legend iconSize={8} wrapperStyle={{ fontSize: '10px' }} />
-                <Bar dataKey="Saídas" fill="#22c55e" name="Entregas (Saída)" />
-                <Bar dataKey="Entradas" fill="#f43f5e" name="Demandas (Entrada)" />
+                <Bar dataKey="Entradas" fill="#f43f5e" name="Demandas (Entrada)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Saídas" fill="#22c55e" name="Entregas (Saída)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
           
           <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ fontSize: '0.85rem', color: '#94a3b8' }}>Transbordo (Acumulado):</div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: metrics.totalCarryover > 5 ? '#f43f5e' : '#38bdf8' }}>
-                {metrics.totalCarryover}
+              <div style={{ fontSize: '0.85rem', color: '#94a3b8' }}>Saldo da Semana (Novos - Produzidos):</div>
+              <div style={{ 
+                fontSize: '1.5rem', 
+                fontWeight: 'bold', 
+                color: weeklyPerformance[weeklyPerformance.length-1].Saldo > 0 ? '#f43f5e' : '#22c55e' 
+              }}>
+                {weeklyPerformance[weeklyPerformance.length-1].Saldo > 0 ? '+' : ''}{weeklyPerformance[weeklyPerformance.length-1].Saldo}
               </div>
             </div>
             <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.2rem' }}>
+              {weeklyPerformance[weeklyPerformance.length-1].Saldo > 0 
+                ? 'Backlog aumentou' 
+                : (weeklyPerformance[weeklyPerformance.length-1].Saldo < 0 ? 'Backlog reduziu' : 'Fluxo equilibrado')}
+              {' • '}
               {weeklyPerformance[weeklyPerformance.length-1].Planejadas} planejado / {weeklyPerformance[weeklyPerformance.length-1]["Não Planejadas"]} urgente entregues
             </div>
           </div>
