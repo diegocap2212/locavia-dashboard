@@ -147,9 +147,7 @@ const App: React.FC = () => {
       const velocityLabel = `Tendência Real (${velocity.toFixed(1)} itens/semana)`;
 
       const lastPoint: any = chartData[chartData.length - 1];
-      const lastWeekStr = lastPoint.name;
-      const parts = lastWeekStr.split('/');
-      const lastDate = new Date(2000 + parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+      const lastDate = lastPoint.fullDate;
 
       let currentBest = lastRealValue;
       let currentWorst = lastRealValue;
