@@ -165,7 +165,16 @@ const App: React.FC = () => {
       if (r && r > maxD) maxD = r;
     });
 
-    const weeklyStatsMap: Record<string, { date: Date, throughput: number, leadTimeSum: number, resolvedInWeek: number, carry: number, planned: number, unplanned: number }> = {};
+    const weeklyStatsMap: Record<string, { 
+      date: Date, 
+      throughput: number, 
+      leadTimeSum: number, 
+      resolvedInWeek: number, 
+      carry: number, 
+      planned: number, 
+      unplanned: number,
+      inflow: number 
+    }> = {};
     if (filtered.length > 0) {
       let curr = getMon(minD);
       const limit = getMon(new Date(maxD.getTime() + 7 * 86400000));
@@ -177,7 +186,8 @@ const App: React.FC = () => {
           resolvedInWeek: 0, 
           carry: 0,
           planned: 0,
-          unplanned: 0
+          unplanned: 0,
+          inflow: 0
         };
         curr.setDate(curr.getDate() + 7);
       }
@@ -185,6 +195,16 @@ const App: React.FC = () => {
       filtered.forEach(item => {
         const c = excelToJSDate(item.Created);
         const r = excelToJSDate(item.Resolved);
+        
+        // Track Inflow (Created in week)
+        if (c) {
+          const createWeekStart = getMon(c);
+          const cKey = createWeekStart.toISOString();
+          if (weeklyStatsMap[cKey]) {
+            weeklyStatsMap[cKey].inflow += 1;
+          }
+        }
+
         if (r) {
           const weekStart = getMon(r);
           const key = weekStart.toISOString();
@@ -220,6 +240,8 @@ const App: React.FC = () => {
         name: formatDate(w.date),
         "Planejadas": w.planned,
         "Não Planejadas": w.unplanned,
+        "Entradas": -w.inflow, // Negative for liquidity chart
+        "Saídas": w.throughput,
         "Vazão Total": w.throughput,
         "Lead Time (Méd)": w.resolvedInWeek > 0 ? parseFloat((w.leadTimeSum / w.resolvedInWeek).toFixed(1)) : 0,
         "Transbordos": w.carry
@@ -378,10 +400,10 @@ const App: React.FC = () => {
         </div>
 
         <div className="glass-card fade-in-up" style={{ animationDelay: '0.5s', flex: 1.2 }}>
-          <h3 style={{ marginBottom: '1.5rem', fontSize: '1.1rem' }}>Detalhamento: Planejado vs Não Planejado</h3>
+          <h3 style={{ marginBottom: '1.5rem', fontSize: '1.1rem' }}>Liquidez: Entradas vs Saídas</h3>
           <div style={{ height: 200, width: '100%', marginBottom: '1rem' }}>
             <ResponsiveContainer>
-              <BarChart data={weeklyPerformance.slice(-6)}>
+              <BarChart data={weeklyPerformance.slice(-8)} stackOffset="sign">
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                 <XAxis dataKey="name" stroke="#64748b" tick={{fontSize: 9}} />
                 <YAxis stroke="#64748b" tick={{fontSize: 9}} />
@@ -389,25 +411,21 @@ const App: React.FC = () => {
                   contentStyle={{ backgroundColor: '#0f172a', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '8px' }}
                 />
                 <Legend iconSize={8} wrapperStyle={{ fontSize: '10px' }} />
-                <Bar dataKey="Planejadas" stackId="a" fill="#22c55e" />
-                <Bar dataKey="Não Planejadas" stackId="a" fill="#f59e0b" />
+                <Bar dataKey="Saídas" fill="#22c55e" name="Entregas (Saída)" />
+                <Bar dataKey="Entradas" fill="#f43f5e" name="Demandas (Entrada)" />
               </BarChart>
             </ResponsiveContainer>
           </div>
           
           <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ fontSize: '0.85rem', color: '#94a3b8' }}>Transbordo para próxima semana:</div>
+              <div style={{ fontSize: '0.85rem', color: '#94a3b8' }}>Transbordo (Acumulado):</div>
               <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: metrics.totalCarryover > 5 ? '#f43f5e' : '#38bdf8' }}>
                 {metrics.totalCarryover}
               </div>
             </div>
-            <div style={{ height: 60, width: '100%', marginTop: '0.5rem' }}>
-              <ResponsiveContainer>
-                <AreaChart data={weeklyPerformance.slice(-4)}>
-                  <Area type="monotone" dataKey="Transbordos" stroke="#f43f5e" fill="#f43f5e" fillOpacity={0.1} />
-                </AreaChart>
-              </ResponsiveContainer>
+            <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.2rem' }}>
+              {weeklyPerformance[weeklyPerformance.length-1].Planejadas} planejado / {weeklyPerformance[weeklyPerformance.length-1]["Não Planejadas"]} urgente entregues
             </div>
           </div>
         </div>
