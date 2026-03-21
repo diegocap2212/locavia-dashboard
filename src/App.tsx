@@ -4,11 +4,17 @@ import {
   Bar, ComposedChart, Line, BarChart
 } from 'recharts';
 import { 
-  Users, Activity, AlertCircle, CheckCircle2, Clock, RefreshCw
+  Users, Activity, AlertCircle, CheckCircle2, Clock, RefreshCw, ChevronDown
 } from 'lucide-react';
 import { fetchData, type JiraItem } from './services/dataService';
 import rawDataFallback from './data.json';
-import summaryData from './summary_data.json';
+
+const getMon = (d: Date) => {
+  const mon = new Date(d);
+  mon.setDate(mon.getDate() - (mon.getDay() === 0 ? 6 : mon.getDay() - 1));
+  mon.setHours(0,0,0,0);
+  return mon;
+};
 
 // Utility to convert Excel Decimal Date to JS Date
 const excelToJSDate = (dateStr: string | null) => {
@@ -54,8 +60,8 @@ const normalizeJqlData = (data: unknown[]): JiraItem[] => {
 };
 
 const App: React.FC = () => {
-  const [selectedTeam, setSelectedTeam] = useState<string>('TODOS');
-  const [selectedRelease, setSelectedRelease] = useState<string>('TODAS');
+  const [selectedTeams, setSelectedTeams] = useState<string[]>(['TODOS']);
+  const [selectedReleases, setSelectedReleases] = useState<string[]>(['TODAS']);
   const [data, setData] = useState<JiraItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -87,27 +93,47 @@ const App: React.FC = () => {
     const releasesList = Array.from(new Set(rawItems.map(i => i.Release))).filter(r => r && r !== "").sort();
 
     const filtered = rawItems.filter(item => 
-      (selectedTeam === 'TODOS' || item.Team === selectedTeam) &&
-      (selectedRelease === 'TODAS' || item.Release === selectedRelease)
+      (selectedTeams.includes('TODOS') || selectedTeams.includes(item.Team)) &&
+      (selectedReleases.includes('TODAS') || selectedReleases.includes(item.Release))
     );
 
-    // Grouping by Week for the "Cone" Chart - BURNDOWN PROJECT-LEVEL
-    let lastRealValue = 24; // Default to scope
-    const historicalData = summaryData.map(d => {
-      const currentReal = d.realized !== null ? d.scope - (d.realized || 0) : null;
-      if (currentReal !== null) lastRealValue = currentReal;
-      
-      return {
-        name: d.week,
-        "A Fazer (Real)": currentReal,
-        // Only show projections in the future or starting from current
-        "Melhor Cenário (2/sem)": null as number | null,
-        "Pior Cenário (1/sem)": null as number | null
-      };
-    });
+    // Grouping by Week for the "Cone" Chart - DYNAMIC BASED ON FILTERED DATA
+    // We'll generate the burndown points based on the actual weeks present in the data
+    const allWeeks = Array.from(new Set(rawItems.map(i => {
+      const d = excelToJSDate(i.Resolved) || excelToJSDate(i.Created);
+      return d ? getMon(d).toISOString() : null;
+    }))).filter(Boolean).sort() as string[];
 
-    // Start projections from the last real point
-    const chartData = [...historicalData];
+    const dynamicHistory = allWeeks.map(weekKey => {
+      const weekStart = new Date(weekKey);
+      
+      // Items that belong to the scope (created before or during this week)
+      const currentScope = filtered.filter(i => {
+        const c = excelToJSDate(i.Created);
+        return c && c <= new Date(weekStart.getTime() + 7 * 86400000);
+      }).length;
+
+      // Items resolved up to this week
+      const resolvedCount = filtered.filter(i => {
+        const r = excelToJSDate(i.Resolved);
+        return r && r <= new Date(weekStart.getTime() + 7 * 86400000);
+      }).length;
+
+      const aFazer = Math.max(0, currentScope - resolvedCount);
+      const isPast = weekStart <= new Date();
+
+      return {
+        name: formatDate(weekStart),
+        "A Fazer (Real)": isPast ? aFazer : null,
+        fullDate: weekStart,
+        scope: currentScope,
+        delivered: resolvedCount,
+        aFazer
+      };
+    }).filter(d => d["A Fazer (Real)"] !== null || d.fullDate >= getMon(new Date()));
+
+    let lastRealValue = dynamicHistory.filter(d => d["A Fazer (Real)"] !== null).pop()?.aFazer || 0;
+    const chartData = [...dynamicHistory];
     if (chartData.length > 0) {
       // Calculate Real Velocity (delivered items / weeks elapsed since first delivery)
       const firstDelivery = filtered.reduce((min, item) => {
@@ -157,12 +183,7 @@ const App: React.FC = () => {
     }
 
     // --- NEW: Weekly Performance & Transbordos based on filtered items ---
-    const getMon = (d: Date) => {
-      const mon = new Date(d);
-      mon.setDate(mon.getDate() - (mon.getDay() === 0 ? 6 : mon.getDay() - 1));
-      mon.setHours(0,0,0,0);
-      return mon;
-    };
+    // --- NEW: Weekly Performance & Transbordos based on filtered items ---
 
     let minD = new Date();
     let maxD = new Date(0);
@@ -292,7 +313,7 @@ const App: React.FC = () => {
       teams: teamsList,
       releases: releasesList
     };
-  }, [data, selectedTeam, selectedRelease]);
+  }, [data, selectedTeams, selectedReleases]);
 
   if (loading) {
     return (
@@ -313,15 +334,20 @@ const App: React.FC = () => {
         </div>
         
         <div style={{ display: 'flex', gap: '1rem' }}>
-          <select value={selectedTeam} onChange={(e) => setSelectedTeam(e.target.value)}>
-            <option value="TODOS">Todos os Times</option>
-            {teams.map((t: string) => <option key={t} value={t}>{t}</option>)}
-          </select>
-          
-          <select value={selectedRelease} onChange={(e) => setSelectedRelease(e.target.value)}>
-            <option value="TODAS">Todas as Releases</option>
-            {releases.map((r: string) => <option key={r} value={r}>{r}</option>)}
-          </select>
+          <MultiSelect 
+            label="Filtrar por Time" 
+            options={teams} 
+            selected={selectedTeams} 
+            onChange={setSelectedTeams}
+            allLabel="TODOS"
+          />
+          <MultiSelect 
+            label="Filtrar por Release" 
+            options={releases} 
+            selected={selectedReleases} 
+            onChange={setSelectedReleases}
+            allLabel="TODAS"
+          />
         </div>
       </header>
 
@@ -477,7 +503,7 @@ const App: React.FC = () => {
       </div>
 
       <div className="glass-card fade-in-up" style={{ animationDelay: '0.6s', padding: '1.5rem', marginBottom: '2rem' }}>
-        <h3 style={{ marginBottom: '1.5rem', fontSize: '1.1rem' }}>Detalhamento de Itens ({selectedTeam} - {selectedRelease})</h3>
+        <h3 style={{ marginBottom: '1.5rem', fontSize: '1.1rem' }}>Detalhamento de Itens (Filtro Ativo)</h3>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
             <thead>
@@ -516,6 +542,104 @@ const App: React.FC = () => {
       <footer style={{ marginTop: '3rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.8rem' }}>
         &copy; 2026 Locavia Analytics - Powered by Antigravity
       </footer>
+    </div>
+  );
+};
+
+// --- Custom Components ---
+
+const MultiSelect: React.FC<{
+  label: string;
+  options: string[];
+  selected: string[];
+  onChange: (vals: string[]) => void;
+  allLabel: string;
+}> = ({ label, options, selected, onChange, allLabel }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  const toggle = (val: string) => {
+    if (val === allLabel) {
+      onChange([allLabel]);
+    } else {
+      let next = selected.includes(allLabel) ? [] : [...selected];
+      if (next.includes(val)) {
+        next = next.filter(v => v !== val);
+      } else {
+        next.push(val);
+      }
+      if (next.length === 0) next = [allLabel];
+      onChange(next);
+    }
+  };
+
+  return (
+    <div className="multi-select-container" style={{ position: 'relative', minWidth: '220px' }}>
+      <label style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.4rem' }}>{label}</label>
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="glass-card"
+        style={{ 
+          width: '100%', padding: '0.6rem 0.8rem', display: 'flex', justifyContent: 'space-between', 
+          alignItems: 'center', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: '8px', cursor: 'pointer', fontSize: '0.85rem', color: 'white'
+        }}
+      >
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: '8px' }}>
+          {selected.includes(allLabel) ? `Todas (${options.length})` : 
+           (selected.length === 1 ? selected[0] : `${selected.length} selecionados`)}
+        </span>
+        <ChevronDown size={14} style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+      </button>
+      
+      {isOpen && (
+        <>
+          <div onClick={() => setIsOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 40 }} />
+          <div className="glass-card fade-in" style={{ 
+            position: 'absolute', top: '105%', left: 0, right: 0, zIndex: 50,
+            maxHeight: '250px', overflowY: 'auto', padding: '0.5rem',
+            background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 10px 25px rgba(0,0,0,0.5)'
+          }}>
+            <div 
+              onClick={() => { toggle(allLabel); setIsOpen(false); }}
+              style={{ 
+                padding: '0.5rem 0.6rem', cursor: 'pointer', borderRadius: '6px', 
+                background: selected.includes(allLabel) ? 'rgba(56, 189, 248, 0.1)' : 'transparent', 
+                display: 'flex', alignItems: 'center', marginBottom: '2px', fontSize: '0.85rem'
+              }}
+            >
+              <div style={{ 
+                width: '14px', height: '14px', border: '1px solid #38bdf8', borderRadius: '3px', 
+                marginRight: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: selected.includes(allLabel) ? '#38bdf8' : 'transparent'
+              }}>
+                {selected.includes(allLabel) && <div style={{ width: '6px', height: '6px', background: 'white', borderRadius: '1px' }} />}
+              </div>
+              {allLabel === 'TODOS' ? 'Todos os Times' : 'Todas as Releases'}
+            </div>
+            <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', margin: '4px 0' }} />
+            {options.map(opt => (
+              <div 
+                key={opt}
+                onClick={() => toggle(opt)}
+                style={{ 
+                  padding: '0.5rem 0.6rem', cursor: 'pointer', borderRadius: '6px', 
+                  background: selected.includes(opt) ? 'rgba(56, 189, 248, 0.1)' : 'transparent', 
+                  display: 'flex', alignItems: 'center', marginBottom: '2px', fontSize: '0.85rem'
+                }}
+              >
+                <div style={{ 
+                  width: '14px', height: '14px', border: '1px solid #38bdf8', borderRadius: '3px', 
+                  marginRight: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: selected.includes(opt) ? '#38bdf8' : 'transparent'
+                }}>
+                  {selected.includes(opt) && <div style={{ width: '6px', height: '6px', background: 'white', borderRadius: '1px' }} />}
+                </div>
+                {opt}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 };
