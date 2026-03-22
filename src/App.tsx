@@ -6,7 +6,7 @@ import {
 } from 'recharts';
 import { 
   Users, Activity, CheckCircle2, Clock, RefreshCw, ChevronDown, 
-  LayoutDashboard, Server, Settings, Bell, FolderKanban
+  Bell
 } from 'lucide-react';
 import { useDashboardData, excelToJSDate, formatDate } from './hooks/useDashboardData';
 import './App.css';
@@ -122,32 +122,17 @@ const App: React.FC = () => {
 
   return (
     <div className="dashboard-wrapper">
-      {/* Sidebar Navigation Stub */}
-      <aside className="sidebar-stub">
-        <div className="sidebar-icon" style={{ marginTop: '0.5rem' }}>
-          <div style={{ width: '36px', height: '36px', background: 'var(--primary)', borderRadius: '10px', display: 'flex', justifyContent: 'center', alignItems: 'center', color: 'white', fontWeight: 800, fontSize: '1.2rem' }}>L</div>
-        </div>
-        <div className="sidebar-icon active">
-          <LayoutDashboard size={22} />
-        </div>
-        <div className="sidebar-icon">
-          <FolderKanban size={22} />
-        </div>
-        <div className="sidebar-icon">
-          <Server size={22} />
-        </div>
-        <div style={{ flex: 1 }} />
-        <div className="sidebar-icon">
-          <Settings size={22} />
-        </div>
-      </aside>
-
       {/* Main Content Area */}
       <motion.main className="dashboard-content" variants={containerVariants} initial="hidden" animate="show">
         <motion.header className="header" variants={itemVariants}>
           <div className="title-section">
-            <h1>Locavia Overview</h1>
-            <p>Produtividade, Vazão e Integridade da Release</p>
+            <h1 style={{ letterSpacing: '-0.02em', marginBottom: '0.4rem' }}>
+              Dashboard de Métricas LM
+            </h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>powered by</span>
+              <img src="/venice-logo.png" alt="Venice" style={{ height: '18px', objectFit: 'contain' }} />
+            </div>
           </div>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>

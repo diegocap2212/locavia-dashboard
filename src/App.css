@@ -35,51 +35,11 @@ body {
   min-height: 100vh;
 }
 
-.sidebar-stub {
-  width: 80px;
-  background: var(--surface-color);
-  border-right: 1px solid var(--border-color);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 2rem 0;
-  gap: 1.5rem;
-  box-shadow: var(--shadow-sm);
-  z-index: 10;
-  position: fixed;
-  height: 100vh;
-  left: 0;
-  top: 0;
-}
-
-.sidebar-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-muted);
-  transition: all 0.2s;
-  cursor: pointer;
-}
-
-.sidebar-icon.active {
-  background: var(--primary-light);
-  color: var(--primary);
-}
-
-.sidebar-icon:hover:not(.active) {
-  background: #f3f4f6;
-  color: var(--text-secondary);
-}
-
 .dashboard-content {
   flex: 1;
   max-width: 1500px;
   margin: 0 auto;
   padding: 3rem 4rem;
-  margin-left: 80px; /* Offset for sidebar */
 }
 
 /* Header */
