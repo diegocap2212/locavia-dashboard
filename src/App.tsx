@@ -129,9 +129,9 @@ const App: React.FC = () => {
             <h1 style={{ letterSpacing: '-0.02em', marginBottom: '0.4rem' }}>
               Dashboard de Métricas LM
             </h1>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>powered by</span>
-              <img src="/venice-logo.png" alt="Venice" style={{ height: '18px', objectFit: 'contain' }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '1rem', opacity: 0.65 }}>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>powered by</span>
+              <img src="/venice-logo.png" alt="Venice" style={{ height: '12px', objectFit: 'contain' }} />
             </div>
           </div>
           
