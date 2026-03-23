@@ -31,16 +31,19 @@ async function syncData() {
     console.log(`🔗 Navegando para: ${SHEET_URL}`);
     await page.goto(SHEET_URL, { waitUntil: 'networkidle', timeout: 90000 });
     
-    // Wait for Excel to load
-    await page.waitForSelector('#MainApp', { timeout: 60000 });
-    console.log('✅ Interface do Excel carregada.');
+    // Wait for Excel Iframe
+    console.log('⏳ Aguardando iframe do Excel...');
+    const frame = page.frameLocator('#WacFrame_Excel_0, iframe[src*="officeapps.live.com"]').first();
+    
+    // Wait for Excel to load inside iframe
+    await frame.locator('#MainApp, .excel-container').waitFor({ timeout: 60000 });
+    console.log('✅ Interface do Excel carregada (iframe).');
     
     await page.waitForTimeout(5000);
 
-    // Try to ensure "BASE CONE" tab is selected if possible, but usually the link opens on the right one.
-    // If not, we can try to click it.
+    // Try to ensure "BASE CONE" tab is selected if possible
     try {
-        await page.locator('text="BASE CONE"').first().click({ timeout: 5000 });
+        await frame.locator('text="BASE CONE"').first().click({ timeout: 10000 });
         console.log('✅ Aba "BASE CONE" selecionada.');
     } catch (e) {
         console.log('⚠️ Aba "BASE CONE" já deve estar ativa ou não foi encontrada pelo texto.');
@@ -48,17 +51,17 @@ async function syncData() {
 
     // ARCHITECTURE: File -> Export -> Download as CSV
     console.log('📂 Abrindo menu Arquivo...');
-    await page.click('button:has-text("Arquivo"), #fileMenuLauncher, button#FileMenuLauncher', { timeout: 20000 });
+    await frame.locator('button:has-text("Arquivo"), #fileMenuLauncher, button#FileMenuLauncher').first().click({ timeout: 30000 });
     await page.waitForTimeout(2000);
 
     console.log('📂 Selecionando Exportar...');
-    await page.click('span:has-text("Exportar"), button:has-text("Exportar")', { timeout: 10000 });
+    await frame.locator('span:has-text("Exportar"), button:has-text("Exportar"), #FileExport').first().click({ timeout: 20000 });
     await page.waitForTimeout(2000);
 
     console.log('📥 Iniciando download do CSV...');
     const [download] = await Promise.all([
-      page.waitForEvent('download', { timeout: 60000 }),
-      page.click('span:has-text("Baixar como CSV"), span:has-text("Download as CSV")')
+      page.waitForEvent('download', { timeout: 90000 }),
+      frame.locator('span:has-text("Baixar como CSV"), span:has-text("Download as CSV")').first().click()
     ]);
 
     await download.saveAs(tempPath);
