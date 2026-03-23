@@ -28,7 +28,8 @@ async function processLocalCsv() {
       columns: true,
       skip_empty_lines: true,
       relax_quotes: true,
-      trim: true
+      trim: true,
+      delimiter: ';'
     });
     
     if (records.length === 0) throw new Error('O CSV está vazio.');
