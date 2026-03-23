@@ -52,6 +52,8 @@ const normalizeJqlData = (data: unknown[]): JiraItem[] => {
 export const useDashboardData = () => {
   const [selectedTeams, setSelectedTeams] = useState<string[]>(['TODOS']);
   const [selectedReleases, setSelectedReleases] = useState<string[]>(['TODAS']);
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
   const [data, setData] = useState<JiraItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -80,10 +82,29 @@ export const useDashboardData = () => {
     const teamsList = Array.from(new Set(rawItems.map(i => i.Team))).filter(t => t && t !== "").sort();
     const releasesList = Array.from(new Set(rawItems.map(i => i.Release))).filter(r => r && r !== "").sort();
 
-    const filtered = rawItems.filter(item => 
-      (selectedTeams.includes('TODOS') || selectedTeams.includes(item.Team)) &&
-      (selectedReleases.includes('TODAS') || selectedReleases.includes(item.Release))
-    );
+    const filtered = rawItems.filter(item => {
+      const teamMatch = selectedTeams.includes('TODOS') || selectedTeams.includes(item.Team);
+      const releaseMatch = selectedReleases.includes('TODAS') || selectedReleases.includes(item.Release);
+      if (!teamMatch || !releaseMatch) return false;
+
+      const cDate = excelToJSDate(item.Created);
+      const rDate = excelToJSDate(item.Resolved);
+
+      if (startDate) {
+        const start = new Date(startDate);
+        // If resolved before start date, not active in period
+        if (rDate && rDate < start) return false;
+      }
+
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        // If created after end date, not active in period
+        if (cDate && cDate > end) return false;
+      }
+
+      return true;
+    });
 
     const allWeeks = Array.from(new Set(rawItems.map(i => {
       const d = excelToJSDate(i.Resolved) || excelToJSDate(i.Created);
@@ -257,7 +278,7 @@ export const useDashboardData = () => {
       teams: teamsList,
       releases: releasesList
     };
-  }, [data, selectedTeams, selectedReleases]);
+  }, [data, selectedTeams, selectedReleases, startDate, endDate]);
 
   return {
     ...dashboardState,
@@ -266,7 +287,11 @@ export const useDashboardData = () => {
     selectedTeams,
     setSelectedTeams,
     selectedReleases,
-    setSelectedReleases
+    setSelectedReleases,
+    startDate,
+    setStartDate,
+    endDate,
+    setEndDate
   };
 };
 
