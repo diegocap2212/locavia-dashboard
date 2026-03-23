@@ -42,7 +42,7 @@ async function processLocalCsv() {
       Key: mapHeaderKey(headers, ['Chave', 'Key']),
       Summary: mapHeaderKey(headers, ['Resumo', 'Summary']),
       Status: mapHeaderKey(headers, ['Status']),
-      Team: mapHeaderKey(headers, ['Team', 'Equipe', 'Custom field (Team)']),
+      Team: mapHeaderKey(headers, ['Team', 'Equipe', 'Time', 'Custom field (Team)']),
       Created: mapHeaderKey(headers, ['Criado', 'Created']),
       Resolved: mapHeaderKey(headers, ['Resolvido', 'Resolved']),
       Release: mapHeaderKey(headers, ['Versões', 'Fix Version', 'Release'])

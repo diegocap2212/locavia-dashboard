@@ -12,8 +12,19 @@ const getMon = (d: Date) => {
 // Utility to convert Excel Decimal Date to JS Date
 const excelToJSDate = (dateStr: string | null) => {
   if (!dateStr) return null;
-  if (typeof dateStr === 'string' && dateStr.includes('-')) return new Date(dateStr);
-  const excelDate = parseFloat(String(dateStr));
+  const s = String(dateStr);
+  if (s.includes('-')) return new Date(s);
+  if (s.includes('/')) {
+    // Handle DD/MM/YYYY or DD/MM/YYYY HH:MM
+    const [datePart, timePart] = s.split(' ');
+    const [day, month, year] = datePart.split('/').map(Number);
+    if (timePart) {
+      const [hours, minutes] = timePart.split(':').map(Number);
+      return new Date(year, month - 1, day, hours, minutes);
+    }
+    return new Date(year, month - 1, day);
+  }
+  const excelDate = parseFloat(s);
   if (isNaN(excelDate)) return null;
   const date = new Date((excelDate - 25569) * 86400 * 1000);
   return date;
