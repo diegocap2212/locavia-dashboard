@@ -23,7 +23,7 @@ async function processLocalCsv() {
   }
 
   try {
-    const rawCsv = fs.readFileSync(INPUT_FILE, 'utf8');
+    const rawCsv = fs.readFileSync(INPUT_FILE, 'latin1');
     const records = parse(rawCsv, {
       columns: true,
       skip_empty_lines: true,
