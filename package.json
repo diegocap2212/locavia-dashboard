@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "sync": "tsx scripts/sync-data.ts"
+    "sync": "tsx scripts/sync-data.ts",
+    "process-csv": "tsx scripts/process-local-csv.ts"
   },
   "dependencies": {
     "framer-motion": "^12.38.0",
