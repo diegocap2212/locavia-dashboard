@@ -90,9 +90,11 @@ export const useDashboardData = () => {
   const dashboardState = useMemo(() => {
     const rawItems = normalizeJqlData(data);
     
+    // 1. Meta Data (Teams/Releases)
     const teamsList = Array.from(new Set(rawItems.map(i => i.Team))).filter(t => t && t !== "").sort();
     const releasesList = Array.from(new Set(rawItems.map(i => i.Release))).filter(r => r && r !== "").sort();
 
+    // 2. Filter primary set
     const filtered = rawItems.filter(item => {
       const teamMatch = selectedTeams.includes('TODOS') || selectedTeams.includes(item.Team);
       const releaseMatch = selectedReleases.includes('TODAS') || selectedReleases.includes(item.Release);
@@ -101,190 +103,133 @@ export const useDashboardData = () => {
       const cDate = excelToJSDate(item.Created);
       const rDate = excelToJSDate(item.Resolved);
 
-      if (startDate) {
-        const start = new Date(startDate);
-        // If resolved before start date, not active in period
-        if (rDate && rDate < start) return false;
-      }
-
+      if (startDate && rDate && rDate < new Date(startDate)) return false;
       if (endDate) {
         const end = new Date(endDate);
         end.setHours(23, 59, 59, 999);
-        // If created after end date, not active in period
         if (cDate && cDate > end) return false;
       }
-
       return true;
     });
 
-    const allWeeks = Array.from(new Set(rawItems.map(i => {
+    // 3. Generate Timeline & Burndown
+    const timelineWeeks = Array.from(new Set(rawItems.map(i => {
       const d = excelToJSDate(i.Resolved) || excelToJSDate(i.Created);
       return d ? getMon(d).toISOString() : null;
     }))).filter(Boolean).sort() as string[];
 
-    const dynamicHistory = allWeeks.map(weekKey => {
+    const dynamicHistory = timelineWeeks.map(weekKey => {
       const weekStart = new Date(weekKey);
-      const currentScope = filtered.filter(i => {
+      const weekEnd = new Date(weekStart.getTime() + 7 * 86400000);
+      const scopeAtWeek = filtered.filter(i => {
         const c = excelToJSDate(i.Created);
-        return c && c <= new Date(weekStart.getTime() + 7 * 86400000);
+        return c && c < weekEnd;
       }).length;
-      const resolvedCount = filtered.filter(i => {
+      const resolvedAtWeek = filtered.filter(i => {
         const r = excelToJSDate(i.Resolved);
-        return r && r <= new Date(weekStart.getTime() + 7 * 86400000);
+        return r && r < weekEnd;
       }).length;
-      const aFazer = Math.max(0, currentScope - resolvedCount);
+      
+      const aFazer = Math.max(0, scopeAtWeek - resolvedAtWeek);
       const isPast = weekStart <= new Date();
 
       return {
         name: formatDate(weekStart),
         "A Fazer (Real)": isPast ? aFazer : null,
         fullDate: weekStart,
-        scope: currentScope,
-        delivered: resolvedCount,
+        scope: scopeAtWeek,
+        delivered: resolvedAtWeek,
         aFazer
       };
     }).filter(d => d["A Fazer (Real)"] !== null || d.fullDate >= getMon(new Date()));
 
-    let lastRealValue = dynamicHistory.filter(d => d["A Fazer (Real)"] !== null).pop()?.aFazer || 0;
-    const chartData = [...dynamicHistory];
-    
+    // 4. Projections
+    const chartData: any[] = [...dynamicHistory];
     if (chartData.length > 0) {
-      const firstDelivery = filtered.reduce((min, item) => {
+      const lastReal = dynamicHistory.filter(d => d["A Fazer (Real)"] !== null).pop();
+      const lastValue = lastReal?.aFazer || 0;
+      const lastDate = lastReal?.fullDate || new Date();
+      
+      const firstDel = filtered.reduce((min, item) => {
         const r = excelToJSDate(item.Resolved);
         return (r && r < min) ? r : min;
       }, new Date());
-      const now = new Date();
-      const weeksElapsed = Math.max(1, Math.ceil((now.getTime() - firstDelivery.getTime()) / (7 * 86400000)));
-      const itemsDelivered = filtered.filter(i => !!i.Resolved).length;
-      const velocity = itemsDelivered / weeksElapsed;
-      const velocityLabel = `Tendência Real (${velocity.toFixed(1)} itens/semana)`;
+      const velocity = filtered.filter(i => !!i.Resolved).length / Math.max(1, Math.ceil((new Date().getTime() - firstDel.getTime()) / (7 * 86400000)));
+      const vLabel = `Tendência Real (${velocity.toFixed(1)} itens/semana)`;
 
-      const lastPoint: any = chartData[chartData.length - 1];
-      const lastDate = lastPoint.fullDate;
-
-      let currentBest = lastRealValue;
-      let currentWorst = lastRealValue;
-      let currentTrend = lastRealValue;
+      let currentBest = lastValue, currentWorst = lastValue, currentTrend = lastValue;
       
-      lastPoint["Melhor Cenário (3 itens/semana)"] = lastRealValue;
-      lastPoint["Pior Cenário (1 item/semana)"] = lastRealValue;
-      lastPoint[velocityLabel] = lastRealValue;
-
-      for (let i = 1; i <= 20; i++) {
+      for (let i = 1; i <= 15; i++) {
         currentBest = Math.max(0, currentBest - 3);
         currentWorst = Math.max(0, currentWorst - 1);
         currentTrend = Math.max(0, currentTrend - velocity);
-
+        
         const nextDate = new Date(lastDate);
         nextDate.setDate(nextDate.getDate() + (i * 7));
-
-        const newPoint: any = {
+        
+        chartData.push({
           name: formatDate(nextDate),
           "A Fazer (Real)": null,
           "Melhor Cenário (3 itens/semana)": currentBest,
-          "Pior Cenário (1 item/semana)": currentWorst
-        };
-        newPoint[velocityLabel] = currentTrend;
-        chartData.push(newPoint);
-
+          "Pior Cenário (1 item/semana)": currentWorst,
+          [vLabel]: currentTrend,
+          fullDate: nextDate
+        });
         if (currentBest === 0 && currentWorst === 0 && currentTrend === 0) break;
       }
     }
 
-    let minD = new Date();
-    let maxD = new Date(0);
-    filtered.forEach(item => {
-      const c = excelToJSDate(item.Created);
-      const r = excelToJSDate(item.Resolved);
-      if (c && c < minD) minD = c;
-      if (c && c > maxD) maxD = c;
-      if (r && r > maxD) maxD = r;
-    });
-
-    const weeklyStatsMap: Record<string, any> = {};
+    // 5. Weekly Performance (Throughput/LeadTime)
+    const weeklyStats: any[] = [];
     if (filtered.length > 0) {
-      let curr = getMon(minD);
-      const limit = getMon(new Date(maxD.getTime() + 7 * 86400000));
-      while (curr <= limit) {
-        weeklyStatsMap[curr.toISOString()] = { 
-          date: new Date(curr), throughput: 0, leadTimeSum: 0, 
-          resolvedInWeek: 0, carry: 0, planned: 0, unplanned: 0, inflow: 0
-        };
+      const minDate = filtered.reduce((m, i) => {
+        const d = excelToJSDate(i.Created);
+        return (d && d < m) ? d : m;
+      }, new Date());
+      let curr = getMon(minDate);
+      const now = new Date();
+      while (curr <= now || weeklyStats.length < 5) {
+        const wStart = new Date(curr);
+        const wEnd = new Date(curr.getTime() + 7 * 86400000);
+        
+        const resolved = filtered.filter(i => {
+           const r = excelToJSDate(i.Resolved);
+           return r && r >= wStart && r < wEnd;
+        });
+        const inflow = filtered.filter(i => {
+           const c = excelToJSDate(i.Created);
+           return c && c >= wStart && c < wEnd;
+        }).length;
+
+        const leadTimeSum = resolved.reduce((acc, i) => {
+           const c = excelToJSDate(i.Created);
+           const r = excelToJSDate(i.Resolved);
+           return acc + (r!.getTime() - (c?.getTime() || r!.getTime())) / 86400000;
+        }, 0);
+
+        weeklyStats.push({
+          name: formatWeekRange(wStart),
+          "Saídas": resolved.length,
+          "Entradas": inflow,
+          "Saldo": inflow - resolved.length,
+          "Vazão Total": resolved.length,
+          "Lead Time (Méd)": resolved.length > 0 ? parseFloat((leadTimeSum / resolved.length).toFixed(1)) : 0,
+          date: wStart
+        });
         curr.setDate(curr.getDate() + 7);
       }
-
-      filtered.forEach(item => {
-        const c = excelToJSDate(item.Created);
-        const r = excelToJSDate(item.Resolved);
-        
-        if (c) {
-          const cKey = getMon(c).toISOString();
-          if (weeklyStatsMap[cKey]) weeklyStatsMap[cKey].inflow += 1;
-        }
-
-        if (r) {
-          const key = getMon(r).toISOString();
-          if (weeklyStatsMap[key]) {
-            weeklyStatsMap[key].throughput += 1;
-            weeklyStatsMap[key].resolvedInWeek += 1;
-            if (c && c < getMon(r)) weeklyStatsMap[key].planned += 1;
-            else weeklyStatsMap[key].unplanned += 1;
-            if (c) weeklyStatsMap[key].leadTimeSum += (r.getTime() - c.getTime()) / 86400000;
-          }
-        }
-        Object.keys(weeklyStatsMap).forEach(key => {
-          const wStart = new Date(key);
-          const wEnd = new Date(wStart.getTime() + 7 * 86400000);
-          if (c && c < wEnd && (!r || r >= wEnd)) {
-            weeklyStatsMap[key].carry += 1;
-          }
-        });
-      });
     }
 
-    const weeklyPerformance = Object.values(weeklyStatsMap)
-      .sort((a,b) => a.date.getTime() - b.date.getTime())
-      .filter(w => w.throughput > 0 || w.carry > 0 || w.inflow > 0)
-      .map(w => ({
-        name: formatWeekRange(w.date),
-        "Planejadas": w.planned,
-        "Não Planejadas": w.unplanned,
-        "Entradas": w.inflow,
-        "Saídas": w.throughput,
-        "Saldo": w.inflow - w.throughput,
-        "Vazão Total": w.throughput,
-        "Lead Time (Méd)": w.resolvedInWeek > 0 ? parseFloat((w.leadTimeSum / w.resolvedInWeek).toFixed(1)) : 0,
-        "Transbordos": w.carry
-      }));
-
-    const totalItems = filtered.length;
-    const deliveredCount = filtered.filter(i => !!i.Resolved).length;
-    const itemsMarkedDoneNoDate = filtered.filter(i => (i.Status.toUpperCase().includes('DONE') || i.Status.toUpperCase().includes('CONCLUIDO')) && !i.Resolved);
-    const itemsMissingMeta = filtered.filter(i => !i.Team || i.Team === "" || !i.Release || i.Release === "");
-    const wipCount = filtered.filter(i => !i.Resolved && i.Status !== 'DESCARTADO').length;
-    const discardedCount = filtered.filter(i => i.Status === 'DESCARTADO').length;
-    
-    const resolvedItems = filtered.filter(i => i.Resolved && i.Created);
-    const avgCycleTime = resolvedItems.length > 0 
-      ? resolvedItems.reduce((acc, i) => {
-          const start = excelToJSDate(i.Created)!.getTime();
-          const end = excelToJSDate(i.Resolved)!.getTime();
-          return acc + (end - start);
-        }, 0) / (resolvedItems.length * 86400000)
-      : 0;
-
+    // 6. Final Metrics
     return { 
       chartData, 
-      weeklyPerformance,
+      weeklyPerformance: weeklyStats,
       metrics: { 
-        totalItems, deliveredCount, wipCount, discardedCount,
-        avgCycleTime: avgCycleTime.toFixed(1),
-        totalCarryover: weeklyPerformance.length > 0 ? weeklyPerformance[weeklyPerformance.length - 1]["Transbordos"] : 0
+        totalItems: filtered.length,
+        deliveredCount: filtered.filter(i => !!i.Resolved).length,
+        wipCount: filtered.filter(i => !i.Resolved && i.Status !== 'DESCARTADO').length,
+        avgCycleTime: (filtered.filter(i => i.Resolved && i.Created).reduce((acc, i) => acc + (excelToJSDate(i.Resolved)!.getTime() - excelToJSDate(i.Created)!.getTime()), 0) / (Math.max(1, filtered.filter(i => i.Resolved && i.Created).length) * 86400000)).toFixed(1),
       }, 
-      health: {
-        noDate: itemsMarkedDoneNoDate.length,
-        missingMeta: itemsMissingMeta.length
-      },
       filteredList: filtered,
       teams: teamsList,
       releases: releasesList

@@ -10,16 +10,6 @@
         "Release": "O4R1"
     },
     {
-        "Type": "História",
-        "Key": "WA-707",
-        "Summary": "[Blip][S&D Colab.][HSM][Multas] Revisão das mensagens de multas",
-        "Status": "AGUARDANDO QA",
-        "Team": "UP",
-        "Created": "23/02/2026 15:38",
-        "Resolved": null,
-        "Release": "O4R2"
-    },
-    {
         "Type": "Tarefa",
         "Key": "WA-696",
         "Summary": "[Blip][S&D Colab.][Comercial][Tabela de valor] Ajuste na tabela de preço - Lead e Renovação",
@@ -67,16 +57,6 @@
         "Team": "UP",
         "Created": "27/01/2026 11:30",
         "Resolved": "09/02/2026 10:42",
-        "Release": "O4R2"
-    },
-    {
-        "Type": "História",
-        "Key": "WA-657",
-        "Summary": "[Blip][S&D Colab.][Comercial][Carrossel][Flows]desenvolver o fluxo comercial, com o componente do flows",
-        "Status": "EM DESENVOLVIMENTO",
-        "Team": "UP",
-        "Created": "27/01/2026 11:19",
-        "Resolved": null,
         "Release": "O4R2"
     },
     {
@@ -341,16 +321,6 @@
     },
     {
         "Type": "História",
-        "Key": "WA-410",
-        "Summary": "[Blip][S&D Colab.][HSM][Multas] Disparo de confirmação de indicação de condutor",
-        "Status": "QA EM PROGRESSO",
-        "Team": "UP",
-        "Created": "24/10/2025 18:26",
-        "Resolved": null,
-        "Release": "O4R2"
-    },
-    {
-        "Type": "História",
         "Key": "WA-409",
         "Summary": "[Blip][S&D Colab.][HSM][Multas] Disparo de NIC - Responsabilidade Cliente",
         "Status": "1. BACKLOG",
@@ -361,16 +331,6 @@
     },
     {
         "Type": "História",
-        "Key": "WA-408",
-        "Summary": "[Blip][S&D Colab.][HSM][Multas] Disparo de Aviso de não recebimento de DOC",
-        "Status": "QA EM PROGRESSO",
-        "Team": "UP",
-        "Created": "24/10/2025 18:21",
-        "Resolved": null,
-        "Release": "O4R2"
-    },
-    {
-        "Type": "História",
         "Key": "WA-407",
         "Summary": "[Blip][S&D Colab.][HSM][Multas] Disparo de NIP - Responsabilidade Locadora",
         "Status": "DESCARTADO",
@@ -378,46 +338,6 @@
         "Created": "24/10/2025 18:21",
         "Resolved": "22/01/2026 15:05",
         "Release": "O4R1"
-    },
-    {
-        "Type": "História",
-        "Key": "WA-406",
-        "Summary": "[Blip][S&D Colab.][HSM][Multas] Disparo de NIP - Responsabilidade Locadora",
-        "Status": "QA EM PROGRESSO",
-        "Team": "UP",
-        "Created": "24/10/2025 18:21",
-        "Resolved": null,
-        "Release": "O4R2"
-    },
-    {
-        "Type": "História",
-        "Key": "WA-405",
-        "Summary": "[Blip][S&D Colab.][HSM][Multas] Disparo de Aviso de inconsistência de DOC",
-        "Status": "QA EM PROGRESSO",
-        "Team": "UP",
-        "Created": "24/10/2025 18:21",
-        "Resolved": null,
-        "Release": "O4R2"
-    },
-    {
-        "Type": "História",
-        "Key": "WA-404",
-        "Summary": "[Blip][S&D Colab.][HSM][Multas] Disparo de NAI - Responsabilidade Locadora",
-        "Status": "QA EM PROGRESSO",
-        "Team": "UP",
-        "Created": "24/10/2025 18:21",
-        "Resolved": null,
-        "Release": "O4R2"
-    },
-    {
-        "Type": "História",
-        "Key": "WA-403",
-        "Summary": "[Blip][S&D Colab.][HSM][Multas] Disparo de NIC - Responsabilidade Locadora",
-        "Status": "QA EM PROGRESSO",
-        "Team": "UP",
-        "Created": "24/10/2025 18:21",
-        "Resolved": null,
-        "Release": "O4R2"
     },
     {
         "Type": "História",
@@ -520,6 +440,56 @@
         "Release": "O4R1"
     },
     {
+        "Type": "História",
+        "Key": "VAA-420",
+        "Summary": "Exibição de ofertas agrupadas na home com a partir de \"Preço 13 Pontos ",
+        "Status": "SPRINT BACKLOG",
+        "Team": "NIVUS",
+        "Created": "23/03/2026 11:42",
+        "Resolved": null,
+        "Release": "O4R2"
+    },
+    {
+        "Type": "Bug",
+        "Key": "VAA-412",
+        "Summary": "CLONE - Logotipo Sign and Drive no mobile está distorcido",
+        "Status": "1. BACKLOG",
+        "Team": "NIVUS",
+        "Created": "23/03/2026 10:35",
+        "Resolved": null,
+        "Release": "O4R2"
+    },
+    {
+        "Type": "História",
+        "Key": "VAA-403",
+        "Summary": "CLONE - Carregar Catálogo e Preço Real (Locavia + Maestro)",
+        "Status": "1. BACKLOG",
+        "Team": "NIVUS",
+        "Created": "23/03/2026 10:33",
+        "Resolved": null,
+        "Release": "O4R2"
+    },
+    {
+        "Type": "História",
+        "Key": "VAA-402",
+        "Summary": "CLONE - Validação de Vínculo de Parente via Autorização do Colaborador",
+        "Status": "1. BACKLOG",
+        "Team": "NIVUS",
+        "Created": "23/03/2026 10:31",
+        "Resolved": null,
+        "Release": "O4R2"
+    },
+    {
+        "Type": "História",
+        "Key": "VAA-401",
+        "Summary": "CLONE - Login e Identificação de Perfil",
+        "Status": "1. BACKLOG",
+        "Team": "NIVUS",
+        "Created": "23/03/2026 10:28",
+        "Resolved": null,
+        "Release": "O4R2"
+    },
+    {
         "Type": "Spike",
         "Key": "VAA-388",
         "Summary": "Validar o Maestro com oferta do princing",
@@ -553,7 +523,7 @@
         "Type": "História",
         "Key": "VAA-367",
         "Summary": "Equalização Banner/Carrossel topo da Home 3pts",
-        "Status": "SPRINT BACKLOG",
+        "Status": "EM DESENVOLVIMENTO",
         "Team": "NIVUS",
         "Created": "06/03/2026 17:07",
         "Resolved": null,
@@ -862,7 +832,7 @@
     {
         "Type": "História",
         "Key": "VAA-277",
-        "Summary": "Equalização do layout página de veículo",
+        "Summary": "Equalização do layout página de veículo 13 pts",
         "Status": "1. BACKLOG",
         "Team": "",
         "Created": "02/02/2026 17:44",
@@ -1063,10 +1033,10 @@
         "Type": "História",
         "Key": "VAA-186",
         "Summary": "Equalização do layout e Resultados de avaliação de crédito ( 5 pontos)",
-        "Status": "QA EM PROGRESSO",
+        "Status": "DESENV CONCLUIDO",
         "Team": "NIVUS",
         "Created": "24/12/2025 11:09",
-        "Resolved": null,
+        "Resolved": "24/03/2026 09:16",
         "Release": "O4R2"
     },
     {
@@ -1083,20 +1053,30 @@
         "Type": "História",
         "Key": "VAA-184",
         "Summary": "Validação de Vínculo de Parente via Autorização do Colaborador",
-        "Status": "EM DESENVOLVIMENTO",
+        "Status": "DESCARTADO",
         "Team": "NIVUS",
         "Created": "24/12/2025 11:01",
-        "Resolved": null,
+        "Resolved": "23/03/2026 10:32",
+        "Release": "O4R2"
+    },
+    {
+        "Type": "História",
+        "Key": "VAA-168",
+        "Summary": "Login e Identificação de Perfil",
+        "Status": "DESCARTADO",
+        "Team": "NIVUS",
+        "Created": "16/12/2025 11:32",
+        "Resolved": "23/03/2026 10:31",
         "Release": "O4R2"
     },
     {
         "Type": "História",
         "Key": "VAA-139",
         "Summary": "Carregar Catálogo e Preço Real (Locavia + Maestro)",
-        "Status": "EM DESENVOLVIMENTO",
+        "Status": "DESCARTADO",
         "Team": "NIVUS",
         "Created": "24/11/2025 10:21",
-        "Resolved": null,
+        "Resolved": "23/03/2026 10:34",
         "Release": "O4R2"
     },
     {
@@ -1390,6 +1370,36 @@
         "Release": "BAF"
     },
     {
+        "Type": "Spike",
+        "Key": "RM-2600",
+        "Summary": "Validar arquitetura e planejar desenvolvimento da API de recebimento do contrato",
+        "Status": "PRONTO PRA DESENVOLVER",
+        "Team": "OPTIMUS",
+        "Created": "23/03/2026 15:30",
+        "Resolved": null,
+        "Release": "O4R2"
+    },
+    {
+        "Type": "Bug",
+        "Key": "RM-2592",
+        "Summary": "[QA] Erro no campo KVGR1 nos faturamentos",
+        "Status": "1. BACKLOG",
+        "Team": "TERA",
+        "Created": "23/03/2026 11:47",
+        "Resolved": null,
+        "Release": "O4R2"
+    },
+    {
+        "Type": "História",
+        "Key": "RM-2587",
+        "Summary": "Exibir \"Dias a expirar\" para um pedido",
+        "Status": "PRONTO PRA DESENVOLVER",
+        "Team": "GOL",
+        "Created": "23/03/2026 10:27",
+        "Resolved": null,
+        "Release": "O4R2"
+    },
+    {
         "Type": "História",
         "Key": "RM-2583",
         "Summary": "Adicionar em tela valor total da medição",
@@ -1403,8 +1413,8 @@
         "Type": "História",
         "Key": "RM-2573",
         "Summary": "Adaptar listagem de contratos por produto",
-        "Status": "1. BACKLOG",
-        "Team": "",
+        "Status": "EM REFINAMENTO",
+        "Team": "OPTIMUS",
         "Created": "20/03/2026 11:26",
         "Resolved": null,
         "Release": "O4R2"
@@ -1443,7 +1453,7 @@
         "Type": "Tarefa",
         "Key": "RM-2527",
         "Summary": "Trazer como padrão Empresa -> LM matriz nos faturamentos avulsos",
-        "Status": "AGUARDANDO CODE REVIEW",
+        "Status": "QA EM PROGRESSO",
         "Team": "TERA",
         "Created": "19/03/2026 15:17",
         "Resolved": null,
@@ -1463,17 +1473,17 @@
         "Type": "Bug",
         "Key": "RM-2510",
         "Summary": "Desconto não está sendo aplicado no faturamento",
-        "Status": "SPRINT BACKLOG",
+        "Status": "DESCARTADO",
         "Team": "PARATI",
         "Created": "18/03/2026 18:04",
-        "Resolved": null,
+        "Resolved": "23/03/2026 16:14",
         "Release": "BAF"
     },
     {
         "Type": "História",
         "Key": "RM-2503",
         "Summary": "[MOB] Desvincular o campo Expedição Concluída da finalização automática da Implantação",
-        "Status": "PRONTO PRA DESENVOLVER",
+        "Status": "AGUARDANDO QA",
         "Team": "JETTA",
         "Created": "18/03/2026 12:05",
         "Resolved": null,
@@ -1493,10 +1503,10 @@
         "Type": "História",
         "Key": "RM-2500",
         "Summary": "[MOB] Ajustar validação da ação Solicitar CRLV no Gerenciador de Implantação",
-        "Status": "QA EM PROGRESSO",
+        "Status": "DESENV CONCLUIDO",
         "Team": "JETTA",
         "Created": "18/03/2026 11:47",
-        "Resolved": null,
+        "Resolved": "24/03/2026 00:01",
         "Release": "CEM"
     },
     {
@@ -1583,8 +1593,8 @@
         "Type": "Bug",
         "Key": "RM-2431",
         "Summary": "[BUG] Botões dos filtros no Gerenciador de Multas fixos",
-        "Status": "SPRINT BACKLOG",
-        "Team": "",
+        "Status": "EM DESENVOLVIMENTO",
+        "Team": "TIGUAN",
         "Created": "13/03/2026 10:04",
         "Resolved": null,
         "Release": "O4R1"
@@ -1598,16 +1608,6 @@
         "Created": "13/03/2026 09:24",
         "Resolved": "17/03/2026 07:56",
         "Release": "O4R1"
-    },
-    {
-        "Type": "História",
-        "Key": "RM-2428",
-        "Summary": "Calcular pro rata no reajuste aniversário",
-        "Status": "1. BACKLOG",
-        "Team": "TERA",
-        "Created": "12/03/2026 17:02",
-        "Resolved": null,
-        "Release": "O4R2"
     },
     {
         "Type": "Bug",
@@ -1713,8 +1713,8 @@
         "Type": "Bug",
         "Key": "RM-2345",
         "Summary": "[BUG] Horário informado na geração da medição de multas para faturamento",
-        "Status": "1. BACKLOG",
-        "Team": "OPTIMUS",
+        "Status": "EM DESENVOLVIMENTO",
+        "Team": "TIGUAN",
         "Created": "05/03/2026 16:20",
         "Resolved": null,
         "Release": "O4R1"
@@ -1733,7 +1733,7 @@
         "Type": "História",
         "Key": "RM-2323",
         "Summary": "Parametrizar aplicação de agravo do KM excedente por produto",
-        "Status": "PRONTO PRA DESENVOLVER",
+        "Status": "EM DESENVOLVIMENTO",
         "Team": "OPTIMUS",
         "Created": "04/03/2026 18:01",
         "Resolved": null,
@@ -1743,8 +1743,8 @@
         "Type": "História",
         "Key": "RM-2322",
         "Summary": "Aplicar parametrização de multa de retenção na abetura do contrato",
-        "Status": "PRONTO PRA DESENVOLVER",
-        "Team": "",
+        "Status": "EM DESENVOLVIMENTO",
+        "Team": "OPTIMUS",
         "Created": "04/03/2026 17:58",
         "Resolved": null,
         "Release": "O4R2"
@@ -1753,8 +1753,8 @@
         "Type": "História",
         "Key": "RM-2321",
         "Summary": "Parametrizar cadastro de multa de retenção do veículo por produto",
-        "Status": "PRONTO PRA DESENVOLVER",
-        "Team": "",
+        "Status": "EM DESENVOLVIMENTO",
+        "Team": "OPTIMUS",
         "Created": "04/03/2026 17:57",
         "Resolved": null,
         "Release": "O4R2"
@@ -1923,7 +1923,7 @@
         "Type": "História",
         "Key": "RM-2287",
         "Summary": "Associar Pátio á Empresa",
-        "Status": "PRONTO PRA DESENVOLVER",
+        "Status": "EM DESENVOLVIMENTO",
         "Team": "SCANIA S 650",
         "Created": "04/03/2026 07:54",
         "Resolved": null,
@@ -2013,7 +2013,7 @@
         "Type": "História",
         "Key": "RM-2277",
         "Summary": "Listagem de Veículos - Novos Filtros",
-        "Status": "PRONTO PRA DESENVOLVER",
+        "Status": "EM DESENVOLVIMENTO",
         "Team": "SCANIA S 650",
         "Created": "04/03/2026 07:19",
         "Resolved": null,
@@ -2293,7 +2293,7 @@
         "Type": "História",
         "Key": "RM-2151",
         "Summary": "Criar novo campo para registrar as checklist do veículo",
-        "Status": "AGUARDANDO QA",
+        "Status": "QA EM PROGRESSO",
         "Team": "SCANIA S 650",
         "Created": "25/02/2026 07:54",
         "Resolved": null,
@@ -2403,7 +2403,7 @@
         "Type": "História",
         "Key": "RM-2105",
         "Summary": "Listagem de Pátios",
-        "Status": "PRONTO PRA DESENVOLVER",
+        "Status": "EM DESENVOLVIMENTO",
         "Team": "SCANIA S 650",
         "Created": "19/02/2026 15:27",
         "Resolved": null,
@@ -2412,7 +2412,7 @@
     {
         "Type": "História",
         "Key": "RM-2104",
-        "Summary": "Ajuste Tela de Entradas e Saídas",
+        "Summary": "Ajuste Filtro Tela de Entradas e Saídas",
         "Status": "1. BACKLOG",
         "Team": "SCANIA S 650",
         "Created": "19/02/2026 15:23",
@@ -2533,7 +2533,7 @@
         "Type": "História",
         "Key": "RM-2042",
         "Summary": "Aplicar parametrização de agravo no cálculo de km excedente no encerramento de contrato",
-        "Status": "PRONTO PRA DESENVOLVER",
+        "Status": "EM DESENVOLVIMENTO",
         "Team": "OPTIMUS",
         "Created": "11/02/2026 18:21",
         "Resolved": null,
@@ -2633,7 +2633,7 @@
         "Type": "História",
         "Key": "RM-1964",
         "Summary": "Aplicar parametrização de índice de reajuste na abertura do contrato",
-        "Status": "EM DESENVOLVIMENTO",
+        "Status": "AGUARDANDO DEPLOY QA",
         "Team": "OPTIMUS",
         "Created": "05/02/2026 18:03",
         "Resolved": null,
@@ -4572,8 +4572,8 @@
     {
         "Type": "História",
         "Key": "RM-808",
-        "Summary": "Notificar expiração de rascunho",
-        "Status": "PRONTO PRA DESENVOLVER",
+        "Summary": "Gestão de notificações - Rascunhos",
+        "Status": "EM DESENVOLVIMENTO",
         "Team": "GOL",
         "Created": "17/11/2025 15:18",
         "Resolved": null,
@@ -5673,7 +5673,7 @@
         "Type": "História",
         "Key": "MIGRA-59",
         "Summary": "[Release] Atualizar inicio de vigencia de contrato PÓS migração",
-        "Status": "PRONTO PRA DESENVOLVER",
+        "Status": "EM DESENVOLVIMENTO",
         "Team": "SANTANA",
         "Created": "19/01/2026 11:47",
         "Resolved": null,
@@ -5851,6 +5851,16 @@
     },
     {
         "Type": "História",
+        "Key": "LKD-296",
+        "Summary": "Homologação dos dados",
+        "Status": "EM DESENVOLVIMENTO",
+        "Team": "D.LAKE DOMINIO",
+        "Created": "23/03/2026 14:48",
+        "Resolved": null,
+        "Release": ""
+    },
+    {
+        "Type": "História",
         "Key": "LKD-289",
         "Summary": "Documentar e comunicar nova estrutura por domínio",
         "Status": "EM REFINAMENTO",
@@ -5912,7 +5922,7 @@
     {
         "Type": "História",
         "Key": "LKD-277",
-        "Summary": "Implementar envio para fila SQS (SF)",
+        "Summary": "Implementar envio para base dynamo(SF)",
         "Status": "PRONTO PRA DESENVOLVER",
         "Team": "D.LAKE DOMINIO",
         "Created": "18/03/2026 16:50",
@@ -5923,7 +5933,7 @@
         "Type": "História",
         "Key": "LKD-273",
         "Summary": "Visão Canônica de Agendamentos de Manutenção (Atualização Hora a Hora)",
-        "Status": "PRONTO PRA DESENVOLVER",
+        "Status": "EM DESENVOLVIMENTO",
         "Team": "D.LAKE DOMINIO",
         "Created": "18/03/2026 14:51",
         "Resolved": null,
@@ -6973,10 +6983,10 @@
         "Type": "História",
         "Key": "JAC-1565",
         "Summary": "[Blip][Arquitetura] Organizar a estrutura para a subida do S&D Colab.",
-        "Status": "EM ANDAMENTO",
+        "Status": "CONCLUIDO",
         "Team": "UP",
         "Created": "23/02/2026 14:33",
-        "Resolved": null,
+        "Resolved": "23/03/2026 10:05",
         "Release": "O4R1"
     },
     {
@@ -7643,7 +7653,7 @@
         "Type": "História",
         "Key": "CRED-734",
         "Summary": "Notificar sistemas que uma nova proposta foi criada",
-        "Status": "1. BACKLOG",
+        "Status": "SPRINT BACKLOG",
         "Team": "TAOS",
         "Created": "05/03/2026 14:40",
         "Resolved": null,
@@ -8363,10 +8373,10 @@
         "Type": "História",
         "Key": "APV-2251",
         "Summary": "[S&D] Melhoria Sublocação - Incluir campo na List View",
-        "Status": "QA EM PROGRESSO",
+        "Status": "DESENV CONCLUIDO",
         "Team": "FUSCA",
         "Created": "05/03/2026 16:22",
-        "Resolved": null,
+        "Resolved": "23/03/2026 21:10",
         "Release": "O4R2"
     },
     {
@@ -8452,7 +8462,7 @@
     {
         "Type": "História",
         "Key": "APV-2149",
-        "Summary": "[S&D] Disparo de E-mail Confirmação Veículo Reserva",
+        "Summary": "[S&D] Disparo de E?mail de Confirmação de Veículo Reserva (Sublocação)",
         "Status": "1. BACKLOG",
         "Team": "FUSCA",
         "Created": "20/02/2026 10:18",
@@ -8483,7 +8493,7 @@
         "Type": "História",
         "Key": "APV-2030",
         "Summary": "[S&D]Criação do Objeto Motorista, Objeto de Junção (motorista para conta), Layout/Campos e Configurações de Permissão",
-        "Status": "1. BACKLOG",
+        "Status": "EM DESENVOLVIMENTO",
         "Team": "FUSCA",
         "Created": "13/02/2026 09:42",
         "Resolved": null,
