@@ -305,7 +305,7 @@ const App: React.FC = () => {
                 <Area type="monotone" dataKey="A Fazer (Real)" stroke="var(--primary)" strokeWidth={3} fillOpacity={1} fill="url(#colorReal)" activeDot={{ r: 6, strokeWidth: 0 }} />
                 <Area type="monotone" dataKey="Melhor Cenário (3 itens/semana)" stroke="var(--success)" strokeWidth={2} strokeDasharray="4 4" fill="transparent" />
                 <Area type="monotone" dataKey="Pior Cenário (1 item/semana)" stroke="var(--danger)" strokeWidth={2} strokeDasharray="4 4" fill="transparent" />
-                {Object.keys(chartData[chartData.length-1] || {}).filter(k => k.startsWith('Tendência Real')).map(key => (
+                {Object.keys(chartData?.[chartData.length-1] || {}).filter(k => k.startsWith('Tendência Real')).map(key => (
                   <Area key={key} type="monotone" dataKey={key} stroke="var(--warning)" strokeWidth={2.5} strokeDasharray="3 3" fill="transparent" activeDot={{ r: 5 }} />
                 ))}
               </AreaChart>
@@ -355,9 +355,9 @@ const App: React.FC = () => {
               <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Saldo (Semana Atual):</span>
               <span style={{ 
                 fontSize: '2rem', fontWeight: 800, letterSpacing: '-0.02em',
-                color: weeklyPerformance[weeklyPerformance.length-1].Saldo > 0 ? 'var(--danger)' : 'var(--success)' 
+                color: (weeklyPerformance?.[weeklyPerformance.length-1]?.Saldo || 0) > 0 ? 'var(--danger)' : 'var(--success)' 
               }}>
-                {weeklyPerformance[weeklyPerformance.length-1].Saldo > 0 ? '+' : ''}{weeklyPerformance[weeklyPerformance.length-1].Saldo}
+                {(weeklyPerformance?.[weeklyPerformance.length-1]?.Saldo || 0) > 0 ? '+' : ''}{weeklyPerformance?.[weeklyPerformance.length-1]?.Saldo || 0}
               </span>
             </div>
           </motion.div>

@@ -15,6 +15,7 @@ const excelToJSDate = (dateStr: string | null) => {
   const s = String(dateStr).trim();
   if (s === "" || s.toLowerCase() === "null") return null;
 
+  // Handle ISO format/Hyphenated (YYYY-MM-DD)
   if (s.includes('-')) return new Date(s);
   
   if (s.includes('/')) {
@@ -22,33 +23,47 @@ const excelToJSDate = (dateStr: string | null) => {
     const parts = datePart.split('/').map(Number);
     if (parts.length !== 3) return null;
 
-    let [first, second, year] = parts;
-    
-    // Robust detection: if first component > 12, it must be the day (DD/MM/YY)
-    // If second component > 12, it must be the day (MM/DD/YY)
-    let day, month;
-    if (first > 12) {
-       day = first;
-       month = second;
-    } else {
-       // Default to MM/DD/YY based on Jira Cloud exports often seen in this project
-       month = first;
-       day = second;
-    }
+    let day, month, year;
 
-    // Handle 2-digit vs 4-digit years
-    let fullYear = year;
-    if (year < 100) {
-      fullYear = (year < 50 ? 2000 : 1900) + year;
+    // Detect format by position of the 4-digit year
+    if (parts[0] > 1000) {
+      // YYYY/MM/DD
+      year = parts[0];
+      month = parts[1];
+      day = parts[2];
+    } else if (parts[2] > 1000) {
+      // DD/MM/YYYY or MM/DD/YYYY
+      year = parts[2];
+      // Ambiguous: use 12+ detection or default to DD/MM (Brazilian Standard)
+      if (parts[0] > 12) {
+        day = parts[0];
+        month = parts[1];
+      } else if (parts[1] > 12) {
+        month = parts[0];
+        day = parts[1];
+      } else {
+        // DEFAULT TO DD/MM/YYYY (Brazilian) - Prioritized for this project
+        day = parts[0];
+        month = parts[1];
+      }
+    } else {
+      // handle 2-digit years if they still exist
+      let [first, second, y] = parts;
+      year = (y < 50 ? 2000 : 1900) + y;
+      if (first > 12) {
+        day = first; month = second;
+      } else {
+        day = first; month = second; // Default DD/MM
+      }
     }
 
     if (timePart) {
       const timeParts = timePart.split(':').map(Number);
       const hours = timeParts[0] || 0;
       const minutes = timeParts[1] || 0;
-      return new Date(fullYear, month - 1, day, hours, minutes);
+      return new Date(year, month - 1, day, hours, minutes);
     }
-    return new Date(fullYear, month - 1, day);
+    return new Date(year, month - 1, day);
   }
 
   const excelDate = parseFloat(s);
@@ -140,9 +155,12 @@ export const useDashboardData = () => {
     });
 
     // 3. Generate Timeline & Burndown
+    const now = new Date();
+    const futureLimit = new Date(now.getTime() + 7 * 86400000);
+    
     const timelineWeeks = Array.from(new Set(rawItems.map(i => {
       const d = excelToJSDate(i.Resolved) || excelToJSDate(i.Created);
-      return d ? getMon(d).toISOString() : null;
+      return (d && d <= futureLimit) ? getMon(d).toISOString() : null;
     }))).filter(Boolean).sort() as string[];
 
     const dynamicHistory = timelineWeeks.map(weekKey => {
@@ -204,6 +222,8 @@ export const useDashboardData = () => {
         });
         if (currentBest === 0 && currentWorst === 0 && currentTrend === 0) break;
       }
+      // Final step: Sort to ensure perfect integration if any future dates existed
+      chartData.sort((a, b) => a.fullDate.getTime() - b.fullDate.getTime());
     }
 
     // 5. Weekly Performance (Throughput/LeadTime)
@@ -250,7 +270,7 @@ export const useDashboardData = () => {
     // 6. Final Metrics
     return { 
       chartData, 
-      weeklyPerformance: weeklyStats,
+      weeklyPerformance: weeklyStats.slice(-18),
       metrics: { 
         totalItems: filtered.length,
         deliveredCount: filtered.filter(i => !!i.Resolved).length,
