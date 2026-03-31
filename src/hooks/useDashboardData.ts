@@ -12,18 +12,45 @@ const getMon = (d: Date) => {
 // Utility to convert Excel Decimal Date to JS Date
 const excelToJSDate = (dateStr: string | null) => {
   if (!dateStr) return null;
-  const s = String(dateStr);
+  const s = String(dateStr).trim();
+  if (s === "" || s.toLowerCase() === "null") return null;
+
   if (s.includes('-')) return new Date(s);
+  
   if (s.includes('/')) {
-    // Handle DD/MM/YYYY or DD/MM/YYYY HH:MM
     const [datePart, timePart] = s.split(' ');
-    const [day, month, year] = datePart.split('/').map(Number);
-    if (timePart) {
-      const [hours, minutes] = timePart.split(':').map(Number);
-      return new Date(year, month - 1, day, hours, minutes);
+    const parts = datePart.split('/').map(Number);
+    if (parts.length !== 3) return null;
+
+    let [first, second, year] = parts;
+    
+    // Robust detection: if first component > 12, it must be the day (DD/MM/YY)
+    // If second component > 12, it must be the day (MM/DD/YY)
+    let day, month;
+    if (first > 12) {
+       day = first;
+       month = second;
+    } else {
+       // Default to MM/DD/YY based on Jira Cloud exports often seen in this project
+       month = first;
+       day = second;
     }
-    return new Date(year, month - 1, day);
+
+    // Handle 2-digit vs 4-digit years
+    let fullYear = year;
+    if (year < 100) {
+      fullYear = (year < 50 ? 2000 : 1900) + year;
+    }
+
+    if (timePart) {
+      const timeParts = timePart.split(':').map(Number);
+      const hours = timeParts[0] || 0;
+      const minutes = timeParts[1] || 0;
+      return new Date(fullYear, month - 1, day, hours, minutes);
+    }
+    return new Date(fullYear, month - 1, day);
   }
+
   const excelDate = parseFloat(s);
   if (isNaN(excelDate)) return null;
   const date = new Date((excelDate - 25569) * 86400 * 1000);
