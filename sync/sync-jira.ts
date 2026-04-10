@@ -17,7 +17,11 @@ async function main() {
 
   const client = new JiraClient(baseUrl, email, token);
   
-  const simpleJql = `project is not empty and type not in (Epic, subTaskIssueTypes()) and ("Release[Labels]" in (O4R1,O4R2,BAF,BAF-QW) or "Jornada[Labels]" in (COMPRAS, ESTOQUE, MOB,LAKE-DOMINIO)) and "Automação[Select List (cascading)]" = EMPTY and ("Natureza da Demanda[Labels]" not in (TESTES-LOCAVIA) or "Natureza da Demanda[Labels]" is EMPTY) AND created >= -60d ORDER BY created DESC`;
+  const projects = ['WA', 'VAA', 'TERA', 'SN', 'RM', 'PRICI', 'MS', 'MIGRA', 'MDD', 'LKE', 'LKD', 'LI', 'JAC', 'DESMOB', 'CTO', 'CRED', 'COMP', 'APV'];
+  const jornadas = ['"WHATSAPP"', '"COMERCIAL"', '"POS_VENDA"', '"MIGRA_BLIP"', '"VENDAS_AUTO-ATENDIMENTO"', '"CONTRATOS"', '"MOB"', '"SEMINOVOS"', '"ESTOQUE"', '"FATURAMENTO"', '"GOVERNANÇA_DADOS"', '"VENDAS_ASSISTIDAS"', '"MANUTENÇÃO"', '"MULTAS"', '"CADASTRO_DE_USUÁRIO"', '"COMPRAS"', '"ATENDIMENTO"', '"MOB/DESMOB"', '"RESSARCIMENTO"', '"COBRANÇA"', '"PRICING"', '"MIGRAÇÃO"', '"LAKE-DOMINIO"', '"LAKE-ESTRUTURANTE"', '"BI/LAKE"', '"PROPOSTA"', '"RISCO"', '"CREDITO"', '"SALESFORCE_PÓSVEND"'];
+  const releases = ['"O4R1"', '"O4R2"', '"BAF"', '"BAF-QW"', '"CEM"', '"WHATSAPP"', '"MOB"', '"COMPRAS"', '"ESTOQUE"', '"CONTRATOS"', '"FATURAMENTO"'];
+  
+  const simpleJql = `project in (${projects.join(',')}) and type not in (Epic, subTaskIssueTypes()) and ("Release[Labels]" in (${releases.join(',')}) or "Jornada[Labels]" in (${jornadas.join(',')})) and "Automação[Select List (cascading)]" = EMPTY and ("Natureza da Demanda[Labels]" not in (TESTES-LOCAVIA) or "Natureza da Demanda[Labels]" is EMPTY) ORDER BY created DESC`;
 
   console.log(`Iniciando sincronização Jira... JQL: ${simpleJql}`);
 

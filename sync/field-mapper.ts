@@ -1,6 +1,38 @@
 import { JiraApiIssue, DashboardItem } from '../src/types/jira';
 
 const teamMapping: Record<string, string> = {
+  // De-para baseado na coluna "time" da planilha CSV
+  'WHATSAPP': 'Atendimento WhatsApp',
+  'COMERCIAL': 'Crédito e Proposta',
+  'POS_VENDA': 'Pós Venda Salesforce',
+  'MIGRA_BLIP': 'Portal de Auto Atendimento',
+  'VENDAS_AUTO-ATENDIMENTO': 'Portal de Auto Atendimento',
+  'CONTRATOS': 'Contratos / Multas / Ressarcimento / Manutenção',
+  'MOB': 'Mobilização',
+  'SEMINOVOS': 'Seminovos',
+  'ESTOQUE': 'Compras e Estoque',
+  'FATURAMENTO': 'Faturamento',
+  'GOVERNANÇA_DADOS': 'Governança de Dados',
+  'VENDAS_ASSISTIDAS': 'Portal de Vendas Assistidas',
+  'MANUTENÇÃO': 'Contratos / Multas / Ressarcimento / Manutenção',
+  'MULTAS': 'Contratos / Multas / Ressarcimento / Manutenção',
+  'CADASTRO_DE_USUÁRIO': 'Core System',
+  'COMPRAS': 'Compras e Estoque',
+  'ATENDIMENTO': 'Core System',
+  'MOB/DESMOB': 'Mobilização',
+  'RESSARCIMENTO': 'Contratos / Multas / Ressarcimento / Manutenção',
+  'COBRANÇA': 'Core System',
+  'PRICING': 'Pricing',
+  'MIGRAÇÃO': 'Migração de Dados',
+  'LAKE-DOMINIO': 'Relatórios de BI',
+  'LAKE-ESTRUTURANTE': 'Construção do Data Lake',
+  'BI/LAKE': 'Relatórios de BI',
+  'PROPOSTA': 'Crédito e Proposta',
+  'RISCO': 'Crédito e Proposta',
+  'CREDITO': 'Crédito e Proposta',
+  'SALESFORCE_PÓSVEND': 'Pós Venda Salesforce',
+  
+  // Siglas de fallback
   'GOL': 'Portal de Vendas Assistidas',
   'TERA': 'Faturamento',
   'OPTIMUS': 'Contratos / Multas / Ressarcimento / Manutenção',
@@ -14,24 +46,23 @@ const teamMapping: Record<string, string> = {
   'SANTANA': 'Migração de Dados',
   'TAOS': 'Crédito e Proposta',
   'FUSCA': 'Pós Venda Salesforce',
-  'DATA LAKE DOMINIO': 'Relatórios de BI',
-  'D.LAKE DOMINIO': 'Relatórios de BI',
-  'DATA LAKE ESTRUTURANTE': 'Construção do Data Lake',
-  'PLATAFORMA': 'Core System'
+  'PLATAFORMA': 'Core System',
+  'D.LAKE DOMINIO': 'Relatórios de BI'
 };
 
 const prefixToCar: Record<string, string> = {
   'CTO': 'OPTIMUS',
   'VAA': 'NIVUS',
   'SN': 'SANTANA',
-  'WA': 'GOL',
-  'APV': 'FUSCA',
-  'JAC': 'GOL',
+  'WA': 'WHATSAPP', // Map to the more descriptive one
+  'APV': 'SALESFORCE_PÓSVEND',
+  'JAC': 'WHATSAPP',
   'MDD': 'SANTANA',
-  'LKD': 'D.LAKE DOMINIO',
-  'MIGRA': 'SANTANA',
-  'COMP': 'SCANIA',
-  'RM': 'JETTA' // Based on sample investigation
+  'LKD': 'LAKE-DOMINIO',
+  'MIGRA': 'MIGRAÇÃO',
+  'COMP': 'COMPRAS',
+  'RM': 'JETTA',
+  'TERA': 'FATURAMENTO'
 };
 
 export function mapJiraIssueToDashboardItem(issue: JiraApiIssue): DashboardItem {
@@ -48,11 +79,15 @@ export function mapJiraIssueToDashboardItem(issue: JiraApiIssue): DashboardItem 
   if (timeField && timeField.value) rawTeam = timeField.value;
   else if (teamField && teamField.value) rawTeam = teamField.value;
   else if (jornadaValues.length > 0) rawTeam = jornadaValues[0];
+  else if (issue.fields.labels && issue.fields.labels.length > 0) {
+    const matchedLabel = (issue.fields.labels as string[]).find(l => teamMapping[l.toUpperCase()]);
+    if (matchedLabel) rawTeam = matchedLabel;
+  }
 
   let foundArea = '';
   let carRef = '';
   
-  const teamToTry = rawTeam.toUpperCase();
+  const teamToTry = rawTeam.toUpperCase().replace(/\s+/g, '_');
   if (teamMapping[teamToTry]) {
     foundArea = teamMapping[teamToTry];
     carRef = teamToTry;
@@ -75,7 +110,7 @@ export function mapJiraIssueToDashboardItem(issue: JiraApiIssue): DashboardItem 
 
   let finalTeam = 'OUTROS SQUADS';
   if (foundArea) {
-    finalTeam = carRef && carRef !== foundArea ? `${carRef} (${foundArea})` : foundArea;
+    finalTeam = foundArea;
   } else if (rawTeam) {
     finalTeam = rawTeam;
   }
@@ -90,7 +125,9 @@ export function mapJiraIssueToDashboardItem(issue: JiraApiIssue): DashboardItem 
   if (mainRelease) {
     finalRelease = mainRelease.toUpperCase().replace(/[^A-Z0-9]/g, '');
   } else {
-    const backup = allReleasesRaw.find(p => ['BAF', 'CEM', 'BAF-QW'].includes(p.toUpperCase()));
+    // Backups comuns na planilha
+    const backups = ['BAF', 'CEM', 'BAF-QW', 'WHATSAPP', 'MOB', 'ESTOQUE', 'CONTRATOS', 'COMPRAS'];
+    const backup = allReleasesRaw.find(p => backups.includes(p.toUpperCase()));
     if (backup) finalRelease = backup.toUpperCase();
     else if (allReleasesRaw.length > 0) finalRelease = allReleasesRaw[0];
   }
@@ -101,17 +138,13 @@ export function mapJiraIssueToDashboardItem(issue: JiraApiIssue): DashboardItem 
   
   let category: DashboardItem['StatusCategory'] = 'TODO';
   
-  // Statuses that represent "DONE" (refined to avoid false positives like "Ready for Dev")
-  const statusNameLower = statusName.toLowerCase();
-  
-  if (categoryName.includes('DONE') || 
-      ['CONCLUÍDO', 'DONE', 'RESOLVIDO', 'FINALIZADO', 'ENTREGUE', 'FECHADO', 'CONCLUIDO'].includes(statusName) ||
-      statusName === 'PRONTO' // Only if exactly "PRONTO"
-  ) {
+  // Statuses that represent "DONE" (refined for full parity with CSV)
+  const doneStatuses = ['CONCLUIDO', 'CONCLUÍDO', 'DESENV CONCLUIDO', 'DONE', 'RESOLVIDO', 'FINALIZADO', 'ENTREGUE', 'FECHADO', 'ENTREGA FINALIZADA'];
+  const inProgressStatuses = ['EM DESENVOLVIMENTO', 'IN PROGRESS', 'EM ANDAMENTO', 'DESENVOLVENDO', 'SENDO DESENVOLVIDO', 'FIXING', 'REFINANDO', 'EM REFINAMENTO', 'AGUARDANDO QA', 'QA EM PROGRESSO', 'AGUARDANDO CODE REVIEW', 'CODE REVIEW EM PROGRESSO'];
+
+  if (categoryName.includes('DONE') || doneStatuses.some(s => statusName === s || statusName.includes(s))) {
     category = 'DONE';
-  } else if (categoryName.includes('PROGRESS') || 
-             ['EM DESENVOLVIMENTO', 'IN PROGRESS', 'EM ANDAMENTO', 'DESENVOLVENDO', 'SENDO DESENVOLVIDO', 'FIXING', 'REFINANDO', 'EM REFINAMENTO'].some(s => statusName.includes(s))
-  ) {
+  } else if (categoryName.includes('PROGRESS') || inProgressStatuses.some(s => statusName === s || statusName.includes(s))) {
     category = 'IN_PROGRESS';
   }
 

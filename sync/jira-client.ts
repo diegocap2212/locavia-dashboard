@@ -31,36 +31,42 @@ export class JiraClient {
     return response.json();
   }
 
-  // Busca issues via JQL com paginação automática
-  async searchIssues(jql: string, fields: string[] = ['*all'], expand: string[] = []): Promise<JiraApiIssue[]> {
+  // Busca issues via Enhanced Search (JQL) com paginação por tokens
+  async searchIssues(jql: string, fields: string[] = ['summary', 'status', 'issuetype', 'created', 'updated', 'labels', 'customfield_11330', 'customfield_12386', 'customfield_11795', 'customfield_10001', 'customfield_10215', 'customfield_13065', 'customfield_12683']): Promise<JiraApiIssue[]> {
     const allIssues: JiraApiIssue[] = [];
-    let startAt = 0;
+    let nextPageToken: string | undefined = undefined;
     const maxResults = 100;
     let isLast = false;
 
     while (!isLast) {
-      console.log(`Buscando iterativamente, startAt: ${startAt}...`);
+      console.log(`Buscando lote de issues (token: ${nextPageToken || 'inicial'})...`);
       
-      const queryParams = new URLSearchParams({
+      const body: any = {
         jql,
-        startAt: startAt.toString(),
-        maxResults: maxResults.toString(),
-        fields: fields.join(',')
-      });
-      if (expand && expand.length > 0) {
-        queryParams.append('expand', expand.join(','));
+        maxResults,
+        fields,
+        fieldsByKeys: false
+      };
+      
+      if (nextPageToken) {
+        body.nextPageToken = nextPageToken;
       }
 
-      const data = await this.request(`/search/jql?${queryParams.toString()}`, {
-        method: 'GET'
+      const data = await this.request('/search/jql', {
+        method: 'POST',
+        body: JSON.stringify(body)
       });
 
       if (data.issues && data.issues.length > 0) {
         allIssues.push(...data.issues);
       }
 
-      startAt += data.issues.length;
-      isLast = startAt >= data.total || data.issues.length === 0 || allIssues.length >= 2000;
+      nextPageToken = data.nextPageToken;
+      isLast = !nextPageToken || allIssues.length >= 30000;
+      
+      if (isLast && nextPageToken) {
+        console.log(`Aviso: Limite de 30.000 itens atingido, mas ainda há mais dados.`);
+      }
     }
 
     return allIssues;
