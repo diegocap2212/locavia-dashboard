@@ -1,6 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { Calendar, AlertCircle, CheckCircle2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Calendar } from 'lucide-react';
 
 interface Cell {
   weekKey: string;

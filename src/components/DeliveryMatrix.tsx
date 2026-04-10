@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, CheckCircle2, AlertCircle, Clock } from 'lucide-react';
+import { Calendar, CheckCircle2, AlertCircle } from 'lucide-react';
 
 interface MatrixProps {
   data: {
@@ -14,7 +14,6 @@ interface MatrixProps {
 const DeliveryMatrix: React.FC<MatrixProps> = ({ data, totalItems }) => {
   const delivered = data.statusGroups.find(g => g.status === 'DONE')?.count || 0;
   const inProgress = data.statusGroups.find(g => g.status === 'IN_PROGRESS')?.count || 0;
-  const todo = data.statusGroups.find(g => g.status === 'TODO')?.count || 0;
 
   // Calculate weeks from a reference start (e.g. Dec 2024 or Start of the release)
   // For simplicity and "wow" factor, let's visualize the "Backlog health"
