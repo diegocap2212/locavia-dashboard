@@ -9,7 +9,7 @@ import {
   Bell, Calendar
 } from 'lucide-react';
 import { useDashboardData, excelToJSDate, formatDate } from './hooks/useDashboardData';
-import DeliveryMatrix from './components/DeliveryMatrix';
+import TemporalDeliveryMatrix from './components/TemporalDeliveryMatrix';
 import './App.css';
 
 const containerVariants: Variants = {
@@ -192,7 +192,7 @@ const App: React.FC = () => {
     filteredList, teams, releases, selectedTeams, setSelectedTeams,
     selectedReleases, setSelectedReleases,
     startDate, setStartDate, endDate, setEndDate,
-    matrixData
+    temporalMatrixData
   } = useDashboardData();
 
   if (loading) {
@@ -324,7 +324,7 @@ const App: React.FC = () => {
         </motion.div>
 
         <motion.div variants={itemVariants}>
-          <DeliveryMatrix data={matrixData} totalItems={metrics.totalItems} />
+          <TemporalDeliveryMatrix data={temporalMatrixData} />
         </motion.div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1fr', gap: '1.5rem', marginTop: '1.5rem' }}>

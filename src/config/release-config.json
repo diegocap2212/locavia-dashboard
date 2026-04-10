@@ -1,0 +1,24 @@
+{
+  "releases": [
+    {
+      "id": "O4R1",
+      "deadline": "2025-12-23T00:00:00.000Z",
+      "displayName": "Release O4R1 (Dez/25)"
+    },
+    {
+      "id": "O4R2",
+      "deadline": "2026-04-05T00:00:00.000Z",
+      "displayName": "Release O4R2 (Abr/26)"
+    },
+    {
+      "id": "O4R3",
+      "deadline": "2026-08-30T00:00:00.000Z",
+      "displayName": "Release O4R3 (Ago/26)"
+    },
+    {
+      "id": "DEFAULT",
+      "deadline": "2026-12-31T00:00:00.000Z",
+      "displayName": "Padrão Sistema"
+    }
+  ]
+}

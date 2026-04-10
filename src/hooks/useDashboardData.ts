@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { fetchData, type JiraItem } from '../services/dataService';
 import rawDataFallback from '../data.json';
+import releaseConfig from '../config/release-config.json';
 
 const getMon = (d: Date) => {
   const mon = new Date(d);
@@ -240,26 +241,83 @@ export const useDashboardData = () => {
       chartData.sort((a, b) => a.fullDate.getTime() - b.fullDate.getTime());
     }
 
-    // 5. Matrix Data (Planned vs Actual)
-    // Distributed even backlog across remaining weeks
-    const openItems = filtered.filter(i => !i.Resolved && i.Status !== 'DESCARTADO');
-    const weeksToDeadline = Math.max(1, Math.ceil((RELEASE_DEADLINE.getTime() - new Date().getTime()) / (7 * 86400000)));
-    const itemsPerWeek = openItems.length / weeksToDeadline;
+    // 5. Temporal Matrix Data (Heatmap)
+    const minD = filtered.length > 0 ? filtered.reduce((m, i) => { const d = excelToJSDate(i.Created); return (d && d < m) ? d : m; }, new Date()) : new Date(2025, 0, 1);
+    const maxDeadline = releaseConfig.releases.map(r => new Date(r.deadline)).reduce((a, b) => a > b ? a : b, new Date());
     
-    const matrixData = {
-      deadline: RELEASE_DEADLINE,
-      itemsPerWeek: itemsPerWeek.toFixed(1),
-      statusGroups: ['TODO', 'IN_PROGRESS', 'DONE'].map(status => {
-        return {
-          status,
-          count: filtered.filter(i => {
-            if (status === 'DONE') return !!i.Resolved;
-            if (status === 'IN_PROGRESS') return !i.Resolved && i.Status.includes('PROGRESS');
-            return !i.Resolved && !i.Status.includes('PROGRESS') && i.Status !== 'DESCARTADO';
-          }).length
-        };
-      })
-    };
+    let matrixMinDate = new Date(2025, 0, 1);
+    if (minD > matrixMinDate) matrixMinDate = minD;
+    
+    const matrixWeeks: { key: string; label: string; date: Date }[] = [];
+    const curMatrixWeek = getMon(matrixMinDate);
+    const endMatrixWeek = new Date(Math.max(Date.now(), maxDeadline.getTime() + 7 * 86400000));
+    
+    while (curMatrixWeek <= endMatrixWeek) {
+      matrixWeeks.push({
+        key: curMatrixWeek.toISOString(),
+        label: formatDate(curMatrixWeek),
+        date: new Date(curMatrixWeek)
+      });
+      curMatrixWeek.setDate(curMatrixWeek.getDate() + 7);
+    }
+    
+    const teamsMap = new Map<string, JiraItem[]>();
+    filtered.forEach(i => {
+       const team = i.Team || 'Sem Time';
+       if (!teamsMap.has(team)) teamsMap.set(team, []);
+       teamsMap.get(team)!.push(i);
+    });
+
+    const matrixRows = Array.from(teamsMap.entries()).map(([teamName, items]) => {
+      const releaseCounts: Record<string, number> = {};
+      items.forEach(i => {
+         const r = i.Release || 'DEFAULT';
+         releaseCounts[r] = (releaseCounts[r] || 0) + 1;
+      });
+      const topReleaseId = Object.keys(releaseCounts).sort((a, b) => releaseCounts[b] - releaseCounts[a])[0] || 'DEFAULT';
+      const rConf = releaseConfig.releases.find(r => r.id === topReleaseId) || releaseConfig.releases.find(r => r.id === 'DEFAULT')!;
+      const deadline = new Date(rConf.deadline);
+      const totalTeamItems = items.length;
+      
+      const firstItemCreated = items.reduce((m, i) => { const d = excelToJSDate(i.Created); return (d && d < m) ? d : m; }, new Date());
+      const teamStartWeek = getMon(firstItemCreated);
+      const startMs = teamStartWeek.getTime();
+      const endMs = getMon(deadline).getTime();
+      const totalWeeksForTeam = Math.max(1, Math.round((endMs - startMs) / (7 * 86400000)));
+      const itemsPerWeekMeta = totalTeamItems / totalWeeksForTeam;
+      
+      const cells = matrixWeeks.map(w => {
+         let meta = 0;
+         if (w.date < teamStartWeek) {
+            meta = totalTeamItems;
+         } else if (w.date >= deadline) {
+            meta = 0;
+         } else {
+            const weeksPassed = Math.max(0, Math.round((w.date.getTime() - startMs) / (7 * 86400000)));
+            meta = Math.max(0, Math.round(totalTeamItems - (weeksPassed * itemsPerWeekMeta)));
+         }
+         
+         const wEnd = new Date(w.date);
+         wEnd.setDate(wEnd.getDate() + 7);
+         const isPast = w.date <= new Date();
+         
+         const execucao = isPast ? items.filter(i => {
+            const c = excelToJSDate(i.Created);
+            const r = excelToJSDate(i.Resolved);
+            if (!c || c >= wEnd) return false;
+            if (!r || r >= wEnd) return true;
+            return false;
+         }).length : null;
+         
+         return { weekKey: w.key, meta, execucao, isPast };
+      });
+      
+      return { groupName: teamName, releaseName: topReleaseId, totalItems: totalTeamItems, deadline, cells };
+    });
+    
+    matrixRows.sort((a, b) => b.totalItems - a.totalItems);
+    
+    const temporalMatrixData = { weeks: matrixWeeks, rows: matrixRows };
 
     // 5. Weekly Performance (Throughput/LeadTime)
     const weeklyStats: any[] = [];
@@ -319,7 +377,7 @@ export const useDashboardData = () => {
       filteredList: filtered,
       teams: teamsList,
       releases: releasesList,
-      matrixData
+      temporalMatrixData
     };
   }, [data, selectedTeams, selectedReleases, startDate, endDate]);
 
@@ -338,4 +396,4 @@ export const useDashboardData = () => {
   };
 };
 
-export { excelToJSDate };
+export { excelToJSDate, getMon };
