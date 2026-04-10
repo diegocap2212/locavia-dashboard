@@ -9,12 +9,16 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "sync": "tsx scripts/sync-data.ts",
+    "sync:jira": "tsx sync/sync-jira.ts",
+    "sync:discover-fields": "tsx sync/sync-discover.ts",
     "process-csv": "tsx scripts/process-local-csv.ts",
     "verify-data": "tsx scripts/verify-data.ts",
+    "update-data": "tsx scripts/update-data.ts",
     "test": "playwright test",
     "verify-all": "npm run verify-data && npm test"
   },
   "dependencies": {
+    "dotenv": "^17.4.1",
     "framer-motion": "^12.38.0",
     "lucide-react": "^0.577.0",
     "react": "^19.2.4",
