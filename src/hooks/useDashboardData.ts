@@ -292,6 +292,10 @@ export const useDashboardData = () => {
         weeklyStats.push({
           name: formatWeekRange(wStart),
           "Saídas": resolved.length,
+          "História": resolved.filter(i => i.Type === 'História').length,
+          "Bug": resolved.filter(i => i.Type === 'Bug').length,
+          "Tarefa": resolved.filter(i => i.Type === 'Tarefa').length,
+          "Spike": resolved.filter(i => i.Type === 'Spike').length,
           "Entradas": inflow,
           "Saldo": inflow - resolved.length,
           "Vazão Total": resolved.length,

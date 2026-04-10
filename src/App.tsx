@@ -340,8 +340,11 @@ const App: React.FC = () => {
                   <YAxis yAxisId="left" orientation="left" stroke="var(--text-muted)" tick={{fontSize: 11}} axisLine={false} tickLine={false} />
                   <YAxis yAxisId="right" orientation="right" stroke="var(--warning)" tick={{fontSize: 11}} axisLine={false} tickLine={false} dx={10} />
                   <Tooltip contentStyle={{ backgroundColor: 'var(--surface-color)', border: '1px solid var(--border-color)', borderRadius: '12px', boxShadow: 'var(--shadow-md)' }} />
-                  <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }}/>
-                  <Bar yAxisId="left" dataKey="Vazão Total" fill="var(--primary)" barSize={24} radius={[4, 4, 0, 0]} />
+                  <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }}/>
+                  <Bar yAxisId="left" dataKey="História" stackId="a" fill="#3b82f6" name="Histórias" />
+                  <Bar yAxisId="left" dataKey="Bug" stackId="a" fill="#ef4444" name="Bugs" />
+                  <Bar yAxisId="left" dataKey="Tarefa" stackId="a" fill="#9ca3af" name="Tarefas" />
+                  <Bar yAxisId="left" dataKey="Spike" stackId="a" fill="#f59e0b" name="Spikes" radius={[4, 4, 0, 0]} />
                   <Line yAxisId="right" type="monotone" dataKey="Lead Time (Méd)" stroke="var(--warning)" strokeWidth={3} dot={{ r: 4, strokeWidth: 2, fill: 'white' }} activeDot={{ r: 6 }} />
                 </ComposedChart>
               </ResponsiveContainer>
