@@ -60,7 +60,7 @@ export class JiraClient {
       }
 
       startAt += data.issues.length;
-      isLast = startAt >= data.total || data.issues.length === 0 || allIssues.length >= 10000; // Limit to 10000
+      isLast = startAt >= data.total || data.issues.length === 0 || allIssues.length >= 2000;
     }
 
     return allIssues;

@@ -17,7 +17,7 @@ async function main() {
 
   const client = new JiraClient(baseUrl, email, token);
   
-  const simpleJql = `project is not empty and type not in (Epic, subTaskIssueTypes()) and ("Release[Labels]" in (O4R1,O4R2,BAF,BAF-QW) or "Jornada[Labels]" in (COMPRAS, ESTOQUE, MOB,LAKE-DOMINIO)) and "Automação[Select List (cascading)]" = EMPTY and ("Natureza da Demanda[Labels]" not in (TESTES-LOCAVIA) or "Natureza da Demanda[Labels]" is EMPTY) ORDER BY created DESC`;
+  const simpleJql = `project is not empty and type not in (Epic, subTaskIssueTypes()) and ("Release[Labels]" in (O4R1,O4R2,BAF,BAF-QW) or "Jornada[Labels]" in (COMPRAS, ESTOQUE, MOB,LAKE-DOMINIO)) and "Automação[Select List (cascading)]" = EMPTY and ("Natureza da Demanda[Labels]" not in (TESTES-LOCAVIA) or "Natureza da Demanda[Labels]" is EMPTY) AND created >= -60d ORDER BY created DESC`;
 
   console.log(`Iniciando sincronização Jira... JQL: ${simpleJql}`);
 
