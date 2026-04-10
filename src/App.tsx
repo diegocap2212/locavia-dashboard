@@ -9,6 +9,7 @@ import {
   Bell, Calendar
 } from 'lucide-react';
 import { useDashboardData, excelToJSDate, formatDate } from './hooks/useDashboardData';
+import DeliveryMatrix from './components/DeliveryMatrix';
 import './App.css';
 
 const containerVariants: Variants = {
@@ -190,7 +191,8 @@ const App: React.FC = () => {
     loading, chartData, weeklyPerformance, metrics,
     filteredList, teams, releases, selectedTeams, setSelectedTeams,
     selectedReleases, setSelectedReleases,
-    startDate, setStartDate, endDate, setEndDate
+    startDate, setStartDate, endDate, setEndDate,
+    matrixData
   } = useDashboardData();
 
   if (loading) {
@@ -282,7 +284,8 @@ const App: React.FC = () => {
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--primary)' }}></div> Realizado</span>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--warning)' }}></div> Tendência</span>
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--success)' }}></div> Melhor Cenário</span>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--success)' }}></div> Melhor Caso</span>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--danger)' }}></div> Pior Caso</span>
             </div>
           </div>
           <div style={{ width: '100%', height: 380 }}>
@@ -303,14 +306,25 @@ const App: React.FC = () => {
                   labelStyle={{ color: 'var(--text-muted)', marginBottom: '8px', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase' }}
                 />
                 <Area type="monotone" dataKey="A Fazer (Real)" stroke="var(--primary)" strokeWidth={3} fillOpacity={1} fill="url(#colorReal)" activeDot={{ r: 6, strokeWidth: 0 }} />
-                <Area type="monotone" dataKey="Melhor Cenário (3 itens/semana)" stroke="var(--success)" strokeWidth={2} strokeDasharray="4 4" fill="transparent" />
-                <Area type="monotone" dataKey="Pior Cenário (1 item/semana)" stroke="var(--danger)" strokeWidth={2} strokeDasharray="4 4" fill="transparent" />
-                {Object.keys(chartData?.[chartData.length-1] || {}).filter(k => k.startsWith('Tendência Real')).map(key => (
-                  <Area key={key} type="monotone" dataKey={key} stroke="var(--warning)" strokeWidth={2.5} strokeDasharray="3 3" fill="transparent" activeDot={{ r: 5 }} />
-                ))}
+                {Object.keys(chartData?.[chartData.length-1] || {}).map(key => {
+                  if (key.startsWith('Melhor Cenário')) {
+                    return <Area key={key} type="monotone" dataKey={key} stroke="var(--success)" strokeWidth={2} strokeDasharray="4 4" fill="transparent" />;
+                  }
+                  if (key.startsWith('Pior Cenário')) {
+                    return <Area key={key} type="monotone" dataKey={key} stroke="var(--danger)" strokeWidth={2} strokeDasharray="4 4" fill="transparent" />;
+                  }
+                  if (key.startsWith('Tendência Real')) {
+                    return <Area key={key} type="monotone" dataKey={key} stroke="var(--warning)" strokeWidth={2.5} strokeDasharray="3 3" fill="transparent" activeDot={{ r: 5 }} />;
+                  }
+                  return null;
+                })}
               </AreaChart>
             </ResponsiveContainer>
           </div>
+        </motion.div>
+
+        <motion.div variants={itemVariants}>
+          <DeliveryMatrix data={matrixData} totalItems={metrics.totalItems} />
         </motion.div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1fr', gap: '1.5rem', marginTop: '1.5rem' }}>

@@ -186,27 +186,40 @@ export const useDashboardData = () => {
         delivered: resolvedAtWeek,
         aFazer
       };
-    }).filter(d => d["A Fazer (Real)"] !== null || d.fullDate >= getMon(new Date()));
+    }).filter(d => (d["A Fazer (Real)"] !== null || d.fullDate >= getMon(new Date())) && d.fullDate >= new Date(2024, 11, 1)); // Filter to show from Dec 2024
 
-    // 4. Projections
+    // 4. Projections & Velocity
     const chartData: any[] = [...dynamicHistory];
+    const RELEASE_DEADLINE = new Date(2026, 6, 10); // 10 de Julho de 2026
+    
     if (chartData.length > 0) {
       const lastReal = dynamicHistory.filter(d => d["A Fazer (Real)"] !== null).pop();
       const lastValue = lastReal?.aFazer || 0;
       const lastDate = lastReal?.fullDate || new Date();
       
-      const firstDel = filtered.reduce((min, item) => {
-        const r = excelToJSDate(item.Resolved);
-        return (r && r < min) ? r : min;
-      }, new Date());
-      const velocity = filtered.filter(i => !!i.Resolved).length / Math.max(1, Math.ceil((new Date().getTime() - firstDel.getTime()) / (7 * 86400000)));
+      // Calculate Velocity based on last 4 weeks for better Trend sensitivity
+      const fourWeeksAgo = new Date(lastDate);
+      fourWeeksAgo.setDate(fourWeeksAgo.getDate() - 28);
+      
+      const recentDeliveries = filtered.filter(i => {
+        const r = excelToJSDate(i.Resolved);
+        return r && r >= fourWeeksAgo && r <= lastDate;
+      }).length;
+      
+      const velocity = Math.max(0.5, recentDeliveries / 4); // Min 0.5 to avoid static lines
+      const bestVelocity = Math.max(velocity * 1.5, 4);
+      const worstVelocity = Math.max(velocity * 0.5, 1);
+      
       const vLabel = `Tendência Real (${velocity.toFixed(1)} itens/semana)`;
+      const bLabel = `Melhor Cenário (${bestVelocity.toFixed(1)} itens/semana)`;
+      const wLabel = `Pior Cenário (${worstVelocity.toFixed(1)} itens/semana)`;
 
       let currentBest = lastValue, currentWorst = lastValue, currentTrend = lastValue;
       
-      for (let i = 1; i <= 15; i++) {
-        currentBest = Math.max(0, currentBest - 3);
-        currentWorst = Math.max(0, currentWorst - 1);
+      // Project until zero OR 20 weeks ahead
+      for (let i = 1; i <= 30; i++) {
+        currentBest = Math.max(0, currentBest - bestVelocity);
+        currentWorst = Math.max(0, currentWorst - worstVelocity);
         currentTrend = Math.max(0, currentTrend - velocity);
         
         const nextDate = new Date(lastDate);
@@ -215,16 +228,38 @@ export const useDashboardData = () => {
         chartData.push({
           name: formatDate(nextDate),
           "A Fazer (Real)": null,
-          "Melhor Cenário (3 itens/semana)": currentBest,
-          "Pior Cenário (1 item/semana)": currentWorst,
+          [bLabel]: currentBest,
+          [wLabel]: currentWorst,
           [vLabel]: currentTrend,
           fullDate: nextDate
         });
-        if (currentBest === 0 && currentWorst === 0 && currentTrend === 0) break;
+        
+        // Stop if all scenarios reach zero AND we passed deadline
+        if (currentBest === 0 && currentWorst === 0 && currentTrend === 0 && nextDate > RELEASE_DEADLINE) break;
       }
-      // Final step: Sort to ensure perfect integration if any future dates existed
       chartData.sort((a, b) => a.fullDate.getTime() - b.fullDate.getTime());
     }
+
+    // 5. Matrix Data (Planned vs Actual)
+    // Distributed even backlog across remaining weeks
+    const openItems = filtered.filter(i => !i.Resolved && i.Status !== 'DESCARTADO');
+    const weeksToDeadline = Math.max(1, Math.ceil((RELEASE_DEADLINE.getTime() - new Date().getTime()) / (7 * 86400000)));
+    const itemsPerWeek = openItems.length / weeksToDeadline;
+    
+    const matrixData = {
+      deadline: RELEASE_DEADLINE,
+      itemsPerWeek: itemsPerWeek.toFixed(1),
+      statusGroups: ['TODO', 'IN_PROGRESS', 'DONE'].map(status => {
+        return {
+          status,
+          count: filtered.filter(i => {
+            if (status === 'DONE') return !!i.Resolved;
+            if (status === 'IN_PROGRESS') return !i.Resolved && i.Status.includes('PROGRESS');
+            return !i.Resolved && !i.Status.includes('PROGRESS') && i.Status !== 'DESCARTADO';
+          }).length
+        };
+      })
+    };
 
     // 5. Weekly Performance (Throughput/LeadTime)
     const weeklyStats: any[] = [];
@@ -279,7 +314,8 @@ export const useDashboardData = () => {
       }, 
       filteredList: filtered,
       teams: teamsList,
-      releases: releasesList
+      releases: releasesList,
+      matrixData
     };
   }, [data, selectedTeams, selectedReleases, startDate, endDate]);
 
