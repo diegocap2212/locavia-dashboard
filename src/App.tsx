@@ -307,13 +307,13 @@ const App: React.FC = () => {
                 />
                 <Area type="monotone" dataKey="A Fazer (Real)" stroke="var(--primary)" strokeWidth={3} fillOpacity={1} fill="url(#colorReal)" activeDot={{ r: 6, strokeWidth: 0 }} />
                 {Object.keys(chartData?.[chartData.length-1] || {}).map(key => {
-                  if (key.startsWith('Melhor Cenário')) {
+                  if (key.startsWith('Melhor Caso')) {
                     return <Area key={key} type="monotone" dataKey={key} stroke="var(--success)" strokeWidth={2} strokeDasharray="4 4" fill="transparent" />;
                   }
-                  if (key.startsWith('Pior Cenário')) {
+                  if (key.startsWith('Pior Caso')) {
                     return <Area key={key} type="monotone" dataKey={key} stroke="var(--danger)" strokeWidth={2} strokeDasharray="4 4" fill="transparent" />;
                   }
-                  if (key.startsWith('Tendência Real')) {
+                  if (key.startsWith('Tendência')) {
                     return <Area key={key} type="monotone" dataKey={key} stroke="var(--warning)" strokeWidth={2.5} strokeDasharray="3 3" fill="transparent" activeDot={{ r: 5 }} />;
                   }
                   return null;
