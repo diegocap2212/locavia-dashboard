@@ -15,8 +15,7 @@ const CLOUD_DATA_URL = import.meta.env.VITE_CLOUD_DATA_URL;
 export const fetchData = async (): Promise<JiraItem[]> => {
   if (!CLOUD_DATA_URL || CLOUD_DATA_URL.includes("your-id")) {
     console.warn("VITE_CLOUD_DATA_URL is not configured properly. Falling back to internal data.");
-    // We could return a local fallback here or throw an error.
-    // For now, let's try to fetch and if it fails, the caller (App.tsx) can handle it.
+    throw new Error("Local fallback mode: CLOUD_DATA_URL not configured");
   }
 
   try {

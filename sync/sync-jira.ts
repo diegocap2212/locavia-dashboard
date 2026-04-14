@@ -19,10 +19,11 @@ async function main() {
   
   const projects = ['WA', 'VAA', 'TERA', 'SN', 'RM', 'PRICI', 'MS', 'MIGRA', 'MDD', 'LKE', 'LKD', 'LI', 'JAC', 'DESMOB', 'CTO', 'CRED', 'COMP', 'APV'];
   const jornadas = ['"WHATSAPP"', '"LAKE-DOMINIO"', '"MOB"', '"ESTOQUE"', '"FATURAMENTO"', '"COMPRAS"', '"CREDITO"', '"CONTRATOS"'];
-  const releases = ['"O4R1"', '"O4R2"', '"O4R3"', '"BAF"', '"BAF-QW"', '"CEM"'];
+  const releases = ['"O4R1"', '"O4R2"', '"O4R3"', '"BAF"', '"BAF-QW"', '"CEM"', '"Wave 4"', '"Release 2"', '"Onda 4"'];
   
   // JQL Refinado: Itens que tenham a Release OU que tenham Jornada específica em projetos chave
-  const simpleJql = `project in (${projects.join(',')}) and type not in (Epic, subTaskIssueTypes()) and ("Release[Labels]" in (${releases.join(',')}) or ("Jornada[Labels]" in (${jornadas.join(',')}) and project in (WA, JAC, VAA, LKD, SN))) and "Automação[Select List (cascading)]" = EMPTY and ("Natureza da Demanda[Labels]" not in (TESTES-LOCAVIA) or "Natureza da Demanda[Labels]" is EMPTY) ORDER BY created DESC`;
+  // Usamos cf[id] para evitar ambiguidades com nomes de campos duplicados ou alterados
+  const simpleJql = `project in (${projects.join(',')}) and type not in (Epic, subTaskIssueTypes()) and (cf[11330] in (${releases.join(',')}) or (cf[12386] in (${jornadas.join(',')}) and project in (WA, JAC, VAA, LKD, SN)) or (cf[10215] in (${jornadas.join(',')}) and project in (WA, JAC, VAA, LKD, SN))) and "Automação[Select List (cascading)]" = EMPTY and ("Natureza da Demanda[Labels]" not in (TESTES-LOCAVIA) or "Natureza da Demanda[Labels]" is EMPTY) ORDER BY created DESC`;
 
   console.log(`Iniciando sincronização Jira... JQL: ${simpleJql}`);
 

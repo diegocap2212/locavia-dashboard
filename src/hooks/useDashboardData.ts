@@ -191,7 +191,14 @@ export const useDashboardData = () => {
 
     // 4. Projections & Velocity
     const chartData: any[] = [...dynamicHistory];
-    const RELEASE_DEADLINE = new Date(2026, 6, 10); // 10 de Julho de 2026
+    
+    // Pegar o deadline da release selecionada ou o maior entre elas
+    const selectedReleaseDeadlines = releaseConfig.releases
+      .filter(r => selectedReleases.includes('TODAS') || selectedReleases.includes(r.id))
+      .map(r => new Date(r.deadline));
+    const RELEASE_DEADLINE = selectedReleaseDeadlines.length > 0 
+      ? new Date(Math.max(...selectedReleaseDeadlines.map(d => d.getTime())))
+      : new Date(2026, 3, 27); // Fallback para 27/04/2026
     
     if (chartData.length > 0) {
       const lastReal = dynamicHistory.filter(d => d["A Fazer (Real)"] !== null).pop();
@@ -208,12 +215,15 @@ export const useDashboardData = () => {
       }).length;
       
       const velocity = Math.max(0.5, recentDeliveries / 4); // Min 0.5 to avoid static lines
-      const bestVelocity = Math.max(velocity * 1.5, 4);
-      const worstVelocity = Math.max(velocity * 0.5, 1);
       
-      const vLabel = `Tendência Real (${velocity.toFixed(1)} itens/semana)`;
-      const bLabel = `Melhor Cenário (${bestVelocity.toFixed(1)} itens/semana)`;
-      const wLabel = `Pior Cenário (${worstVelocity.toFixed(1)} itens/semana)`;
+      // Projeção baseada em variabilidade histórica (melhor/pior caso)
+      // Se estamos perto do deadline, a sensibilidade aumenta
+      const bestVelocity = Math.max(velocity * 1.4, 3); 
+      const worstVelocity = Math.max(velocity * 0.6, 0.5);
+      
+      const vLabel = `Tendência (${velocity.toFixed(1)}/sem)`;
+      const bLabel = `Melhor Caso (${bestVelocity.toFixed(1)}/sem)`;
+      const wLabel = `Pior Caso (${worstVelocity.toFixed(1)}/sem)`;
 
       let currentBest = lastValue, currentWorst = lastValue, currentTrend = lastValue;
       
@@ -250,7 +260,15 @@ export const useDashboardData = () => {
     
     const matrixWeeks: { key: string; label: string; date: Date }[] = [];
     const curMatrixWeek = getMon(matrixMinDate);
-    const endMatrixWeek = new Date(Math.max(Date.now(), maxDeadline.getTime() + 7 * 86400000));
+    // Limit to 6 weeks in the future from now to avoid clutter
+    const SIX_WEEKS_MS = 6 * 7 * 86400000;
+    const matrixFutureLimit = new Date(Date.now() + SIX_WEEKS_MS);
+    const endMatrixWeek = new Date(Math.min(matrixFutureLimit.getTime(), maxDeadline.getTime() + 7 * 86400000));
+    
+    // Ensure we at least show until the current week
+    if (endMatrixWeek < new Date()) {
+      endMatrixWeek.setTime(Date.now());
+    }
     
     while (curMatrixWeek <= endMatrixWeek) {
       matrixWeeks.push({

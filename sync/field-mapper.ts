@@ -121,15 +121,29 @@ export function mapJiraIssueToDashboardItem(issue: JiraApiIssue): DashboardItem 
   const allReleasesRaw = [...releaseFieldValues, ...fixVersions];
   
   let finalRelease = 'OUTROS';
+  
+  // 1. Tentar encontrar padrão O4R (O4R1, O4R2, etc)
   const mainRelease = allReleasesRaw.find(p => p.toUpperCase().startsWith('O4R'));
   if (mainRelease) {
     finalRelease = mainRelease.toUpperCase().replace(/[^A-Z0-9]/g, '');
   } else {
-    // Backups comuns na planilha
-    const backups = ['BAF', 'CEM', 'BAF-QW', 'WHATSAPP', 'MOB', 'ESTOQUE', 'CONTRATOS', 'COMPRAS'];
-    const backup = allReleasesRaw.find(p => backups.includes(p.toUpperCase()));
-    if (backup) finalRelease = backup.toUpperCase();
-    else if (allReleasesRaw.length > 0) finalRelease = allReleasesRaw[0];
+    // 2. Mapeamento Inteligente para O4R2
+    const isW4R2 = allReleasesRaw.some(p => {
+        const up = p.toUpperCase();
+        return (up.includes('W4') && up.includes('R2')) || 
+               (up.includes('WAVE 4') && up.includes('RELEASE 2')) ||
+               (up.includes('ONDA 4') && up.includes('RELEASE 2'));
+    });
+    
+    if (isW4R2) {
+        finalRelease = 'O4R2';
+    } else {
+        // Backups comuns na planilha
+        const backups = ['BAF', 'CEM', 'BAF-QW', 'WHATSAPP', 'MOB', 'ESTOQUE', 'CONTRATOS', 'COMPRAS'];
+        const backup = allReleasesRaw.find(p => backups.includes(p.toUpperCase()));
+        if (backup) finalRelease = backup.toUpperCase();
+        else if (allReleasesRaw.length > 0) finalRelease = allReleasesRaw[0];
+    }
   }
 
   // 3. Status Categorization

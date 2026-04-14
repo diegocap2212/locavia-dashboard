@@ -201,6 +201,7 @@ body {
 /* Charts */
 .chart-section {
   padding: 1.75rem 2rem;
+  min-width: 0; /* Prevents flex children from overflowing and helps Recharts */
 }
 
 .chart-header {
@@ -295,4 +296,16 @@ body {
   background: rgba(34, 197, 94, 0.1);
   color: #22c55e;
   border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.current-week-highlight {
+  background-color: var(--primary-light) !important;
+  color: var(--primary) !important;
+  font-weight: 700 !important;
+  border-bottom: 2px solid var(--primary) !important;
+}
+
+.cell-current-week {
+  border-left: 2px solid var(--primary) !important;
+  border-right: 2px solid var(--primary) !important;
 }
