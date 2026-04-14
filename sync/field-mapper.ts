@@ -179,7 +179,6 @@ export function mapJiraIssueToDashboardItem(issue: JiraApiIssue): DashboardItem 
     CycleTime: null,
     LeadTime: null,
     TimeInStatus: {},
-    Source: 'api',
-    Metadata: { source: 'api' }
+    Source: 'api'
   };
 }

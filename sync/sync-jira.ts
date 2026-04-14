@@ -28,7 +28,7 @@ async function main() {
   console.log(`Iniciando sincronização Jira... JQL: ${simpleJql}`);
 
   try {
-    const issues = await client.searchIssues(simpleJql, ['*all'], []);
+    const issues = await client.searchIssues(simpleJql, ['*all']);
     console.log(`Foram retornadas ${issues.length} issues da API.`);
 
     const dashboardItems = issues.map(mapJiraIssueToDashboardItem).map(calculateMetrics);

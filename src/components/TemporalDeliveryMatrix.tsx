@@ -74,7 +74,7 @@ const TemporalDeliveryMatrix: React.FC<MatrixProps> = ({ data }) => {
           </div>
           {data.rows.map((row, i) => {
             const lastCell = row.cells.filter(c => c.isPast && c.execucao !== null).pop();
-            const isDelayed = lastCell ? lastCell.execucao > lastCell.meta : false;
+            const isDelayed = (lastCell && lastCell.execucao !== null) ? lastCell.execucao > lastCell.meta : false;
             const completion = row.totalItems > 0 ? Math.round(((row.totalItems - (lastCell?.execucao || 0)) / row.totalItems) * 100) : 0;
 
             return (
@@ -148,7 +148,6 @@ const TemporalDeliveryMatrix: React.FC<MatrixProps> = ({ data }) => {
                   const isTeamDeadline = row.deadline >= week.date && row.deadline < new Date(week.date.getTime() + 7 * 86400000);
                   
                   let bgColor = '#fff';
-                  let borderColor = 'var(--border-color)';
                   let textColor = 'var(--text-main)';
                   let statusText = '';
                   let indicatorSize = 0;
@@ -156,12 +155,10 @@ const TemporalDeliveryMatrix: React.FC<MatrixProps> = ({ data }) => {
                   if (cell.isPast && cell.execucao !== null) {
                     if (cell.execucao <= cell.meta || cell.execucao === 0) {
                       bgColor = 'rgba(34, 197, 94, 0.05)';
-                      borderColor = 'rgba(34, 197, 94, 0.2)';
                       textColor = '#16a34a';
                       statusText = 'No Prazo';
                     } else {
                       bgColor = 'rgba(239, 68, 68, 0.05)';
-                      borderColor = 'rgba(239, 68, 68, 0.2)';
                       textColor = '#dc2626';
                       statusText = 'Atrasado';
                       indicatorSize = Math.min(10, (cell.execucao - cell.meta) * 2);

@@ -26,7 +26,7 @@ async function investigate() {
     
     if (issues.length > 0) {
       const sample = issues; 
-      sample.forEach(i => {
+      sample.forEach((i: any) => {
         console.log(`\n--- Issue: ${i.key} ---`);
         console.log(`Summary: ${i.fields.summary}`);
         console.log(`Status: ${i.fields.status.name} (Category: ${i.fields.status.statusCategory.name})`);
