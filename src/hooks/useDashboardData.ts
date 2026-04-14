@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { fetchData, type JiraItem } from '../services/dataService';
 import rawDataFallback from '../data.json';
 import releaseConfig from '../config/release-config.json';
+import squadConfig from '../config/squad-config.json';
 
 const getMon = (d: Date) => {
   const mon = new Date(d);
@@ -330,10 +331,22 @@ export const useDashboardData = () => {
          return { weekKey: w.key, meta, execucao, isPast };
       });
       
-      return { groupName: teamName, releaseName: topReleaseId, totalItems: totalTeamItems, deadline, cells };
+      const squadInfo = squadConfig.mappings.find(m => m.id === teamName);
+      
+      return { 
+        groupName: squadInfo?.shortName || teamName, 
+        fullName: teamName,
+        manager: squadInfo?.manager || 'Especialistas',
+        group: squadInfo?.group || 'OUTROS',
+        order: squadInfo?.order || 99,
+        releaseName: topReleaseId, 
+        totalItems: totalTeamItems, 
+        deadline, 
+        cells 
+      };
     });
     
-    matrixRows.sort((a, b) => b.totalItems - a.totalItems);
+    matrixRows.sort((a, b) => a.order - b.order);
     
     const temporalMatrixData = { weeks: matrixWeeks, rows: matrixRows };
 

@@ -1,0 +1,18 @@
+{
+  "mappings": [
+    { "id": "Portal de Vendas Assistidas", "shortName": "GOL", "manager": "José Igor", "group": "CORE DELIVERY", "order": 1 },
+    { "id": "Faturamento", "shortName": "TERA", "manager": "Rosangela Amanda", "group": "CORE DELIVERY", "order": 2 },
+    { "id": "Contratos / Multas / Ressarcimento / Manutenção", "shortName": "OPTIMUS", "manager": "Especialistas", "group": "CORE DELIVERY", "order": 3 },
+    { "id": "Compras e Estoque", "shortName": "SCANIA", "manager": "Carlos Augusto", "group": "CORE DELIVERY", "order": 4 },
+    { "id": "Mobilização", "shortName": "JETTA", "manager": "Carlos Augusto", "group": "CORE DELIVERY", "order": 5 },
+    { "id": "Sustentação (Bugs)", "shortName": "TIGUAN", "manager": "Especialistas", "group": "SUSTENTAÇÃO", "order": 6 },
+    { "id": "Evoluções / Buy a Feature", "shortName": "PARATI", "manager": "Especialistas", "group": "SUSTENTAÇÃO", "order": 7 },
+    { "id": "Portal de Auto Atendimento", "shortName": "NIVUS", "manager": "Wilson Akira", "group": "TIMES CROSS", "order": 8 },
+    { "id": "Atendimento WhatsApp", "shortName": "UP", "manager": "Especialistas", "group": "TIMES CROSS", "order": 9 },
+    { "id": "Migração de Dados", "shortName": "SANTANA", "manager": "Priscila Bedim", "group": "TIMES CROSS", "order": 10 },
+    { "id": "Crédito e Proposta", "shortName": "TAOS", "manager": "Especialistas", "group": "TIMES CROSS", "order": 11 },
+    { "id": "Pós Venda Salesforce", "shortName": "FUSCA", "manager": "Especialistas", "group": "TIMES CROSS", "order": 12 },
+    { "id": "Relatórios de BI", "shortName": "D. LAKE DOM", "manager": "Priscila Bedim", "group": "DATA LAKE", "order": 13 },
+    { "id": "D.LAKE ESTRUTURANTE", "shortName": "D. LAKE EST", "manager": "Priscila Bedim", "group": "DATA LAKE", "order": 14 }
+  ]
+}

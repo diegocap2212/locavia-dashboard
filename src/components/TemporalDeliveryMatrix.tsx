@@ -13,6 +13,9 @@ interface MatrixProps {
     weeks: { key: string; label: string; date: Date }[];
     rows: {
       groupName: string;
+      fullName: string;
+      manager: string;
+      group: string;
       releaseName: string;
       totalItems: number;
       cells: Cell[];
@@ -75,35 +78,72 @@ const TemporalDeliveryMatrix: React.FC<MatrixProps> = ({ data }) => {
           flex: 1, 
           overflow: 'auto', 
           position: 'relative',
-          background: '#f1f5f9' 
+          background: '#f1f5f9',
+          perspective: '1500px'
         }}
       >
-        <table style={{ borderCollapse: 'separate', borderSpacing: 0, width: '100%' }}>
+        <table style={{ borderCollapse: 'separate', borderSpacing: 0, width: '100%', transform: 'rotateX(2deg)', transformOrigin: 'top' }}>
           <thead>
+            {/* Grouping Header */}
             <tr>
               <th style={{ 
-                position: 'sticky', top: 0, left: 0, zIndex: 30,
+                position: 'sticky', top: 0, left: 0, zIndex: 40,
+                background: '#475569', padding: '12px 15px',
+                borderRight: '2px solid var(--border-color)',
+                borderBottom: '2px solid rgba(255,255,255,0.1)',
+                fontSize: '0.6rem', fontWeight: 900, color: '#f8fafc',
+                textAlign: 'left', minWidth: '100px', textTransform: 'uppercase'
+              }}>
+                DOMÍNIO
+              </th>
+              {(() => {
+                const groupSpans: { name: string; span: number }[] = [];
+                data.rows.forEach(r => {
+                  if (groupSpans.length > 0 && groupSpans[groupSpans.length - 1].name === r.group) {
+                    groupSpans[groupSpans.length - 1].span++;
+                  } else {
+                    groupSpans.push({ name: r.group, span: 1 });
+                  }
+                });
+                return groupSpans.map((g, i) => (
+                  <th key={i} colSpan={g.span} style={{ 
+                    position: 'sticky', top: 0, zIndex: 35,
+                    background: '#475569', padding: '8px 4px',
+                    borderRight: '1px solid rgba(255,255,255,0.1)',
+                    borderBottom: '2px solid rgba(255,255,255,0.1)',
+                    fontSize: '0.6rem', fontWeight: 900, color: '#f8fafc',
+                    textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.05em'
+                  }}>
+                    {g.name}
+                  </th>
+                ));
+              })()}
+            </tr>
+            {/* Squad Header */}
+            <tr>
+              <th style={{ 
+                position: 'sticky', top: '34px', left: 0, zIndex: 30,
                 background: '#f8fafc', padding: '12px 15px',
                 borderRight: '2px solid var(--border-color)',
                 borderBottom: '2px solid var(--border-color)',
                 fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)',
-                textAlign: 'left', minWidth: '100px'
+                textAlign: 'left'
               }}>
-                DATA / SQUAD
+                DATA
               </th>
               {data.rows.map((row, i) => (
                 <th key={i} style={{ 
-                  position: 'sticky', top: 0, zIndex: 20,
-                  background: '#f8fafc', padding: '10px',
+                  position: 'sticky', top: '34px', zIndex: 25,
+                  background: '#f8fafc', padding: '10px 4px',
                   borderRight: '1px solid var(--border-color)',
                   borderBottom: '2px solid var(--border-color)',
-                  minWidth: '110px', textAlign: 'center'
+                  minWidth: '85px', textAlign: 'center'
                 }}>
-                  <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-main)', whiteSpace: 'nowrap' }}>
+                  <div style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--primary)', whiteSpace: 'nowrap' }}>
                     {row.groupName}
                   </div>
-                  <div style={{ fontSize: '0.55rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>
-                    {row.releaseName}
+                  <div style={{ fontSize: '0.5rem', color: 'var(--text-muted)', fontWeight: 700 }}>
+                     {row.fullName.length > 15 ? row.fullName.slice(0, 15) + '...' : row.fullName}
                   </div>
                 </th>
               ))}
@@ -159,7 +199,7 @@ const TemporalDeliveryMatrix: React.FC<MatrixProps> = ({ data }) => {
                         height: '40px',
                         transition: 'all 0.1s'
                       }}
-                      title={`Time: ${row.groupName}\nSemana: ${week.label}\nReal: ${cell.execucao ?? '-'}\nMeta: ${cell.meta}`}
+                      title={`Squad: ${row.groupName} (${row.fullName})\nGerente: ${row.manager}\nStatus: ${isDelayed ? 'Atrasado' : (isOk ? 'No Prazo' : 'Futuro')}\nReal (A Fazer): ${cell.execucao ?? '-'}\nMeta: ${cell.meta}`}
                       >
                         <div style={{ 
                           display: 'flex', alignItems: 'center', justifyContent: 'center', 
