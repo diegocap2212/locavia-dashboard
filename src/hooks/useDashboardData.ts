@@ -3,6 +3,19 @@ import { fetchData, type JiraItem } from '../services/dataService';
 import rawDataFallback from '../data.json';
 import releaseConfig from '../config/release-config.json';
 
+// Statuses that the official CONE ignores or treats as "Already Delivered" in its temporal view
+const CONE_EXCLUDED_STATUSES = [
+  '1. BACKLOG',
+  'BACKLOG',
+  'EM REFINAMENTO',
+  'REFINANDO',
+  'A REFINAR',
+  'SANEAMENTO',
+  'ESPERANDO',
+  'DESCARTADO',
+  'CANCELADO'
+];
+
 const getMon = (d: Date) => {
   const mon = new Date(d);
   mon.setDate(mon.getDate() - (mon.getDay() === 0 ? 6 : mon.getDay() - 1));
@@ -88,7 +101,16 @@ export const formatDate = (date: Date) => {
 // Data Normalization Layer
 const normalizeJqlData = (data: unknown[]): JiraItem[] => {
   return data.map(rawItem => {
-    const item = rawItem as Record<string, unknown>;
+    const item = rawItem as Record<string, any>;
+    let release = String(item.Release || 'OUTROS').toUpperCase();
+
+    // Hot-fix for O4R2 Variations (Matching Field Mapper logic)
+    if (release.includes('ONDA 4') && release.includes('RELEASE 2')) release = 'O4R2';
+    if (release.includes('WAVE 4') && release.includes('RELEASE 2')) release = 'O4R2';
+    if (release.includes('ASSINECAR')) release = 'O4R2'; // Found in WhatsApp raw data
+    if (release.includes('ONDA 4') && release.includes('RELEASE 1')) release = 'O4R1';
+    if (release.includes('WAVE 4') && release.includes('RELEASE 1')) release = 'O4R1';
+
     return {
       Type: String(item.Type || ''),
       Key: String(item.Key || ''),
@@ -97,7 +119,7 @@ const normalizeJqlData = (data: unknown[]): JiraItem[] => {
       Team: String(item.Team || ''),
       Created: String(item.Created || ''),
       Resolved: item.Resolved ? String(item.Resolved) : null,
-      Release: String(item.Release || ''),
+      Release: release,
       Metadata: (item.Metadata as { source: 'excel' | 'api', jql_context?: string }) || { source: 'excel' }
     } as JiraItem;
   });
@@ -142,6 +164,9 @@ export const useDashboardData = () => {
       const teamMatch = selectedTeams.includes('TODOS') || selectedTeams.includes(item.Team);
       const releaseMatch = selectedReleases.includes('TODAS') || selectedReleases.includes(item.Release);
       if (!teamMatch || !releaseMatch) return false;
+
+      // Saneamento/Cone Filter: Match official CONE (ignore raw backlog & late QA)
+      if (CONE_EXCLUDED_STATUSES.includes(item.Status)) return false;
 
       const cDate = excelToJSDate(item.Created);
       const rDate = excelToJSDate(item.Resolved);

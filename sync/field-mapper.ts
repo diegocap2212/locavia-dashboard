@@ -54,7 +54,8 @@ const prefixToCar: Record<string, string> = {
   'CTO': 'OPTIMUS',
   'VAA': 'NIVUS',
   'SN': 'SANTANA',
-  'WA': 'WHATSAPP', // Map to the more descriptive one
+  'WA': 'WHATSAPP',
+  'UP': 'UP',
   'APV': 'SALESFORCE_PÓSVEND',
   'JAC': 'WHATSAPP',
   'MDD': 'SANTANA',
@@ -62,7 +63,8 @@ const prefixToCar: Record<string, string> = {
   'MIGRA': 'MIGRAÇÃO',
   'COMP': 'COMPRAS',
   'RM': 'JETTA',
-  'TERA': 'FATURAMENTO'
+  'TERA': 'FATURAMENTO',
+  'PRICI': 'PRICING'
 };
 
 export function mapJiraIssueToDashboardItem(issue: JiraApiIssue): DashboardItem {
@@ -127,16 +129,25 @@ export function mapJiraIssueToDashboardItem(issue: JiraApiIssue): DashboardItem 
   if (mainRelease) {
     finalRelease = mainRelease.toUpperCase().replace(/[^A-Z0-9]/g, '');
   } else {
-    // 2. Mapeamento Inteligente para O4R2
-    const isW4R2 = allReleasesRaw.some(p => {
+    // 2. Mapeamento Inteligente para O4R (O4R1, O4R2)
+    const isO4R2 = allReleasesRaw.some(p => {
         const up = p.toUpperCase();
         return (up.includes('W4') && up.includes('R2')) || 
                (up.includes('WAVE 4') && up.includes('RELEASE 2')) ||
                (up.includes('ONDA 4') && up.includes('RELEASE 2'));
     });
     
-    if (isW4R2) {
+    const isO4R1 = allReleasesRaw.some(p => {
+        const up = p.toUpperCase();
+        return (up.includes('W4') && up.includes('R1')) || 
+               (up.includes('WAVE 4') && up.includes('RELEASE 1')) ||
+               (up.includes('ONDA 4') && up.includes('RELEASE 1'));
+    });
+    
+    if (isO4R2) {
         finalRelease = 'O4R2';
+    } else if (isO4R1) {
+        finalRelease = 'O4R1';
     } else {
         // Backups comuns na planilha
         const backups = ['BAF', 'CEM', 'BAF-QW', 'WHATSAPP', 'MOB', 'ESTOQUE', 'CONTRATOS', 'COMPRAS'];
