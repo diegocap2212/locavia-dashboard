@@ -24,8 +24,14 @@ export class JiraClient {
     const response = await fetch(url, { ...options, headers });
     
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Jira API Error: ${response.status} ${response.statusText} - ${errorText}`);
+      let errorDetail = '';
+      try {
+        const errorData = await response.json();
+        errorDetail = JSON.stringify(errorData);
+      } catch {
+        errorDetail = await response.text();
+      }
+      throw new Error(`Jira API Error: ${response.status} ${response.statusText} at ${url}\nDetails: ${errorDetail}`);
     }
 
     return response.json();

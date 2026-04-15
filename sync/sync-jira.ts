@@ -11,19 +11,40 @@ async function main() {
   const token = process.env.JIRA_API_TOKEN;
 
   if (!baseUrl || !email || !token) {
-    console.error("ERRO: Faltam variáveis de ambiente do Jira (.env)");
+    console.error("❌ ERRO: Faltam variáveis de ambiente do Jira.");
+    if (!baseUrl) console.error("- JIRA_BASE_URL não definida.");
+    if (!email) console.error("- JIRA_USER_EMAIL não definida.");
+    if (!token) console.error("- JIRA_API_TOKEN não definida.");
+    console.log("Dica: No GitHub, verifique Settings > Secrets and variables > Actions");
     process.exit(1);
   }
 
   const client = new JiraClient(baseUrl, email, token);
   
   const projects = ['WA', 'VAA', 'TERA', 'SN', 'RM', 'PRICI', 'MS', 'MIGRA', 'MDD', 'LKE', 'LKD', 'LI', 'JAC', 'DESMOB', 'CTO', 'CRED', 'COMP', 'APV'];
-  const jornadas = ['"WHATSAPP"', '"LAKE-DOMINIO"', '"MOB"', '"ESTOQUE"', '"FATURAMENTO"', '"COMPRAS"', '"CREDITO"', '"CONTRATOS"'];
-  const releases = ['"O4R1"', '"O4R2"', '"O4R3"', '"BAF"', '"BAF-QW"', '"CEM"', '"Wave 4"', '"Release 2"', '"Onda 4"'];
+  
+  // Regra de Paridade: Jornadas mapeadas na planilha CONE
+  const jornadas = [
+    '"WHATSAPP"', '"Comercial"', '"Pos_venda"', '"Migra_Blip"', '"VENDAS_AUTO-ATENDIMENTO"', 
+    '"CADASTRO_DE_USUÁRIO"', '"MOB"', '"SEMINOVOS"', '"FATURAMENTO"', '"CONTRATOS"', 
+    '"ESTOQUE"', '"COMPRAS"', '"JURÍDICO"', '"RH"', '"FINANCEIRO"', '"FISCAL"', 
+    '"CONTROLADORIA"', '"TI"', '"OPERAÇÕES"', '"MANUTENÇÃO"', '"LOGÍSTICA"', 
+    '"SINISTRO"', '"QUALIDADE"', '"CLIENTE"', '"FORNECEDOR"', '"FROTA"', 
+    '"EQUIPAMENTO"', '"TELECOM"', '"FACILITIE"', '"GESTÃO"', '"OUTROS"', 
+    '"LAKE-DOMINIO"', '"VENDAS_ASSISTIDAS"', '"PRICING"', '"MIGRAÇÃO"'
+  ];
+
+  // Regra de Paridade: Releases mapeadas na planilha CONE
+  const releases = [
+    '"O4R1"', '"O4R2"', '"O4R3"', '"BAF"', '"BAF-QW"', '"CEM"', 
+    '"Wave 4"', '"Release 2"', '"Onda 4"', '"Release 01"', '"Release_01"'
+  ];
+
+  const excludedStatuses = ['"1. BACKLOG"', '"BACKLOG"', '"EM REFINAMENTO"', '"REFINANDO"', '"A REFINAR"', '"SANEAMENTO"', '"ESPERANDO"', '"DESCARTADO"', '"CANCELADO"'];
   
   // JQL Refinado: Itens que tenham a Release OU que tenham Jornada específica em projetos chave
-  // Usamos cf[id] para evitar ambiguidades com nomes de campos duplicados ou alterados
-  const simpleJql = `project in (${projects.join(',')}) and type not in (Epic, subTaskIssueTypes()) and (cf[11330] in (${releases.join(',')}) or (cf[12386] in (${jornadas.join(',')}) and project in (WA, JAC, VAA, LKD, SN)) or (cf[10215] in (${jornadas.join(',')}) and project in (WA, JAC, VAA, LKD, SN))) and "Automação[Select List (cascading)]" = EMPTY and ("Natureza da Demanda[Labels]" not in (TESTES-LOCAVIA) or "Natureza da Demanda[Labels]" is EMPTY) ORDER BY created DESC`;
+  // Aplicamos a regra de "Paridade CONE": ignoramos itens em backlog bruto, saneamento ou descartados
+  const simpleJql = `project in (${projects.join(',')}) and type not in (Epic, subTaskIssueTypes()) and (cf[11330] in (${releases.join(',')}) or (cf[12386] in (${jornadas.join(',')}) and project in (WA, JAC, VAA, LKD, SN)) or (cf[10215] in (${jornadas.join(',')}) and project in (WA, JAC, VAA, LKD, SN))) and cf[13065] = EMPTY and (cf[12683] not in (TESTES-LOCAVIA) or cf[12683] is EMPTY) and status not in (${excludedStatuses.join(',')}) ORDER BY created DESC`;
 
   console.log(`Iniciando sincronização Jira... JQL: ${simpleJql}`);
 
