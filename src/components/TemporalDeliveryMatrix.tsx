@@ -172,8 +172,9 @@ const TemporalDeliveryMatrix: React.FC<MatrixProps> = ({ data }) => {
                     bgColor = cell.isPast && cell.execucao !== null ? bgColor : 'rgba(79, 70, 229, 0.03)';
                   }
 
-                  return (
+                   return (
                     <div key={rIndex} 
+                      className="matrix-cell"
                       style={{ 
                         height: '55px', 
                         borderBottom: '1px solid var(--border-color)',
@@ -185,28 +186,38 @@ const TemporalDeliveryMatrix: React.FC<MatrixProps> = ({ data }) => {
                         position: 'relative',
                         boxShadow: isTeamDeadline ? 'inset -4px 0 8px rgba(245, 158, 11, 0.1)' : 'none'
                       }}
-                      title={cell.execucao !== null ? `${statusText}\nReal (A Fazer): ${cell.execucao}\nMeta Planejada: ${cell.meta}` : `Meta: ${cell.meta}`}
                     >
+                      {/* Tooltip detail (using title for simplicity but could be more premium) */}
+                      <div className="tooltip-trigger" style={{ position: 'absolute', inset: 0, zIndex: 5 }} 
+                           title={cell.execucao !== null ? `${statusText}\nReal (A Fazer): ${cell.execucao}\nMeta Planejada: ${cell.meta}\nDelta: ${cell.execucao - cell.meta}` : `Meta: ${cell.meta}`} />
+
                       {isTeamDeadline && (
-                        <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 3, background: '#f59e0b' }} />
+                        <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 3, background: '#f59e0b', zIndex: 6 }} />
                       )}
                       
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: 1.1 }}>
-                        <span style={{ fontSize: '0.9rem', color: textColor, fontWeight: 700 }}>
+                      {/* Visual progress bar based on Meta vs Real */}
+                      {cell.execucao !== null && cell.meta > 0 && (
+                        <div 
+                          className="matrix-progress-bg" 
+                          style={{ 
+                            width: `${Math.min(100, (cell.meta / (cell.execucao || 1)) * 100)}%`,
+                            color: textColor 
+                          }} 
+                        />
+                      )}
+
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: 1.1, zIndex: 4 }}>
+                        <span className="matrix-number-main" style={{ color: textColor }}>
                           {cell.execucao !== null ? cell.execucao : '-'}
                         </span>
-                        {cell.meta !== undefined && (
-                          <span style={{ fontSize: '0.6rem', color: 'var(--text-muted)', fontWeight: 600, opacity: 0.7 }}>
-                            {cell.meta}
-                          </span>
-                        )}
                       </div>
                       
                       {indicatorSize > 0 && (
                         <div style={{ 
                           position: 'absolute', top: 4, right: 4, width: 6, height: 6, 
                           borderRadius: '50%', background: 'var(--danger)', 
-                          boxShadow: '0 0 4px var(--danger)' 
+                          boxShadow: '0 0 4px var(--danger)',
+                          zIndex: 4
                         }} />
                       )}
                     </div>
