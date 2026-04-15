@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write # Important for pushing data.json back
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true # Clear Node 20 deprecation warnings
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
