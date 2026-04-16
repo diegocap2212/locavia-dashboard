@@ -50,7 +50,14 @@ export const fetchData = async (): Promise<JiraItem[]> => {
     }
 
     // Standard JSON
-    return JSON.parse(text) as JiraItem[];
+    const parsed = JSON.parse(text) as JiraItem[];
+    
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+        console.warn("Cloud data source returned empty or invalid dataset. Forcing fallback to local data.");
+        throw new Error("Empty cloud data");
+    }
+
+    return parsed;
   } catch (error) {
     console.error("Error fetching cloud data:", error);
     throw error;

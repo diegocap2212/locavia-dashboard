@@ -15,6 +15,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Full history for pushing
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -27,18 +30,23 @@ jobs:
 
       - name: Pre-sync Health Check
         run: |
-          echo "Verificando variáveis de ambiente..."
+          echo "Verificando variáveis de ambiente Jira..."
           if [ -z "${{ secrets.JIRA_BASE_URL }}" ]; then echo "❌ JIRA_BASE_URL is MISSING"; exit 1; fi
           if [ -z "${{ secrets.JIRA_USER_EMAIL }}" ]; then echo "❌ JIRA_USER_EMAIL is MISSING"; exit 1; fi
           if [ -z "${{ secrets.JIRA_API_TOKEN }}" ]; then echo "❌ JIRA_API_TOKEN is MISSING"; exit 1; fi
-          echo "✅ Todos os Secrets estão presentes."
+          echo "✅ Todos os Secrets do Jira estão presentes."
 
       - name: Run Jira Sync
         env:
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
           JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
-        run: npm run sync:jira
+        run: |
+          npm run sync:jira
+          if [ ! -s src/data.json ]; then
+            echo "❌ ERRO: src/data.json está vazio após a sincronização."
+            exit 1
+          fi
 
       - name: Commit and Push changes
         run: |
@@ -48,8 +56,8 @@ jobs:
           
           # Check if there are changes before committing
           if git diff --quiet && git diff --staged --quiet; then
-            echo "No changes in data.json. Skipping commit."
+            echo "Sem alterações em data.json. Ignorando commit."
           else
             git commit -m "chore: automated hourly sync [skip ci]"
-            git push origin main || git push
+            git push origin main
           fi
