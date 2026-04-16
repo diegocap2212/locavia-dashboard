@@ -21,7 +21,7 @@ async function main() {
 
   const client = new JiraClient(baseUrl, email, token);
   
-  const projects = ['WA', 'VAA', 'TERA', 'SN', 'RM', 'PRICI', 'MS', 'MIGRA', 'MDD', 'LKE', 'LKD', 'LI', 'JAC', 'DESMOB', 'CTO', 'CRED', 'COMP', 'APV'];
+  const projects = ['WA', 'VAA', 'TERA', 'SN', 'RM', 'PRICI', 'MS', 'MIGRA', 'MDD', 'LKE', 'LKD', 'LI', 'JAC', 'DESMOB', 'CTO', 'CRED', 'COMP', 'APV', 'CON', 'GOL', 'UP'];
   
   // Regra de Paridade: Jornadas mapeadas na planilha CONE
   const jornadas = [
@@ -34,17 +34,18 @@ async function main() {
     '"LAKE-DOMINIO"', '"VENDAS_ASSISTIDAS"', '"PRICING"', '"MIGRAÇÃO"'
   ];
 
-  // Regra de Paridade: Releases mapeadas na planilha CONE
+  // Regra de Paridade: Releases mapeadas na planilha CONE (Incluindo 2024.1 para Paridade SharePoint)
   const releases = [
     '"O4R1"', '"O4R2"', '"O4R3"', '"BAF"', '"BAF-QW"', '"CEM"', 
-    '"Wave 4"', '"Release 2"', '"Onda 4"', '"Release 01"', '"Release_01"'
+    '"Wave 4"', '"Release 2"', '"Onda 4"', '"Release 01"', '"Release_01"',
+    '"2024.1"', '"2024.2"'
   ];
 
-  const excludedStatuses = ['"1. BACKLOG"', '"BACKLOG"', '"EM REFINAMENTO"', '"REFINANDO"', '"A REFINAR"', '"SANEAMENTO"', '"ESPERANDO"', '"DESCARTADO"', '"CANCELADO"'];
+  const excludedStatuses = ['"DESCARTADO"', '"CANCELADO"', '"ESPERANDO"'];
   
   // JQL Refinado: Itens que tenham a Release OU que tenham Jornada específica em projetos chave
-  // Aplicamos a regra de "Paridade CONE": ignoramos itens em backlog bruto, saneamento ou descartados
-  const simpleJql = `project in (${projects.join(',')}) and type not in (Epic, subTaskIssueTypes()) and (cf[11330] in (${releases.join(',')}) or (cf[12386] in (${jornadas.join(',')}) and project in (WA, JAC, VAA, LKD, SN)) or (cf[10215] in (${jornadas.join(',')}) and project in (WA, JAC, VAA, LKD, SN))) and cf[13065] = EMPTY and (cf[12683] not in (TESTES-LOCAVIA) or cf[12683] is EMPTY) and status not in (${excludedStatuses.join(',')}) ORDER BY created DESC`;
+  // Removidos filtros restritivos de Automação para alinhar com a planilha mestre
+  const simpleJql = `project in (${projects.join(',')}) and type not in (Epic, subTaskIssueTypes()) and (cf[11330] in (${releases.join(',')}) or (cf[12386] in (${jornadas.join(',')}) and project in (WA, JAC, VAA, LKD, SN)) or (cf[10215] in (${jornadas.join(',')}) and project in (WA, JAC, VAA, LKD, SN))) and status not in (${excludedStatuses.join(',')}) ORDER BY created DESC`;
 
   console.log(`Iniciando sincronização Jira... JQL: ${simpleJql}`);
 

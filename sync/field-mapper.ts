@@ -64,7 +64,8 @@ const prefixToCar: Record<string, string> = {
   'COMP': 'COMPRAS',
   'RM': 'JETTA',
   'TERA': 'FATURAMENTO',
-  'PRICI': 'PRICING'
+  'PRICI': 'PRICING',
+  'LI': 'GOL'
 };
 
 export function mapJiraIssueToDashboardItem(issue: JiraApiIssue): DashboardItem {
@@ -144,7 +145,7 @@ export function mapJiraIssueToDashboardItem(issue: JiraApiIssue): DashboardItem 
                (up.includes('ONDA 4') && up.includes('RELEASE 1'));
     });
     
-    if (isO4R2) {
+    if (isO4R2 || allReleasesRaw.some(p => p === '2024.1')) {
         finalRelease = 'O4R2';
     } else if (isO4R1) {
         finalRelease = 'O4R1';
@@ -164,8 +165,8 @@ export function mapJiraIssueToDashboardItem(issue: JiraApiIssue): DashboardItem 
   let category: DashboardItem['StatusCategory'] = 'TODO';
   
   // Statuses that represent "DONE" (refined for full parity with CSV)
-  const doneStatuses = ['CONCLUIDO', 'CONCLUÍDO', 'DESENV CONCLUIDO', 'DONE', 'RESOLVIDO', 'FINALIZADO', 'ENTREGUE', 'FECHADO', 'ENTREGA FINALIZADA'];
-  const inProgressStatuses = ['EM DESENVOLVIMENTO', 'IN PROGRESS', 'EM ANDAMENTO', 'DESENVOLVENDO', 'SENDO DESENVOLVIDO', 'FIXING', 'REFINANDO', 'EM REFINAMENTO', 'AGUARDANDO QA', 'QA EM PROGRESSO', 'AGUARDANDO CODE REVIEW', 'CODE REVIEW EM PROGRESSO'];
+  const doneStatuses = ['CONCLUIDO', 'CONCLUÍDO', 'DESENV CONCLUIDO', 'TESTE CONCLUIDO', 'DONE', 'RESOLVIDO', 'FINALIZADO', 'ENTREGUE', 'FECHADO', 'ENTREGA FINALIZADA'];
+  const inProgressStatuses = ['EM DESENVOLVIMENTO', 'IN PROGRESS', 'EM ANDAMENTO', 'DESENVOLVENDO', 'SENDO DESENVOLVIDO', 'FIXING', 'REFINANDO', 'EM REFINAMENTO', 'AGUARDANDO QA', 'QA EM PROGRESSO', 'AGUARDANDO CODE REVIEW', 'CODE REVIEW EM PROGRESSO', 'EM TESTE', 'AGUARDANDO TESTE'];
 
   if (categoryName.includes('DONE') || doneStatuses.some(s => statusName === s || statusName.includes(s))) {
     category = 'DONE';
