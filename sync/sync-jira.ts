@@ -52,6 +52,13 @@ async function main() {
     const issues = await client.searchIssues(simpleJql, ['*all']);
     console.log(`Foram retornadas ${issues.length} issues da API.`);
 
+    if (issues.length === 0) {
+      console.error("❌ ERRO CRÍTICO: A API do Jira retornou 0 itens.");
+      console.error("Isso pode indicar um problema de autenticação ou mudança nos filtros JQL.");
+      console.error("A sincronização foi ABORTADA para evitar limpar o dashboard.");
+      process.exit(1);
+    }
+
     const dashboardItems = issues.map(mapJiraIssueToDashboardItem).map(calculateMetrics);
     
     // Save to data.json

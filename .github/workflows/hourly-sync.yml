@@ -43,8 +43,11 @@ jobs:
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
         run: |
           npm run sync:jira
-          if [ ! -s src/data.json ]; then
-            echo "❌ ERRO: src/data.json está vazio após a sincronização."
+          # Verificação rigorosa de tamanho (mínimo 10KB)
+          FILE_SIZE=$(wc -c < src/data.json)
+          echo "Tamanho do src/data.json: $FILE_SIZE bytes"
+          if [ "$FILE_SIZE" -lt 10000 ]; then
+            echo "❌ ERRO: src/data.json é muito pequeno ($FILE_SIZE bytes). Sincronização possivelmente falhou."
             exit 1
           fi
 
