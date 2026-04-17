@@ -2194,7 +2194,7 @@
     "Type": "História",
     "Key": "RM-2833",
     "Summary": "Enviar automaticamente o Termo de Disponibilidade ao cliente ao concluir a Mobilização do produto SignAndDrive Colaboradores",
-    "Status": "AGUARDANDO QA",
+    "Status": "QA EM PROGRESSO",
     "StatusCategory": "IN_PROGRESS",
     "Team": "Mobilização",
     "Created": "2026-04-07T14:54:45.039-0300",
@@ -5682,7 +5682,7 @@
   {
     "Type": "História",
     "Key": "CRED-727",
-    "Summary": "Criar cliente no Locavia",
+    "Summary": "Criar ou atualizar cliente no Locavia com dados enriquecidos",
     "Status": "1. BACKLOG",
     "StatusCategory": "TODO",
     "Team": "Crédito e Proposta",
