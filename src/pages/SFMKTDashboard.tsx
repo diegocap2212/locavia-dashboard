@@ -21,8 +21,18 @@ const TYPE_COLORS: Record<string, string> = {
 };
 const getTypeColor = (type: string) => TYPE_COLORS[type] || '#8b5cf6';
 
-const item = { hidden: { opacity: 0, y: 15 }, show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 280, damping: 24 } } };
-const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.07 } } };
+const item = { 
+  hidden: { opacity: 0, y: 15 }, 
+  show: { 
+    opacity: 1, 
+    y: 0, 
+    transition: { type: 'spring', stiffness: 280, damping: 24 } as any
+  } 
+};
+const container = { 
+  hidden: { opacity: 0 }, 
+  show: { opacity: 1, transition: { staggerChildren: 0.07 } as any } 
+};
 
 // ── Reusable KPI Card ─────────────────────────────────────────────────────────
 const KPICard: React.FC<{
@@ -173,7 +183,7 @@ const SFMKTDashboard: React.FC = () => {
                 <YAxis stroke="var(--text-muted)" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
                 <Tooltip contentStyle={{ backgroundColor: 'var(--surface-color)', border: '1px solid var(--border-color)', borderRadius: '10px', fontSize: '12px' }} />
                 <Bar dataKey="count" name="Issues" radius={[6, 6, 0, 0]}>
-                  {leadTimeHistogram.map((entry, index) => (
+                  {leadTimeHistogram.map((_, index) => (
                     <Cell key={index} fill={index < 2 ? 'var(--success)' : index < 4 ? 'var(--warning)' : 'var(--danger)'} />
                   ))}
                 </Bar>
