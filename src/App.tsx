@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { motion, type Variants } from 'framer-motion';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
@@ -6,11 +7,14 @@ import {
 } from 'recharts';
 import { 
   Users, Activity, CheckCircle2, Clock, RefreshCw, ChevronDown, 
-  Bell, Calendar
+  Bell, Calendar, BarChart2
 } from 'lucide-react';
 import { useDashboardData, excelToJSDate, formatDate } from './hooks/useDashboardData';
 import TemporalDeliveryMatrix from './components/TemporalDeliveryMatrix';
 import './App.css';
+
+const SFMKTDashboard = lazy(() => import('./pages/SFMKTDashboard'));
+type ActiveView = 'locavia' | 'sfmkt';
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -187,6 +191,10 @@ const DateRangeFilter: React.FC<{
 };
 
 const App: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const activeView: ActiveView = location.pathname === '/metrics_sfmkt' ? 'sfmkt' : 'locavia';
+
   const {
     loading, chartData, weeklyPerformance, metrics,
     filteredList, teams, releases, selectedTeams, setSelectedTeams,
@@ -194,6 +202,14 @@ const App: React.FC = () => {
     startDate, setStartDate, endDate, setEndDate,
     temporalMatrixData
   } = useDashboardData();
+
+  const handleTabChange = (view: ActiveView) => {
+    if (view === 'sfmkt') {
+      navigate('/metrics_sfmkt');
+    } else {
+      navigate('/');
+    }
+  };
 
   if (loading) {
     return (
@@ -206,28 +222,69 @@ const App: React.FC = () => {
 
   return (
     <div className="dashboard-wrapper">
-      {/* Main Content Area */}
-      <motion.main className="dashboard-content" variants={containerVariants} initial="hidden" animate="show">
+      <Routes>
+        <Route path="/metrics_sfmkt" element={
+          <div className="dashboard-content">
+            <div style={{ padding: '1.5rem 0 0' }}>
+              {/* Minimal header for SFMKT view */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', paddingBottom: '1.5rem', borderBottom: '1px solid var(--border-color)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', opacity: 0.65 }}>
+                  <span style={{ color: 'var(--text-muted)', fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>powered by</span>
+                  <img src="/venice-logo.png" alt="Venice" style={{ height: '12px', objectFit: 'contain' }} />
+                </div>
+                <div style={{ display: 'flex', gap: '0.5rem', background: 'var(--surface-color)', borderRadius: '10px', padding: '4px', border: '1px solid var(--border-color)' }}>
+                  <button onClick={() => handleTabChange('locavia')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 16px', borderRadius: '7px', border: 'none', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600, background: 'transparent', color: 'var(--text-muted)', transition: 'all 0.2s' }}>
+                    <Users size={13} /> Locavia Principal
+                  </button>
+                  <button style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 16px', borderRadius: '7px', border: 'none', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600, background: 'var(--primary)', color: 'white', transition: 'all 0.2s' }}>
+                    <BarChart2 size={13} /> SFMKT Sprint
+                  </button>
+                </div>
+              </div>
+              <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', padding: '4rem', color: 'var(--text-muted)' }}><RefreshCw className="animate-spin" size={32} color="var(--primary)" /></div>}>
+                <SFMKTDashboard />
+              </Suspense>
+            </div>
+          </div>
+        } />
+        
+        <Route path="*" element={
+          <motion.main className="dashboard-content" variants={containerVariants} initial="hidden" animate="show">
         <motion.header className="header" variants={itemVariants}>
           <div className="title-section">
             <h1 style={{ letterSpacing: '-0.02em', marginBottom: '0.4rem' }}>
               Dashboard de Métricas LM
             </h1>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '1rem', opacity: 0.65 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.75rem', opacity: 0.65 }}>
               <span style={{ color: 'var(--text-muted)', fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>powered by</span>
               <img src="/venice-logo.png" alt="Venice" style={{ height: '12px', objectFit: 'contain' }} />
+            </div>
+            {/* View Tabs */}
+            <div style={{ display: 'flex', gap: '0.5rem', background: 'var(--surface-color)', borderRadius: '10px', padding: '4px', border: '1px solid var(--border-color)', width: 'fit-content' }}>
+              <button
+                onClick={() => handleTabChange('locavia')}
+                style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 16px', borderRadius: '7px', border: 'none', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600, background: activeView === 'locavia' ? 'var(--primary)' : 'transparent', color: activeView === 'locavia' ? 'white' : 'var(--text-muted)', transition: 'all 0.2s' }}
+              >
+                <Users size={13} /> Locavia Principal
+              </button>
+              <button
+                onClick={() => handleTabChange('sfmkt')}
+                style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 16px', borderRadius: '7px', border: 'none', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600, background: activeView === 'sfmkt' ? 'var(--primary)' : 'transparent', color: activeView === 'sfmkt' ? 'white' : 'var(--text-muted)', transition: 'all 0.2s' }}
+              >
+                <BarChart2 size={13} /> SFMKT Sprint
+              </button>
             </div>
           </div>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-            <div style={{ display: 'flex', gap: '1rem' }}>
+            {activeView === 'locavia' && <div style={{ display: 'flex', gap: '1rem' }}>
               <MultiSelect label="Time" options={teams} selected={selectedTeams} onChange={setSelectedTeams} allLabel="TODOS" />
               <MultiSelect label="Release" options={releases} selected={selectedReleases} onChange={setSelectedReleases} allLabel="TODAS" />
               <DateRangeFilter 
                 startDate={startDate} endDate={endDate} 
                 onStartDateChange={setStartDate} onEndDateChange={setEndDate} 
               />
-            </div>
+            </div>}
             
             <div style={{ width: '1px', height: '40px', background: 'var(--border-color)' }}></div>
             
@@ -422,7 +479,9 @@ const App: React.FC = () => {
             </table>
           </div>
         </motion.div>
-      </motion.main>
+          </motion.main>
+        } />
+      </Routes>
     </div>
   );
 };

@@ -51,7 +51,8 @@ export class JiraClient {
         jql,
         maxResults,
         fields,
-        fieldsByKeys: false
+        fieldsByKeys: false,
+        expand: 'changelog'
       };
       
       if (nextPageToken) {
