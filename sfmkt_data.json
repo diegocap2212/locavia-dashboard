@@ -4,7 +4,7 @@
       "key": "SFMKT-101",
       "summary": " [Migração SalesCloud] Migrar dados legado V2",
       "type": "História",
-      "status": "Priorizado",
+      "status": "EM REFINAMENTO",
       "statusCategory": "TODO",
       "assignee": "Beatriz Barguil",
       "created": "2026-04-27T14:30:21.475-0300",
@@ -1541,7 +1541,7 @@
       }
     }
   ],
-  "synced_at": "2026-04-28T17:30:27.114Z",
+  "synced_at": "2026-04-28T18:26:17.031Z",
   "project": "SFMKT",
   "total_fetched": 55
 }
