@@ -248,21 +248,30 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
       const lastValue = lastReal?.aFazer || 0;
       const lastDate = lastReal?.fullDate || new Date();
       
-      // Calculate Velocity based on last 4 weeks for better Trend sensitivity
-      const fourWeeksAgo = new Date(lastDate);
-      fourWeeksAgo.setDate(fourWeeksAgo.getDate() - 28);
-      
-      const recentDeliveries = filtered.filter(i => {
-        const r = excelToJSDate(i.Resolved);
-        return r && r >= fourWeeksAgo && r <= lastDate;
-      }).length;
-      
-      const velocity = Math.max(0.5, recentDeliveries / 4); // Min 0.5 to avoid static lines
-      
-      // Projeção baseada em variabilidade histórica (melhor/pior caso)
-      // Se estamos perto do deadline, a sensibilidade aumenta
-      const bestVelocity = Math.max(velocity * 1.4, 3); 
-      const worstVelocity = Math.max(velocity * 0.6, 0.5);
+      // Velocidade: Percentil 85/50/15 das últimas 8 semanas (igual à planilha CONE)
+      // Planilha usa PERCENTILE(últimas 8 semanas de J=Realizado, 0.85/0.15), ROUND, mínimo 1
+      const weeklyDeliveries: number[] = [];
+      for (let w = 0; w < 8; w++) {
+        const wEnd = new Date(lastDate);
+        wEnd.setDate(wEnd.getDate() - w * 7);
+        const wStart = new Date(wEnd);
+        wStart.setDate(wStart.getDate() - 7);
+        const count = filtered.filter(i => {
+          const r = excelToJSDate(i.Resolved);
+          return r && r >= wStart && r < wEnd
+            && !CONE_EXCLUDED_STATUSES.includes(i.Status.toUpperCase());
+        }).length;
+        weeklyDeliveries.push(count);
+      }
+      const sortedWeeks = [...weeklyDeliveries].sort((a, b) => a - b);
+      const pct = (p: number) => {
+        const idx = (sortedWeeks.length - 1) * p;
+        const lo = Math.floor(idx), hi = Math.ceil(idx);
+        return sortedWeeks[lo] + (sortedWeeks[hi] - sortedWeeks[lo]) * (idx - lo);
+      };
+      const bestVelocity  = Math.max(1, Math.round(pct(0.85)));
+      const worstVelocity = Math.max(1, Math.round(pct(0.15)));
+      const velocity      = Math.max(1, Math.round(pct(0.50)));
       
       const vLabel = `Tendência (${velocity.toFixed(1)}/sem)`;
       const bLabel = `Melhor Caso (${bestVelocity.toFixed(1)}/sem)`;
