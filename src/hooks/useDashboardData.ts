@@ -28,7 +28,7 @@ const BF_CEM_EXCLUDED_STATUSES = [
 const LOCAVIA_RELEASES = new Set(['O4R1', 'O4R2', 'O4R3']);
 const BF_CEM_RELEASES = new Set(['BAF', 'BAF-QW', 'CEM', 'CEM-R1', 'CEM-R2']);
 // Times capturados pela Jornada (Removido para alinhamento com a planilha que usa apenas releases específicas)
-const BF_CEM_JORNADA_TEAMS = new Set([]); 
+const BF_CEM_JORNADA_TEAMS = new Set<string>([]); 
 
 
 export type ConeType = 'locavia' | 'bf-cem';
