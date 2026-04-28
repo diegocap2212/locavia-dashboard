@@ -20,6 +20,10 @@ const CONE_EXCLUDED_STATUSES = [
 
 const LOCAVIA_RELEASES = new Set(['O4R1', 'O4R2', 'O4R3']);
 const BF_CEM_RELEASES = new Set(['BAF', 'BAF-QW', 'CEM', 'CEM-R1', 'CEM-R2']);
+// Times capturados pela Jornada (COMPRAS/ESTOQUE/MOB/LAKE-DOMINIO) sem release de cone definida
+const BF_CEM_JORNADA_TEAMS = new Set([
+  'Compras e Estoque', 'Mobilização', 'Relatórios de BI', 'Construção do Data Lake',
+]);
 
 export type ConeType = 'locavia' | 'bf-cem';
 
@@ -164,7 +168,10 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
 
     // Pre-filter by cone type
     const coneReleases = coneType === 'locavia' ? LOCAVIA_RELEASES : BF_CEM_RELEASES;
-    const coneItems = rawItems.filter(i => coneReleases.has(i.Release));
+    const coneItems = rawItems.filter(i =>
+      coneReleases.has(i.Release) ||
+      (coneType === 'bf-cem' && i.Release === 'OUTROS' && BF_CEM_JORNADA_TEAMS.has(i.Team))
+    );
 
     // 1. Meta Data (Teams/Releases) — scoped to this cone
     const teamsList = Array.from(new Set(coneItems.map(i => i.Team))).filter(t => t && t !== "").sort();

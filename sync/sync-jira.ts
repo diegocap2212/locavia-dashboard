@@ -21,38 +21,29 @@ async function main() {
 
   const client = new JiraClient(baseUrl, email, token);
   
-  const projects = ['WA', 'VAA', 'TERA', 'SN', 'RM', 'PRICI', 'MS', 'MIGRA', 'MDD', 'LKE', 'LKD', 'LI', 'JAC', 'DESMOB', 'CTO', 'CRED', 'COMP', 'APV', 'CON', 'GOL', 'UP'];
-  
-  // Regra de Paridade: Jornadas mapeadas na planilha CONE
-  const jornadas = [
-    '"WHATSAPP"', '"Comercial"', '"Pos_venda"', '"Migra_Blip"', '"VENDAS_AUTO-ATENDIMENTO"', 
-    '"CADASTRO_DE_USUÁRIO"', '"MOB"', '"SEMINOVOS"', '"FATURAMENTO"', '"CONTRATOS"', 
-    '"ESTOQUE"', '"COMPRAS"', '"JURÍDICO"', '"RH"', '"FINANCEIRO"', '"FISCAL"', 
-    '"CONTROLADORIA"', '"TI"', '"OPERAÇÕES"', '"MANUTENÇÃO"', '"LOGÍSTICA"', 
-    '"SINISTRO"', '"QUALIDADE"', '"CLIENTE"', '"FORNECEDOR"', '"FROTA"', 
-    '"EQUIPAMENTO"', '"TELECOM"', '"FACILITIE"', '"GESTÃO"', '"OUTROS"', 
-    '"LAKE-DOMINIO"', '"VENDAS_ASSISTIDAS"', '"PRICING"', '"MIGRAÇÃO"'
-  ];
+  // JQL espelhando a estrutura da planilha CONE:
+  // - cf[11330] = "Release[Labels]"
+  // - cf[12386] = "Jornada[Labels]" (4 jornadas BF/CEM que a planilha usa)
+  // - cf[13065] = "Automação[Select List (cascading)]" — excluídos (EMPTY)
+  // - cf[12683] = "Natureza da Demanda[Labels]" — excluídos TESTES-LOCAVIA
 
-  // Regra de Paridade: Releases mapeadas na planilha CONE
-  // CEM-R1 e CEM-R2 adicionados após comparação com BASE CONE da planilha
   const releases = [
     '"O4R1"', '"O4R2"', '"O4R3"',
     '"BAF"', '"BAF-QW"',
-    '"CEM"', '"CEM-R1"', '"CEM-R2"',
-    '"Wave 4"', '"Release 2"', '"Onda 4"', '"Release 01"', '"Release_01"',
-    '"2024.1"', '"2024.2"'
+    '"CEM"', '"CEM-R1"', '"CEM-R2"'
   ];
 
-  // Removemos DESCARTADO/CANCELADO do filtro JQL para paridade com a planilha
-  // (a planilha inclui esses itens no escopo total; o dashboard os exibe como "fora do cone ativo")
-  const excludedStatuses = ['"ESPERANDO"'];
+  // Jornadas que a planilha usa para capturar itens do BF/CEM sem release definida
+  const jornadasBfCem = ['"COMPRAS"', '"ESTOQUE"', '"MOB"', '"LAKE-DOMINIO"'];
 
-  // JQL: Itens que tenham a Release OU Jornada específica em projetos chave
-  // Projetos que usam Jornada como critério de inclusão (além do campo Release)
-  const jornadaProjects = 'WA, JAC, VAA, LKD, SN, MIGRA, COMP, RM';
-
-  const simpleJql = `project in (${projects.join(',')}) and type not in (Epic, subTaskIssueTypes()) and (cf[11330] in (${releases.join(',')}) or (cf[12386] in (${jornadas.join(',')}) and project in (${jornadaProjects})) or (cf[10215] in (${jornadas.join(',')}) and project in (${jornadaProjects}))) and status not in (${excludedStatuses.join(',')}) ORDER BY created DESC`;
+  const simpleJql = [
+    'project is not empty',
+    'and type not in (Epic, subTaskIssueTypes())',
+    `and (cf[11330] in (${releases.join(',')}) or cf[12386] in (${jornadasBfCem.join(',')}))`,
+    'and cf[13065] is EMPTY',
+    'and (cf[12683] not in ("TESTES-LOCAVIA") or cf[12683] is EMPTY)',
+    'ORDER BY created DESC'
+  ].join(' ');
 
   console.log(`Iniciando sincronização Jira... JQL: ${simpleJql}`);
 

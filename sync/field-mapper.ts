@@ -32,6 +32,8 @@ const teamMapping: Record<string, string> = {
   'CREDITO': 'Crédito e Proposta',
   'SALESFORCE_PÓSVEND': 'Pós Venda Salesforce',
   
+  'PAGAMENTOS': 'Crédito e Proposta',
+
   // Siglas de fallback
   'GOL': 'Portal de Vendas Assistidas',
   'TERA': 'Faturamento',
@@ -65,7 +67,14 @@ const prefixToCar: Record<string, string> = {
   'RM': 'JETTA',
   'TERA': 'FATURAMENTO',
   'PRICI': 'PRICING',
-  'LI': 'GOL'
+  'LI': 'GOL',
+  'MP': 'COMPRAS',
+  'JVE': 'JETTA',
+  'MAN': 'MANUTENÇÃO',
+  'CRED': 'CREDITO',
+  'DESMOB': 'MIGRAÇÃO',
+  'MS': 'FATURAMENTO',
+  'GOL': 'GOL'
 };
 
 export function mapJiraIssueToDashboardItem(issue: JiraApiIssue): DashboardItem {
