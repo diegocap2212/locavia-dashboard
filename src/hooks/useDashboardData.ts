@@ -3,8 +3,15 @@ import { fetchData, type JiraItem } from '../services/dataService';
 import rawDataFallback from '../data.json';
 import releaseConfig from '../config/release-config.json';
 
+// Statuses to exclude for Locavia Principal (Matches spreadsheet logic: only exclude discarded)
+const LOCAVIA_EXCLUDED_STATUSES = [
+  'DESCARTADO',
+  'CANCELADO',
+  'NOGO',
+];
+
 // Statuses that the official CONE ignores or treats as "Already Delivered" in its temporal view
-const CONE_EXCLUDED_STATUSES = [
+const BF_CEM_EXCLUDED_STATUSES = [
   '1. BACKLOG',
   'BACKLOG',
   'SPRINT BACKLOG',
@@ -20,10 +27,9 @@ const CONE_EXCLUDED_STATUSES = [
 
 const LOCAVIA_RELEASES = new Set(['O4R1', 'O4R2', 'O4R3']);
 const BF_CEM_RELEASES = new Set(['BAF', 'BAF-QW', 'CEM', 'CEM-R1', 'CEM-R2']);
-// Times capturados pela Jornada (COMPRAS/ESTOQUE/MOB/LAKE-DOMINIO) sem release de cone definida
-const BF_CEM_JORNADA_TEAMS = new Set([
-  'Compras e Estoque', 'Mobilização', 'Relatórios de BI', 'Construção do Data Lake',
-]);
+// Times capturados pela Jornada (Removido para alinhamento com a planilha que usa apenas releases específicas)
+const BF_CEM_JORNADA_TEAMS = new Set([]); 
+
 
 export type ConeType = 'locavia' | 'bf-cem';
 
@@ -185,8 +191,9 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
       const releaseMatch = selectedReleases.includes('TODAS') || selectedReleases.includes(item.Release);
       if (!teamMatch || !releaseMatch) return false;
 
-      // Saneamento/Cone Filter: Match official CONE (ignore raw backlog & late QA)
-      if (CONE_EXCLUDED_STATUSES.includes(item.Status)) return false;
+      // Saneamento/Cone Filter: Match official CONE logic
+      const excludedStatuses = coneType === 'locavia' ? LOCAVIA_EXCLUDED_STATUSES : BF_CEM_EXCLUDED_STATUSES;
+      if (excludedStatuses.includes(item.Status)) return false;
 
       const cDate = excelToJSDate(item.Created);
       const rDate = excelToJSDate(item.Resolved);
@@ -253,6 +260,7 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
       // Velocidade: Percentil 85/50/15 das últimas 8 semanas (igual à planilha CONE)
       // Planilha usa PERCENTILE(últimas 8 semanas de J=Realizado, 0.85/0.15), ROUND, mínimo 1
       const weeklyDeliveries: number[] = [];
+      const excludedStatusesForVelocity = coneType === 'locavia' ? LOCAVIA_EXCLUDED_STATUSES : BF_CEM_EXCLUDED_STATUSES;
       for (let w = 0; w < 8; w++) {
         const wEnd = new Date(lastDate);
         wEnd.setDate(wEnd.getDate() - w * 7);
@@ -261,7 +269,7 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
         const count = filtered.filter(i => {
           const r = i.Resolved ? excelToJSDate(i.Resolved) : excelToJSDate(i.UpdatedAt);
           return i.StatusCategory === 'DONE' && r && r >= wStart && r < wEnd
-            && !CONE_EXCLUDED_STATUSES.includes(i.Status.toUpperCase());
+            && !excludedStatusesForVelocity.includes(i.Status.toUpperCase());
         }).length;
         weeklyDeliveries.push(count);
       }
@@ -442,6 +450,7 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
     }
 
     // 6. Final Metrics
+    const currentExclusions = coneType === 'locavia' ? LOCAVIA_EXCLUDED_STATUSES : BF_CEM_EXCLUDED_STATUSES;
     return { 
       chartData, 
       weeklyPerformance: weeklyStats.slice(-18),
@@ -450,7 +459,7 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
         deliveredCount: filtered.filter(i => i.StatusCategory === 'DONE').length,
         wipCount: filtered.filter(i =>
           i.StatusCategory !== 'DONE' &&
-          !CONE_EXCLUDED_STATUSES.includes(i.Status.toUpperCase())
+          !currentExclusions.includes(i.Status.toUpperCase())
         ).length,
         avgCycleTime: (() => {
           const doneItems = filtered.filter(i => i.StatusCategory === 'DONE' && i.Created);

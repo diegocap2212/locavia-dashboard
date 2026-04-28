@@ -33,13 +33,10 @@ async function main() {
     '"CEM"', '"CEM-R1"', '"CEM-R2"'
   ];
 
-  // Jornadas que a planilha usa para capturar itens do BF/CEM sem release definida
-  const jornadasBfCem = ['"COMPRAS"', '"ESTOQUE"', '"MOB"', '"LAKE-DOMINIO"'];
-
   const simpleJql = [
     'project is not empty',
     'and type not in (Epic, subTaskIssueTypes())',
-    `and (cf[11330] in (${releases.join(',')}) or cf[12386] in (${jornadasBfCem.join(',')}))`,
+    `and cf[11330] in (${releases.join(',')})`,
     'and cf[13065] is EMPTY',
     'and (cf[12683] not in ("TESTES-LOCAVIA") or cf[12683] is EMPTY)',
     'ORDER BY created DESC'
