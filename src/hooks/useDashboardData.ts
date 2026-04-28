@@ -127,9 +127,11 @@ const normalizeJqlData = (data: unknown[]): JiraItem[] => {
       Key: String(item.Key || ''),
       Summary: item.Summary,
       Status: typeof item.Status === 'string' ? item.Status.toUpperCase() : 'UNKNOWN',
+      StatusCategory: (item.StatusCategory as 'TODO' | 'IN_PROGRESS' | 'DONE') || 'TODO',
       Team: String(item.Team || ''),
       Created: String(item.Created || ''),
       Resolved: item.Resolved ? String(item.Resolved) : null,
+      UpdatedAt: item.UpdatedAt ? String(item.UpdatedAt) : String(item.Created || ''),
       Release: release,
       Metadata: (item.Metadata as { source: 'excel' | 'api', jql_context?: string }) || { source: 'excel' }
     } as JiraItem;
@@ -215,8 +217,8 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
         return c && c < weekEnd;
       }).length;
       const resolvedAtWeek = filtered.filter(i => {
-        const r = excelToJSDate(i.Resolved);
-        return r && r < weekEnd;
+        const r = i.Resolved ? excelToJSDate(i.Resolved) : excelToJSDate(i.UpdatedAt);
+        return i.StatusCategory === 'DONE' && r && r < weekEnd;
       }).length;
       
       const aFazer = Math.max(0, scopeAtWeek - resolvedAtWeek);
@@ -257,8 +259,8 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
         const wStart = new Date(wEnd);
         wStart.setDate(wStart.getDate() - 7);
         const count = filtered.filter(i => {
-          const r = excelToJSDate(i.Resolved);
-          return r && r >= wStart && r < wEnd
+          const r = i.Resolved ? excelToJSDate(i.Resolved) : excelToJSDate(i.UpdatedAt);
+          return i.StatusCategory === 'DONE' && r && r >= wStart && r < wEnd
             && !CONE_EXCLUDED_STATUSES.includes(i.Status.toUpperCase());
         }).length;
         weeklyDeliveries.push(count);
@@ -376,9 +378,11 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
          
          const execucao = isPast ? items.filter(i => {
             const c = excelToJSDate(i.Created);
-            const r = excelToJSDate(i.Resolved);
+            const doneAt = i.StatusCategory === 'DONE'
+              ? (i.Resolved ? excelToJSDate(i.Resolved) : excelToJSDate(i.UpdatedAt))
+              : null;
             if (!c || c >= wEnd) return false;
-            if (!r || r >= wEnd) return true;
+            if (!doneAt || doneAt >= wEnd) return true;
             return false;
          }).length : null;
          
@@ -406,8 +410,8 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
         const wEnd = new Date(curr.getTime() + 7 * 86400000);
         
         const resolved = filtered.filter(i => {
-           const r = excelToJSDate(i.Resolved);
-           return r && r >= wStart && r < wEnd;
+           const r = i.Resolved ? excelToJSDate(i.Resolved) : excelToJSDate(i.UpdatedAt);
+           return i.StatusCategory === 'DONE' && r && r >= wStart && r < wEnd;
         });
         const inflow = filtered.filter(i => {
            const c = excelToJSDate(i.Created);
@@ -416,8 +420,8 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
 
         const leadTimeSum = resolved.reduce((acc, i) => {
            const c = excelToJSDate(i.Created);
-           const r = excelToJSDate(i.Resolved);
-           return acc + (r!.getTime() - (c?.getTime() || r!.getTime())) / 86400000;
+           const r = i.Resolved ? excelToJSDate(i.Resolved) : excelToJSDate(i.UpdatedAt);
+           return acc + ((r?.getTime() ?? 0) - (c?.getTime() ?? r?.getTime() ?? 0)) / 86400000;
         }, 0);
 
         weeklyStats.push({
@@ -441,12 +445,23 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
     return { 
       chartData, 
       weeklyPerformance: weeklyStats.slice(-18),
-      metrics: { 
+      metrics: {
         totalItems: filtered.length,
-        deliveredCount: filtered.filter(i => !!i.Resolved).length,
-        wipCount: filtered.filter(i => !i.Resolved && i.Status !== 'DESCARTADO').length,
-        avgCycleTime: (filtered.filter(i => i.Resolved && i.Created).reduce((acc, i) => acc + (excelToJSDate(i.Resolved)!.getTime() - excelToJSDate(i.Created)!.getTime()), 0) / (Math.max(1, filtered.filter(i => i.Resolved && i.Created).length) * 86400000)).toFixed(1),
-      }, 
+        deliveredCount: filtered.filter(i => i.StatusCategory === 'DONE').length,
+        wipCount: filtered.filter(i =>
+          i.StatusCategory !== 'DONE' &&
+          !CONE_EXCLUDED_STATUSES.includes(i.Status.toUpperCase())
+        ).length,
+        avgCycleTime: (() => {
+          const doneItems = filtered.filter(i => i.StatusCategory === 'DONE' && i.Created);
+          const totalMs = doneItems.reduce((acc, i) => {
+            const end = i.Resolved ? excelToJSDate(i.Resolved) : excelToJSDate(i.UpdatedAt);
+            const start = excelToJSDate(i.Created);
+            return acc + (end && start ? end.getTime() - start.getTime() : 0);
+          }, 0);
+          return (totalMs / (Math.max(1, doneItems.length) * 86400000)).toFixed(1);
+        })(),
+      },
       filteredList: filtered,
       teams: teamsList,
       releases: releasesList,

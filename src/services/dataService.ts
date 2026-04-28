@@ -3,9 +3,11 @@ export interface JiraItem {
   Key: string;
   Summary: string | unknown;
   Status: string;
+  StatusCategory: 'TODO' | 'IN_PROGRESS' | 'DONE';
   Team: string;
   Created: string;
   Resolved: string | null;
+  UpdatedAt: string;
   Release: string;
   [key: string]: unknown;
 }

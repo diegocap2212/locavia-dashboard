@@ -173,9 +173,18 @@ export function mapJiraIssueToDashboardItem(issue: JiraApiIssue): DashboardItem 
   
   let category: DashboardItem['StatusCategory'] = 'TODO';
   
-  // Statuses that represent "DONE" (refined for full parity with CSV)
-  const doneStatuses = ['CONCLUIDO', 'CONCLUÍDO', 'DESENV CONCLUIDO', 'TESTE CONCLUIDO', 'DONE', 'RESOLVIDO', 'FINALIZADO', 'ENTREGUE', 'FECHADO', 'ENTREGA FINALIZADA'];
-  const inProgressStatuses = ['EM DESENVOLVIMENTO', 'IN PROGRESS', 'EM ANDAMENTO', 'DESENVOLVENDO', 'SENDO DESENVOLVIDO', 'FIXING', 'REFINANDO', 'EM REFINAMENTO', 'AGUARDANDO QA', 'QA EM PROGRESSO', 'AGUARDANDO CODE REVIEW', 'CODE REVIEW EM PROGRESSO', 'EM TESTE', 'AGUARDANDO TESTE', 'NOVAS ATIVIDADES', 'ATIVIDADES EM ANDAMENTO', 'PRONTO PARA DESENVOLVER', 'PRONTO PRA DESENVOLVER', 'PRIORIZADO', 'AGUARDANDO DEPLOY QA', 'AGUARDANDO DEPLOY PROD', 'AGUARDANDO HOMOLOG', 'HOMOLOG EM PROGRESSO'];
+  // Statuses that represent "DONE":
+  // Primary gate: DESENV CONCLUÍDO (planilha conta entrega aqui para filhos US/Task/Bug/Spike)
+  // Post-dev statuses: itens já passaram do gate de desenvolvimento, portanto também são DONE
+  const doneStatuses = [
+    'CONCLUIDO', 'CONCLUÍDO', 'DESENV CONCLUIDO', 'DESENV CONCLUÍDO',
+    'DONE', 'RESOLVIDO', 'FINALIZADO', 'ENTREGUE', 'FECHADO', 'ENTREGA FINALIZADA',
+    'TESTE CONCLUIDO', 'AGUARDANDO QA', 'QA EM PROGRESSO',
+    'EM TESTE', 'AGUARDANDO TESTE',
+    'AGUARDANDO DEPLOY QA', 'AGUARDANDO DEPLOY PROD',
+    'AGUARDANDO HOMOLOG', 'HOMOLOG EM PROGRESSO',
+  ];
+  const inProgressStatuses = ['EM DESENVOLVIMENTO', 'IN PROGRESS', 'EM ANDAMENTO', 'DESENVOLVENDO', 'SENDO DESENVOLVIDO', 'FIXING', 'REFINANDO', 'EM REFINAMENTO', 'AGUARDANDO CODE REVIEW', 'CODE REVIEW EM PROGRESSO', 'NOVAS ATIVIDADES', 'ATIVIDADES EM ANDAMENTO', 'PRONTO PARA DESENVOLVER', 'PRONTO PRA DESENVOLVER', 'PRIORIZADO'];
 
   if (categoryName.includes('DONE') || doneStatuses.some(s => statusName === s || statusName.includes(s))) {
     category = 'DONE';
@@ -192,6 +201,7 @@ export function mapJiraIssueToDashboardItem(issue: JiraApiIssue): DashboardItem 
     Team: finalTeam,
     Created: issue.fields.created,
     Resolved: issue.fields.resolutiondate || null,
+    UpdatedAt: issue.fields.updated || issue.fields.created,
     Release: finalRelease,
     StoryPoints: null,
     Priority: issue.fields.priority?.name || 'Medium',

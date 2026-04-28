@@ -37,7 +37,8 @@ export interface DashboardItem {
   StatusCategory: 'TODO' | 'IN_PROGRESS' | 'DONE';
   Team: string;
   Created: string;          // ISO 8601
-  Resolved: string | null;  // ISO 8601
+  Resolved: string | null;  // ISO 8601 — resolutiondate do Jira (só preenchido no fechamento final)
+  UpdatedAt: string;        // ISO 8601 — fields.updated do Jira; fallback de data para itens DONE sem Resolved
   Release: string;
   StoryPoints: number | null;
   Priority: string;
