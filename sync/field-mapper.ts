@@ -150,8 +150,8 @@ export function mapJiraIssueToDashboardItem(issue: JiraApiIssue): DashboardItem 
     } else if (isO4R1) {
         finalRelease = 'O4R1';
     } else {
-        // Backups comuns na planilha
-        const backups = ['BAF', 'CEM', 'BAF-QW', 'WHATSAPP', 'MOB', 'ESTOQUE', 'CONTRATOS', 'COMPRAS'];
+        // Backups comuns na planilha (CEM-R1/CEM-R2 agrupados como CEM-R1 e CEM-R2 para paridade)
+        const backups = ['BAF', 'BAF-QW', 'CEM-R1', 'CEM-R2', 'CEM', 'WHATSAPP', 'MOB', 'ESTOQUE', 'CONTRATOS', 'COMPRAS'];
         const backup = allReleasesRaw.find(p => backups.includes(p.toUpperCase()));
         if (backup) finalRelease = backup.toUpperCase();
         else if (allReleasesRaw.length > 0) finalRelease = allReleasesRaw[0];
@@ -166,7 +166,7 @@ export function mapJiraIssueToDashboardItem(issue: JiraApiIssue): DashboardItem 
   
   // Statuses that represent "DONE" (refined for full parity with CSV)
   const doneStatuses = ['CONCLUIDO', 'CONCLUÍDO', 'DESENV CONCLUIDO', 'TESTE CONCLUIDO', 'DONE', 'RESOLVIDO', 'FINALIZADO', 'ENTREGUE', 'FECHADO', 'ENTREGA FINALIZADA'];
-  const inProgressStatuses = ['EM DESENVOLVIMENTO', 'IN PROGRESS', 'EM ANDAMENTO', 'DESENVOLVENDO', 'SENDO DESENVOLVIDO', 'FIXING', 'REFINANDO', 'EM REFINAMENTO', 'AGUARDANDO QA', 'QA EM PROGRESSO', 'AGUARDANDO CODE REVIEW', 'CODE REVIEW EM PROGRESSO', 'EM TESTE', 'AGUARDANDO TESTE'];
+  const inProgressStatuses = ['EM DESENVOLVIMENTO', 'IN PROGRESS', 'EM ANDAMENTO', 'DESENVOLVENDO', 'SENDO DESENVOLVIDO', 'FIXING', 'REFINANDO', 'EM REFINAMENTO', 'AGUARDANDO QA', 'QA EM PROGRESSO', 'AGUARDANDO CODE REVIEW', 'CODE REVIEW EM PROGRESSO', 'EM TESTE', 'AGUARDANDO TESTE', 'NOVAS ATIVIDADES', 'ATIVIDADES EM ANDAMENTO', 'PRONTO PARA DESENVOLVER', 'PRONTO PRA DESENVOLVER', 'PRIORIZADO', 'AGUARDANDO DEPLOY QA', 'AGUARDANDO DEPLOY PROD', 'AGUARDANDO HOMOLOG', 'HOMOLOG EM PROGRESSO'];
 
   if (categoryName.includes('DONE') || doneStatuses.some(s => statusName === s || statusName.includes(s))) {
     category = 'DONE';

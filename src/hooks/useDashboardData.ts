@@ -7,14 +7,21 @@ import releaseConfig from '../config/release-config.json';
 const CONE_EXCLUDED_STATUSES = [
   '1. BACKLOG',
   'BACKLOG',
+  'SPRINT BACKLOG',
   'EM REFINAMENTO',
   'REFINANDO',
   'A REFINAR',
   'SANEAMENTO',
   'ESPERANDO',
   'DESCARTADO',
-  'CANCELADO'
+  'CANCELADO',
+  'NOGO',
 ];
+
+const LOCAVIA_RELEASES = new Set(['O4R1', 'O4R2', 'O4R3']);
+const BF_CEM_RELEASES = new Set(['BAF', 'BAF-QW', 'CEM', 'CEM-R1', 'CEM-R2']);
+
+export type ConeType = 'locavia' | 'bf-cem';
 
 const getMon = (d: Date) => {
   const mon = new Date(d);
@@ -125,7 +132,7 @@ const normalizeJqlData = (data: unknown[]): JiraItem[] => {
   });
 };
 
-export const useDashboardData = () => {
+export const useDashboardData = (coneType: ConeType = 'locavia') => {
   const [selectedTeams, setSelectedTeams] = useState<string[]>(['TODOS']);
   const [selectedReleases, setSelectedReleases] = useState<string[]>(['TODAS']);
   const [startDate, setStartDate] = useState<string>('');
@@ -154,13 +161,17 @@ export const useDashboardData = () => {
 
   const dashboardState = useMemo(() => {
     const rawItems = normalizeJqlData(data);
-    
-    // 1. Meta Data (Teams/Releases)
-    const teamsList = Array.from(new Set(rawItems.map(i => i.Team))).filter(t => t && t !== "").sort();
-    const releasesList = Array.from(new Set(rawItems.map(i => i.Release))).filter(r => r && r !== "").sort();
+
+    // Pre-filter by cone type
+    const coneReleases = coneType === 'locavia' ? LOCAVIA_RELEASES : BF_CEM_RELEASES;
+    const coneItems = rawItems.filter(i => coneReleases.has(i.Release));
+
+    // 1. Meta Data (Teams/Releases) — scoped to this cone
+    const teamsList = Array.from(new Set(coneItems.map(i => i.Team))).filter(t => t && t !== "").sort();
+    const releasesList = Array.from(new Set(coneItems.map(i => i.Release))).filter(r => r && r !== "").sort();
 
     // 2. Filter primary set
-    const filtered = rawItems.filter(item => {
+    const filtered = coneItems.filter(item => {
       const teamMatch = selectedTeams.includes('TODOS') || selectedTeams.includes(item.Team);
       const releaseMatch = selectedReleases.includes('TODAS') || selectedReleases.includes(item.Release);
       if (!teamMatch || !releaseMatch) return false;
@@ -183,8 +194,8 @@ export const useDashboardData = () => {
     // 3. Generate Timeline & Burndown
     const now = new Date();
     const futureLimit = new Date(now.getTime() + 7 * 86400000);
-    
-    const timelineWeeks = Array.from(new Set(rawItems.map(i => {
+
+    const timelineWeeks = Array.from(new Set(coneItems.map(i => {
       const d = excelToJSDate(i.Resolved) || excelToJSDate(i.Created);
       return (d && d <= futureLimit) ? getMon(d).toISOString() : null;
     }))).filter(Boolean).sort() as string[];
@@ -217,11 +228,11 @@ export const useDashboardData = () => {
     // 4. Projections & Velocity
     const chartData: any[] = [...dynamicHistory];
     
-    // Pegar o deadline da release selecionada ou o maior entre elas
+    // Pegar o deadline da release selecionada ou o maior entre elas (dentro do cone atual)
     const selectedReleaseDeadlines = releaseConfig.releases
-      .filter(r => selectedReleases.includes('TODAS') || selectedReleases.includes(r.id))
+      .filter(r => coneReleases.has(r.id) && (selectedReleases.includes('TODAS') || selectedReleases.includes(r.id)))
       .map(r => new Date(r.deadline));
-    const RELEASE_DEADLINE = selectedReleaseDeadlines.length > 0 
+    const RELEASE_DEADLINE = selectedReleaseDeadlines.length > 0
       ? new Date(Math.max(...selectedReleaseDeadlines.map(d => d.getTime())))
       : new Date(2026, 3, 27); // Fallback para 27/04/2026
     
@@ -278,7 +289,10 @@ export const useDashboardData = () => {
 
     // 5. Temporal Matrix Data (Heatmap)
     const minD = filtered.length > 0 ? filtered.reduce((m, i) => { const d = excelToJSDate(i.Created); return (d && d < m) ? d : m; }, new Date()) : new Date(2025, 0, 1);
-    const maxDeadline = releaseConfig.releases.map(r => new Date(r.deadline)).reduce((a, b) => a > b ? a : b, new Date());
+    const maxDeadline = releaseConfig.releases
+      .filter(r => coneReleases.has(r.id))
+      .map(r => new Date(r.deadline))
+      .reduce((a, b) => a > b ? a : b, new Date());
     
     let matrixMinDate = new Date(2025, 0, 1);
     if (minD > matrixMinDate) matrixMinDate = minD;
@@ -422,7 +436,7 @@ export const useDashboardData = () => {
       releases: releasesList,
       temporalMatrixData
     };
-  }, [data, selectedTeams, selectedReleases, startDate, endDate]);
+  }, [data, selectedTeams, selectedReleases, startDate, endDate, coneType]);
 
   return {
     ...dashboardState,

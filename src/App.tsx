@@ -5,16 +5,17 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
   Bar, ComposedChart, Line, BarChart
 } from 'recharts';
-import { 
-  Users, Activity, CheckCircle2, Clock, RefreshCw, ChevronDown, 
-  Bell, Calendar, BarChart2
+import {
+  Users, Activity, CheckCircle2, Clock, RefreshCw, ChevronDown,
+  Bell, Calendar, BarChart2, ShoppingCart
 } from 'lucide-react';
 import { useDashboardData, excelToJSDate, formatDate } from './hooks/useDashboardData';
 import TemporalDeliveryMatrix from './components/TemporalDeliveryMatrix';
 import './App.css';
 
 const SFMKTDashboard = lazy(() => import('./pages/SFMKTDashboard'));
-type ActiveView = 'locavia' | 'sfmkt';
+const BFCEMDashboard = lazy(() => import('./pages/BFCEMDashboard'));
+type ActiveView = 'locavia' | 'sfmkt' | 'bf-cem';
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -193,7 +194,9 @@ const DateRangeFilter: React.FC<{
 const App: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const activeView: ActiveView = location.pathname === '/metrics_sfmkt' ? 'sfmkt' : 'locavia';
+  const activeView: ActiveView =
+    location.pathname === '/metrics_sfmkt' ? 'sfmkt' :
+    location.pathname === '/cone-bf-cem' ? 'bf-cem' : 'locavia';
 
   const {
     loading, chartData, weeklyPerformance, metrics,
@@ -201,14 +204,12 @@ const App: React.FC = () => {
     selectedReleases, setSelectedReleases,
     startDate, setStartDate, endDate, setEndDate,
     temporalMatrixData
-  } = useDashboardData();
+  } = useDashboardData('locavia');
 
   const handleTabChange = (view: ActiveView) => {
-    if (view === 'sfmkt') {
-      navigate('/metrics_sfmkt');
-    } else {
-      navigate('/');
-    }
+    if (view === 'sfmkt') navigate('/metrics_sfmkt');
+    else if (view === 'bf-cem') navigate('/cone-bf-cem');
+    else navigate('/');
   };
 
   if (loading) {
@@ -236,6 +237,9 @@ const App: React.FC = () => {
                   <button onClick={() => handleTabChange('locavia')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 16px', borderRadius: '7px', border: 'none', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600, background: 'transparent', color: 'var(--text-muted)', transition: 'all 0.2s' }}>
                     <Users size={13} /> Locavia Principal
                   </button>
+                  <button onClick={() => handleTabChange('bf-cem')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 16px', borderRadius: '7px', border: 'none', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600, background: 'transparent', color: 'var(--text-muted)', transition: 'all 0.2s' }}>
+                    <ShoppingCart size={13} /> BF / CEM
+                  </button>
                   <button style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 16px', borderRadius: '7px', border: 'none', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600, background: 'var(--primary)', color: 'white', transition: 'all 0.2s' }}>
                     <BarChart2 size={13} /> SFMKT Sprint
                   </button>
@@ -248,6 +252,14 @@ const App: React.FC = () => {
           </div>
         } />
         
+        <Route path="/cone-bf-cem" element={
+          <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}><RefreshCw className="animate-spin" size={32} color="var(--primary)" /></div>}>
+            <div className="dashboard-wrapper">
+              <BFCEMDashboard />
+            </div>
+          </Suspense>
+        } />
+
         <Route path="*" element={
           <motion.main className="dashboard-content" variants={containerVariants} initial="hidden" animate="show">
         <motion.header className="header" variants={itemVariants}>
@@ -266,6 +278,12 @@ const App: React.FC = () => {
                 style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 16px', borderRadius: '7px', border: 'none', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600, background: activeView === 'locavia' ? 'var(--primary)' : 'transparent', color: activeView === 'locavia' ? 'white' : 'var(--text-muted)', transition: 'all 0.2s' }}
               >
                 <Users size={13} /> Locavia Principal
+              </button>
+              <button
+                onClick={() => handleTabChange('bf-cem')}
+                style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 16px', borderRadius: '7px', border: 'none', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600, background: activeView === 'bf-cem' ? 'var(--primary)' : 'transparent', color: activeView === 'bf-cem' ? 'white' : 'var(--text-muted)', transition: 'all 0.2s' }}
+              >
+                <ShoppingCart size={13} /> BF / CEM
               </button>
               <button
                 onClick={() => handleTabChange('sfmkt')}

@@ -34,18 +34,25 @@ async function main() {
     '"LAKE-DOMINIO"', '"VENDAS_ASSISTIDAS"', '"PRICING"', '"MIGRAÇÃO"'
   ];
 
-  // Regra de Paridade: Releases mapeadas na planilha CONE (Incluindo 2024.1 para Paridade SharePoint)
+  // Regra de Paridade: Releases mapeadas na planilha CONE
+  // CEM-R1 e CEM-R2 adicionados após comparação com BASE CONE da planilha
   const releases = [
-    '"O4R1"', '"O4R2"', '"O4R3"', '"BAF"', '"BAF-QW"', '"CEM"', 
+    '"O4R1"', '"O4R2"', '"O4R3"',
+    '"BAF"', '"BAF-QW"',
+    '"CEM"', '"CEM-R1"', '"CEM-R2"',
     '"Wave 4"', '"Release 2"', '"Onda 4"', '"Release 01"', '"Release_01"',
     '"2024.1"', '"2024.2"'
   ];
 
-  const excludedStatuses = ['"DESCARTADO"', '"CANCELADO"', '"ESPERANDO"'];
-  
-  // JQL Refinado: Itens que tenham a Release OU que tenham Jornada específica em projetos chave
-  // Removidos filtros restritivos de Automação para alinhar com a planilha mestre
-  const simpleJql = `project in (${projects.join(',')}) and type not in (Epic, subTaskIssueTypes()) and (cf[11330] in (${releases.join(',')}) or (cf[12386] in (${jornadas.join(',')}) and project in (WA, JAC, VAA, LKD, SN)) or (cf[10215] in (${jornadas.join(',')}) and project in (WA, JAC, VAA, LKD, SN))) and status not in (${excludedStatuses.join(',')}) ORDER BY created DESC`;
+  // Removemos DESCARTADO/CANCELADO do filtro JQL para paridade com a planilha
+  // (a planilha inclui esses itens no escopo total; o dashboard os exibe como "fora do cone ativo")
+  const excludedStatuses = ['"ESPERANDO"'];
+
+  // JQL: Itens que tenham a Release OU Jornada específica em projetos chave
+  // Projetos que usam Jornada como critério de inclusão (além do campo Release)
+  const jornadaProjects = 'WA, JAC, VAA, LKD, SN, MIGRA, COMP, RM';
+
+  const simpleJql = `project in (${projects.join(',')}) and type not in (Epic, subTaskIssueTypes()) and (cf[11330] in (${releases.join(',')}) or (cf[12386] in (${jornadas.join(',')}) and project in (${jornadaProjects})) or (cf[10215] in (${jornadas.join(',')}) and project in (${jornadaProjects}))) and status not in (${excludedStatuses.join(',')}) ORDER BY created DESC`;
 
   console.log(`Iniciando sincronização Jira... JQL: ${simpleJql}`);
 

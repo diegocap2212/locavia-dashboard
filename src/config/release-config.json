@@ -3,22 +3,56 @@
     {
       "id": "O4R1",
       "deadline": "2025-12-23T00:00:00.000Z",
-      "displayName": "Release O4R1 (Dez/25)"
+      "displayName": "Release O4R1 (Dez/25)",
+      "cone": "locavia"
     },
     {
       "id": "O4R2",
       "deadline": "2026-04-27T00:00:00.000Z",
-      "displayName": "Release O4R2 (Abr/26)"
+      "displayName": "Release O4R2 (Abr/26)",
+      "cone": "locavia"
     },
     {
       "id": "O4R3",
       "deadline": "2026-08-30T00:00:00.000Z",
-      "displayName": "Release O4R3 (Ago/26)"
+      "displayName": "Release O4R3 (Ago/26)",
+      "cone": "locavia"
+    },
+    {
+      "id": "BAF",
+      "deadline": "2026-04-27T00:00:00.000Z",
+      "displayName": "Buy a Feature (BAF)",
+      "cone": "bf-cem"
+    },
+    {
+      "id": "BAF-QW",
+      "deadline": "2026-04-27T00:00:00.000Z",
+      "displayName": "BAF Quick Wins",
+      "cone": "bf-cem"
+    },
+    {
+      "id": "CEM",
+      "deadline": "2026-04-27T00:00:00.000Z",
+      "displayName": "Compras, Estoque e Mob (CEM)",
+      "cone": "bf-cem"
+    },
+    {
+      "id": "CEM-R1",
+      "deadline": "2026-04-27T00:00:00.000Z",
+      "displayName": "CEM - Release 1",
+      "cone": "bf-cem"
+    },
+    {
+      "id": "CEM-R2",
+      "deadline": "2026-04-27T00:00:00.000Z",
+      "displayName": "CEM - Release 2",
+      "cone": "bf-cem"
     },
     {
       "id": "DEFAULT",
       "deadline": "2026-12-31T00:00:00.000Z",
-      "displayName": "Padrão Sistema"
+      "displayName": "Padrão Sistema",
+      "cone": "locavia"
     }
   ]
 }
