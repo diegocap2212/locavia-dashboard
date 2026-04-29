@@ -1,6 +1,90 @@
 {
   "items": [
     {
+      "key": "SFMKT-104",
+      "summary": "Extrair as bases de dados do RD",
+      "type": "Subtarefa",
+      "status": "EM DESENVOLVIMENTO",
+      "statusCategory": "IN_PROGRESS",
+      "assignee": "Izaque Bernardo",
+      "created": "2026-04-29T09:29:24.057-0300",
+      "resolved": null,
+      "sprint": "SFMKT-SP Sprint 12",
+      "sprintId": 18814,
+      "sprintState": "active",
+      "storyPoints": null,
+      "priority": "Medium",
+      "labels": [],
+      "leadTimeDays": null,
+      "cycleTimeDays": null,
+      "timeInTodoDays": 0,
+      "dq": {
+        "missingResolutionDate": false,
+        "missingAssignee": false,
+        "noStatusTransitions": false,
+        "noSprint": false,
+        "staleTodo": false,
+        "suspiciouslyLongLead": false,
+        "doneWithoutCycleData": false
+      }
+    },
+    {
+      "key": "SFMKT-103",
+      "summary": "Revisar e criar estrutura que recebe os dados conforme RD",
+      "type": "Subtarefa",
+      "status": "EM DESENVOLVIMENTO",
+      "statusCategory": "IN_PROGRESS",
+      "assignee": "Izaque Bernardo",
+      "created": "2026-04-29T09:29:03.763-0300",
+      "resolved": null,
+      "sprint": "SFMKT-SP Sprint 12",
+      "sprintId": 18814,
+      "sprintState": "active",
+      "storyPoints": null,
+      "priority": "Medium",
+      "labels": [],
+      "leadTimeDays": null,
+      "cycleTimeDays": null,
+      "timeInTodoDays": 0,
+      "dq": {
+        "missingResolutionDate": false,
+        "missingAssignee": false,
+        "noStatusTransitions": false,
+        "noSprint": false,
+        "staleTodo": false,
+        "suspiciouslyLongLead": false,
+        "doneWithoutCycleData": false
+      }
+    },
+    {
+      "key": "SFMKT-102",
+      "summary": "Mapeamento de campos (RD Station → Salesforce)",
+      "type": "Subtarefa",
+      "status": "DESENV CONCLUIDO",
+      "statusCategory": "DONE",
+      "assignee": "Izaque Bernardo",
+      "created": "2026-04-29T09:28:35.481-0300",
+      "resolved": "2026-04-29T09:31:39.170-0300",
+      "sprint": "SFMKT-SP Sprint 12",
+      "sprintId": 18814,
+      "sprintState": "active",
+      "storyPoints": null,
+      "priority": "Medium",
+      "labels": [],
+      "leadTimeDays": 0,
+      "cycleTimeDays": 0,
+      "timeInTodoDays": 0,
+      "dq": {
+        "missingResolutionDate": false,
+        "missingAssignee": false,
+        "noStatusTransitions": false,
+        "noSprint": false,
+        "staleTodo": false,
+        "suspiciouslyLongLead": false,
+        "doneWithoutCycleData": false
+      }
+    },
+    {
       "key": "SFMKT-101",
       "summary": " [Migração SalesCloud] Migrar dados legado V2",
       "type": "História",
@@ -1541,7 +1625,7 @@
       }
     }
   ],
-  "synced_at": "2026-04-29T11:23:41.600Z",
+  "synced_at": "2026-04-29T13:17:26.593Z",
   "project": "SFMKT",
-  "total_fetched": 55
+  "total_fetched": 58
 }
