@@ -452,7 +452,7 @@
       "key": "SFMKT-87",
       "summary": "[Migração SalesCloud] Migrar dados legado V1",
       "type": "História",
-      "status": "EM DESENVOLVIMENTO",
+      "status": "CODE REVIEW EM PROGRESSO",
       "statusCategory": "IN_PROGRESS",
       "assignee": "Izaque Bernardo",
       "created": "2026-04-20T13:55:45.431-0300",
@@ -1625,7 +1625,7 @@
       }
     }
   ],
-  "synced_at": "2026-04-30T12:07:10.704Z",
+  "synced_at": "2026-04-30T14:57:21.298Z",
   "project": "SFMKT",
   "total_fetched": 58
 }
