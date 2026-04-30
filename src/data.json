@@ -3484,11 +3484,11 @@
     "Team": "Evoluções / Buy a Feature",
     "Created": "2026-04-09T16:47:20.755-0300",
     "Resolved": null,
-    "UpdatedAt": "2026-04-29T07:45:37.268-0300",
+    "UpdatedAt": "2026-04-29T22:08:06.191-0300",
     "Release": "CEM-R1",
     "StoryPoints": null,
     "Priority": "Low",
-    "Assignee": "ext.raphael.caires",
+    "Assignee": "Leonardo Paim Magalhães",
     "Labels": [
       "O4R2"
     ],
@@ -3738,11 +3738,11 @@
     "Team": "Compras e Estoque",
     "Created": "2026-04-08T21:29:41.332-0300",
     "Resolved": null,
-    "UpdatedAt": "2026-04-29T13:25:52.121-0300",
+    "UpdatedAt": "2026-04-29T22:09:15.603-0300",
     "Release": "CEM-R1",
     "StoryPoints": null,
     "Priority": "Medium",
-    "Assignee": "ext.wendell.noce",
+    "Assignee": "Leonardo Paim Magalhães",
     "Labels": [
       "O4R2"
     ],
