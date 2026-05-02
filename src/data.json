@@ -212,11 +212,11 @@
     "Team": "Compras e Estoque",
     "Created": "2026-04-29T09:32:36.631-0300",
     "Resolved": null,
-    "UpdatedAt": "2026-05-01T18:01:38.266-0300",
+    "UpdatedAt": "2026-05-02T08:33:09.589-0300",
     "Release": "CEM-R1",
     "StoryPoints": null,
     "Priority": "Highest",
-    "Assignee": null,
+    "Assignee": "Leonardo Paim Magalhães",
     "Labels": [
       "Estoque"
     ],
@@ -1429,7 +1429,7 @@
     "Team": "Compras e Estoque",
     "Created": "2026-04-20T14:42:31.765-0300",
     "Resolved": null,
-    "UpdatedAt": "2026-04-30T14:19:07.566-0300",
+    "UpdatedAt": "2026-05-02T07:52:25.184-0300",
     "Release": "CEM-R2",
     "StoryPoints": null,
     "Priority": "Lowest",
@@ -4537,11 +4537,11 @@
     "Team": "Compras e Estoque",
     "Created": "2026-04-02T18:08:21.691-0300",
     "Resolved": "2026-04-29T18:33:30.281-0300",
-    "UpdatedAt": "2026-05-01T17:16:10.663-0300",
+    "UpdatedAt": "2026-05-02T08:33:58.224-0300",
     "Release": "CEM-R1",
     "StoryPoints": null,
     "Priority": "Medium",
-    "Assignee": "Leonardo Paim Magalhães",
+    "Assignee": "Cintia Mara de Souza Côrtes",
     "Labels": [
       "Estoque",
       "O4R2"
