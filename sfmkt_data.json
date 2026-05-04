@@ -88,7 +88,7 @@
       "key": "SFMKT-101",
       "summary": " [Migração SalesCloud] Migrar dados legado V2",
       "type": "História",
-      "status": "EM REFINAMENTO",
+      "status": "SPRINT BACKLOG",
       "statusCategory": "TODO",
       "assignee": "Beatriz Barguil",
       "created": "2026-04-27T14:30:21.475-0300",
@@ -564,19 +564,19 @@
       "key": "SFMKT-79",
       "summary": "Mapeamento da Jornada e Regras de Negócio (Canal Indireto) V2",
       "type": "Spike",
-      "status": "Aguardando QA",
-      "statusCategory": "IN_PROGRESS",
+      "status": "DESENV CONCLUIDO",
+      "statusCategory": "DONE",
       "assignee": "Izaque Bernardo",
       "created": "2026-04-13T12:57:24.126-0300",
-      "resolved": null,
+      "resolved": "2026-05-04T16:00:04.037-0300",
       "sprint": "SFMKT-SP Sprint 12",
       "sprintId": 18814,
       "sprintState": "closed",
       "storyPoints": null,
       "priority": "Medium",
       "labels": [],
-      "leadTimeDays": null,
-      "cycleTimeDays": null,
+      "leadTimeDays": 21,
+      "cycleTimeDays": 19,
       "timeInTodoDays": 2,
       "dq": {
         "missingResolutionDate": false,
@@ -1625,7 +1625,7 @@
       }
     }
   ],
-  "synced_at": "2026-05-04T17:19:42.760Z",
+  "synced_at": "2026-05-04T19:10:35.184Z",
   "project": "SFMKT",
   "total_fetched": 58
 }
