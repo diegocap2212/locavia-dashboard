@@ -8,7 +8,7 @@
     "Team": "Relatórios de BI",
     "Created": "2026-05-04T18:23:45.583-0300",
     "Resolved": null,
-    "UpdatedAt": "2026-05-04T18:39:20.970-0300",
+    "UpdatedAt": "2026-05-04T18:59:46.660-0300",
     "Release": "CEM-R1",
     "StoryPoints": null,
     "Priority": "High",
@@ -8614,11 +8614,11 @@
     "Team": "Compras e Estoque",
     "Created": "2026-03-04T07:27:28.483-0300",
     "Resolved": null,
-    "UpdatedAt": "2026-05-04T09:35:06.067-0300",
+    "UpdatedAt": "2026-05-04T19:36:43.523-0300",
     "Release": "CEM-R1",
     "StoryPoints": null,
     "Priority": "Medium",
-    "Assignee": null,
+    "Assignee": "Blayner Mendes",
     "Labels": [
       "O4R2"
     ],
