@@ -807,7 +807,7 @@
         "missingAssignee": false,
         "noStatusTransitions": false,
         "noSprint": false,
-        "staleTodo": false,
+        "staleTodo": true,
         "suspiciouslyLongLead": false,
         "doneWithoutCycleData": false
       }
@@ -835,7 +835,7 @@
         "missingAssignee": true,
         "noStatusTransitions": false,
         "noSprint": false,
-        "staleTodo": false,
+        "staleTodo": true,
         "suspiciouslyLongLead": false,
         "doneWithoutCycleData": false
       }
@@ -863,7 +863,7 @@
         "missingAssignee": true,
         "noStatusTransitions": false,
         "noSprint": false,
-        "staleTodo": false,
+        "staleTodo": true,
         "suspiciouslyLongLead": false,
         "doneWithoutCycleData": false
       }
@@ -891,7 +891,7 @@
         "missingAssignee": true,
         "noStatusTransitions": false,
         "noSprint": false,
-        "staleTodo": false,
+        "staleTodo": true,
         "suspiciouslyLongLead": false,
         "doneWithoutCycleData": false
       }
@@ -919,7 +919,7 @@
         "missingAssignee": true,
         "noStatusTransitions": false,
         "noSprint": false,
-        "staleTodo": false,
+        "staleTodo": true,
         "suspiciouslyLongLead": false,
         "doneWithoutCycleData": false
       }
@@ -947,7 +947,7 @@
         "missingAssignee": true,
         "noStatusTransitions": false,
         "noSprint": false,
-        "staleTodo": false,
+        "staleTodo": true,
         "suspiciouslyLongLead": false,
         "doneWithoutCycleData": false
       }
@@ -975,7 +975,7 @@
         "missingAssignee": true,
         "noStatusTransitions": false,
         "noSprint": false,
-        "staleTodo": false,
+        "staleTodo": true,
         "suspiciouslyLongLead": false,
         "doneWithoutCycleData": false
       }
@@ -1003,7 +1003,7 @@
         "missingAssignee": false,
         "noStatusTransitions": false,
         "noSprint": false,
-        "staleTodo": false,
+        "staleTodo": true,
         "suspiciouslyLongLead": false,
         "doneWithoutCycleData": false
       }
@@ -1709,7 +1709,7 @@
       }
     }
   ],
-  "synced_at": "2026-05-07T01:31:42.557Z",
+  "synced_at": "2026-05-07T05:20:42.250Z",
   "project": "SFMKT",
   "total_fetched": 61
 }
