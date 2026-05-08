@@ -4,8 +4,8 @@
       "key": "SFMKT-107",
       "summary": "Carga teste de comportamento e disposição dos campos e fases",
       "type": "Subtarefa",
-      "status": "SPRINT BACKLOG",
-      "statusCategory": "TODO",
+      "status": "EM DESENVOLVIMENTO",
+      "statusCategory": "IN_PROGRESS",
       "assignee": "Izaque Bernardo",
       "created": "2026-05-05T09:32:59.171-0300",
       "resolved": null,
@@ -17,7 +17,7 @@
       "labels": [],
       "leadTimeDays": null,
       "cycleTimeDays": null,
-      "timeInTodoDays": null,
+      "timeInTodoDays": 3,
       "dq": {
         "missingResolutionDate": false,
         "missingAssignee": false,
@@ -32,8 +32,8 @@
       "key": "SFMKT-106",
       "summary": "Extração do objeto Negociação do RD",
       "type": "Subtarefa",
-      "status": "SPRINT BACKLOG",
-      "statusCategory": "TODO",
+      "status": "EM DESENVOLVIMENTO",
+      "statusCategory": "IN_PROGRESS",
       "assignee": "Izaque Bernardo",
       "created": "2026-05-05T09:32:29.981-0300",
       "resolved": null,
@@ -45,7 +45,7 @@
       "labels": [],
       "leadTimeDays": null,
       "cycleTimeDays": null,
-      "timeInTodoDays": null,
+      "timeInTodoDays": 3,
       "dq": {
         "missingResolutionDate": false,
         "missingAssignee": false,
@@ -1709,7 +1709,7 @@
       }
     }
   ],
-  "synced_at": "2026-05-08T10:15:31.907Z",
+  "synced_at": "2026-05-08T12:04:26.562Z",
   "project": "SFMKT",
   "total_fetched": 61
 }
