@@ -1,6 +1,34 @@
 {
   "items": [
     {
+      "key": "SFMKT-109",
+      "summary": "[Migração Marketing Cloud] Base de dados na nuvem",
+      "type": "Tarefa",
+      "status": "1. Backlog",
+      "statusCategory": "TODO",
+      "assignee": "Izaque Bernardo",
+      "created": "2026-05-12T10:36:49.189-0300",
+      "resolved": null,
+      "sprint": "SFMKT-SP Sprint 14",
+      "sprintId": 19418,
+      "sprintState": "active",
+      "storyPoints": null,
+      "priority": "Medium",
+      "labels": [],
+      "leadTimeDays": null,
+      "cycleTimeDays": null,
+      "timeInTodoDays": null,
+      "dq": {
+        "missingResolutionDate": false,
+        "missingAssignee": false,
+        "noStatusTransitions": false,
+        "noSprint": false,
+        "staleTodo": false,
+        "suspiciouslyLongLead": false,
+        "doneWithoutCycleData": false
+      }
+    },
+    {
       "key": "SFMKT-107",
       "summary": "Carga teste de comportamento e disposição dos campos e fases",
       "type": "Subtarefa",
@@ -1488,8 +1516,8 @@
       "key": "SFMKT-23",
       "summary": "[Migração Marketing Cloud] Documentação sobre integrações",
       "type": "História",
-      "status": "SPRINT BACKLOG",
-      "statusCategory": "TODO",
+      "status": "EM DESENVOLVIMENTO",
+      "statusCategory": "IN_PROGRESS",
       "assignee": "Josivan Santos de Freitas",
       "created": "2026-02-25T09:23:28.553-0300",
       "resolved": null,
@@ -1501,13 +1529,13 @@
       "labels": [],
       "leadTimeDays": null,
       "cycleTimeDays": null,
-      "timeInTodoDays": null,
+      "timeInTodoDays": 76,
       "dq": {
         "missingResolutionDate": false,
         "missingAssignee": false,
         "noStatusTransitions": false,
         "noSprint": false,
-        "staleTodo": true,
+        "staleTodo": false,
         "suspiciouslyLongLead": false,
         "doneWithoutCycleData": false
       }
@@ -1709,7 +1737,7 @@
       }
     }
   ],
-  "synced_at": "2026-05-12T13:32:04.952Z",
+  "synced_at": "2026-05-12T16:11:39.428Z",
   "project": "SFMKT",
-  "total_fetched": 61
+  "total_fetched": 62
 }
