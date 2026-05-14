@@ -52,15 +52,11 @@ async function verifyData() {
   
   teams.forEach(team => {
       const teamItems = jsonData.filter((i: any) => i.Team === team);
-      const doneItems = teamItems.filter((i: any) => 
-        ['CONCLUÍDO', 'DONE', 'RESOLVIDO', 'FINALIZADO', 'ENTREGUE'].includes(String(i.Status).toUpperCase())
-      );
+      const doneItems = teamItems.filter((i: any) => i.StatusCategory === 'DONE');
       console.log(`Team [${String(team).padEnd(15)}]: ${doneItems.length} Concluídos / ${teamItems.length} Total`);
   });
 
-  const allDone = jsonData.filter((i: any) => 
-     ['CONCLUÍDO', 'DONE', 'RESOLVIDO', 'FINALIZADO', 'ENTREGUE'].includes(String(i.Status).toUpperCase())
-  ).length;
+  const allDone = jsonData.filter((i: any) => i.StatusCategory === 'DONE').length;
   console.log(`\n🏆 TOTAL GERAL CONCLUÍDOS: ${allDone}`);
 }
 
