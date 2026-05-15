@@ -1012,8 +1012,8 @@
       "key": "SFMKT-86",
       "summary": "[Migração Marketing Cloud] Migração de Assets, Templates e Imagens das Jornadas Elegíveis para o Marketing Cloud",
       "type": "História",
-      "status": "PRONTO PRA DESENVOLVER",
-      "statusCategory": "TODO",
+      "status": "EM DESENVOLVIMENTO",
+      "statusCategory": "IN_PROGRESS",
       "assignee": "André Cacciatori",
       "created": "2026-04-20T13:46:07.387-0300",
       "resolved": null,
@@ -1025,7 +1025,7 @@
       "labels": [],
       "leadTimeDays": null,
       "cycleTimeDays": null,
-      "timeInTodoDays": null,
+      "timeInTodoDays": 25,
       "dq": {
         "missingResolutionDate": false,
         "missingAssignee": false,
@@ -2157,7 +2157,7 @@
       }
     }
   ],
-  "synced_at": "2026-05-15T15:54:22.798Z",
+  "synced_at": "2026-05-15T17:19:17.793Z",
   "project": "SFMKT",
   "total_fetched": 77
 }
