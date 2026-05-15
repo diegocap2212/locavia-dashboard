@@ -340,7 +340,7 @@
       "key": "SFMKT-112",
       "summary": "[Migração Marketing Cloud] Dashboard de Performance de E-mails (Performance de Vendas por E-mail)",
       "type": "História",
-      "status": "1. Backlog",
+      "status": "Priorizado",
       "statusCategory": "TODO",
       "assignee": "Beatriz Barguil",
       "created": "2026-05-13T09:24:51.245-0300",
@@ -2157,7 +2157,7 @@
       }
     }
   ],
-  "synced_at": "2026-05-15T13:23:34.413Z",
+  "synced_at": "2026-05-15T15:54:22.798Z",
   "project": "SFMKT",
   "total_fetched": 77
 }
