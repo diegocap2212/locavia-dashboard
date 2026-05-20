@@ -1,6 +1,90 @@
 {
   "items": [
     {
+      "key": "SFMKT-131",
+      "summary": "Criação de teste para disparo no MarketingCloud",
+      "type": "Subtarefa",
+      "status": "EM DESENVOLVIMENTO",
+      "statusCategory": "IN_PROGRESS",
+      "assignee": null,
+      "created": "2026-05-20T15:35:18.835-0300",
+      "resolved": null,
+      "sprint": "SFMKT-SP Sprint 15",
+      "sprintId": 19851,
+      "sprintState": "active",
+      "storyPoints": null,
+      "priority": "Medium",
+      "labels": [],
+      "leadTimeDays": null,
+      "cycleTimeDays": null,
+      "timeInTodoDays": 0,
+      "dq": {
+        "missingResolutionDate": false,
+        "missingAssignee": true,
+        "noStatusTransitions": false,
+        "noSprint": false,
+        "staleTodo": false,
+        "suspiciouslyLongLead": false,
+        "doneWithoutCycleData": false
+      }
+    },
+    {
+      "key": "SFMKT-130",
+      "summary": "Domínio de envio (SAP — Sender Authentication Package) criado e autenticado para o Sign&Drive no Marketing Cloud.",
+      "type": "Subtarefa",
+      "status": "EM DESENVOLVIMENTO",
+      "statusCategory": "IN_PROGRESS",
+      "assignee": "André Cacciatori",
+      "created": "2026-05-20T13:46:34.436-0300",
+      "resolved": null,
+      "sprint": "SFMKT-SP Sprint 15",
+      "sprintId": 19851,
+      "sprintState": "active",
+      "storyPoints": null,
+      "priority": "Medium",
+      "labels": [],
+      "leadTimeDays": null,
+      "cycleTimeDays": null,
+      "timeInTodoDays": 0,
+      "dq": {
+        "missingResolutionDate": false,
+        "missingAssignee": false,
+        "noStatusTransitions": false,
+        "noSprint": false,
+        "staleTodo": false,
+        "suspiciouslyLongLead": false,
+        "doneWithoutCycleData": false
+      }
+    },
+    {
+      "key": "SFMKT-129",
+      "summary": "CLONE - [Migração Sign&Drive] Criação dos domínios e SSLs",
+      "type": "História",
+      "status": "1. Backlog",
+      "statusCategory": "TODO",
+      "assignee": "André Cacciatori",
+      "created": "2026-05-20T13:45:13.416-0300",
+      "resolved": null,
+      "sprint": null,
+      "sprintId": null,
+      "sprintState": null,
+      "storyPoints": null,
+      "priority": "Medium",
+      "labels": [],
+      "leadTimeDays": null,
+      "cycleTimeDays": null,
+      "timeInTodoDays": null,
+      "dq": {
+        "missingResolutionDate": false,
+        "missingAssignee": false,
+        "noStatusTransitions": false,
+        "noSprint": true,
+        "staleTodo": false,
+        "suspiciouslyLongLead": false,
+        "doneWithoutCycleData": false
+      }
+    },
+    {
       "key": "SFMKT-128",
       "summary": "[Migração  AssineCar] Disparo teste MC",
       "type": "Tarefa",
@@ -2157,7 +2241,7 @@
       }
     }
   ],
-  "synced_at": "2026-05-20T16:43:31.325Z",
+  "synced_at": "2026-05-20T19:11:52.634Z",
   "project": "SFMKT",
-  "total_fetched": 77
+  "total_fetched": 80
 }
