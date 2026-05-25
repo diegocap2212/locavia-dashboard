@@ -144,19 +144,19 @@
       "key": "SFMKT-125",
       "summary": "Configuração e validação do processo de Lead e Map Lead Fields",
       "type": "Subtarefa",
-      "status": "EM DESENVOLVIMENTO",
-      "statusCategory": "IN_PROGRESS",
+      "status": "DESENV CONCLUIDO",
+      "statusCategory": "DONE",
       "assignee": "Izaque Bernardo",
       "created": "2026-05-14T07:59:54.304-0300",
-      "resolved": null,
+      "resolved": "2026-05-25T08:34:33.765-0300",
       "sprint": "SFMKT-SP Sprint 15",
       "sprintId": 19851,
       "sprintState": "closed",
       "storyPoints": null,
       "priority": "Medium",
       "labels": [],
-      "leadTimeDays": null,
-      "cycleTimeDays": null,
+      "leadTimeDays": 11,
+      "cycleTimeDays": 11,
       "timeInTodoDays": 0,
       "dq": {
         "missingResolutionDate": false,
@@ -241,34 +241,6 @@
       "labels": [],
       "leadTimeDays": 0,
       "cycleTimeDays": 0,
-      "timeInTodoDays": 0,
-      "dq": {
-        "missingResolutionDate": false,
-        "missingAssignee": false,
-        "noStatusTransitions": false,
-        "noSprint": false,
-        "staleTodo": false,
-        "suspiciouslyLongLead": false,
-        "doneWithoutCycleData": false
-      }
-    },
-    {
-      "key": "SFMKT-121",
-      "summary": "Levantamento e validação de campos sem uso",
-      "type": "Subtarefa",
-      "status": "EM DESENVOLVIMENTO",
-      "statusCategory": "IN_PROGRESS",
-      "assignee": "Izaque Bernardo",
-      "created": "2026-05-14T07:51:56.206-0300",
-      "resolved": null,
-      "sprint": "SFMKT-SP Sprint 15",
-      "sprintId": 19851,
-      "sprintState": "closed",
-      "storyPoints": null,
-      "priority": "Medium",
-      "labels": [],
-      "leadTimeDays": null,
-      "cycleTimeDays": null,
       "timeInTodoDays": 0,
       "dq": {
         "missingResolutionDate": false,
@@ -2241,7 +2213,7 @@
       }
     }
   ],
-  "synced_at": "2026-05-25T11:09:15.663Z",
+  "synced_at": "2026-05-25T14:28:24.912Z",
   "project": "SFMKT",
-  "total_fetched": 80
+  "total_fetched": 79
 }
