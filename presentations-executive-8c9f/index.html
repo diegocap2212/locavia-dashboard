@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal de Apresentações Executivas | Locavia</title>
+  
+  <!-- Fontes Premium -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #0b0f19 0%, #111827 50%, #070a13 100%);
+      --glass-bg: rgba(17, 24, 39, 0.6);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --text-primary: #f3f4f6;
+      --text-secondary: #9ca3af;
+      --brand-primary: #3b82f6;
+      --brand-primary-glow: rgba(59, 130, 246, 0.3);
+      --brand-accent: #8b5cf6;
+      --brand-accent-glow: rgba(139, 92, 246, 0.25);
+      --success: #10b981;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Elementos de Fundo Decorativos (Mesh) */
+    .bg-glow-1 {
+      position: absolute;
+      top: -10%;
+      left: 15%;
+      width: 450px;
+      height: 450px;
+      background: radial-gradient(circle, var(--brand-primary-glow) 0%, transparent 70%);
+      border-radius: 50%;
+      filter: blur(60px);
+      z-index: 0;
+      pointer-events: none;
+      animation: float-slow 15s infinite alternate ease-in-out;
+    }
+
+    .bg-glow-2 {
+      position: absolute;
+      bottom: 10%;
+      right: 15%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, var(--brand-accent-glow) 0%, transparent 70%);
+      border-radius: 50%;
+      filter: blur(80px);
+      z-index: 0;
+      pointer-events: none;
+      animation: float-slow 20s infinite alternate-reverse ease-in-out;
+    }
+
+    @keyframes float-slow {
+      0% { transform: translateY(0) scale(1); }
+      100% { transform: translateY(40px) scale(1.1); }
+    }
+
+    /* Container Principal */
+    .container {
+      width: 100%;
+      max-width: 900px;
+      padding: 3rem 1.5rem;
+      z-index: 10;
+      position: relative;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      margin-bottom: 3.5rem;
+      animation: fade-in-down 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      padding: 0.4rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #60a5fa;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 1rem;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      background-color: var(--success);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--success);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(to right, #ffffff, #93c5fd, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+      font-weight: 400;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* Grid de Apresentações */
+    .presentations-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+    }
+
+    /* Card Glassmorphism */
+    .presentation-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 1.25rem;
+      padding: 1.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .presentation-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(to bottom, var(--brand-primary), var(--brand-accent));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .presentation-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 2px rgba(255, 255, 255, 0.1) inset;
+    }
+
+    .presentation-card:hover::before {
+      opacity: 1;
+    }
+
+    .card-content {
+      flex: 1;
+      padding-right: 1.5rem;
+    }
+
+    .card-meta {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      font-size: 0.75rem;
+      color: var(--brand-primary);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+
+    .card-date {
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .card-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .card-desc {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    /* Botão de Ação */
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.75rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .btn-action svg {
+      width: 18px;
+      height: 18px;
+      transition: transform 0.2s ease;
+    }
+
+    .btn-action:hover {
+      background: var(--text-primary);
+      color: #0b0f19;
+      border-color: var(--text-primary);
+      box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-action:hover svg {
+      transform: translateX(4px);
+    }
+
+    /* Painel de Ajuda / Dev Instructions */
+    .help-panel {
+      margin-top: 4rem;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px dashed rgba(255, 255, 255, 0.1);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      animation: fade-in 1s ease 0.4s both;
+    }
+
+    .help-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #93c5fd;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .help-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .help-code {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      font-family: monospace;
+      color: #c084fc;
+      margin-top: 0.5rem;
+      font-size: 0.8rem;
+      display: block;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      overflow-x: auto;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: auto;
+      padding: 2rem 0;
+      text-align: center;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Animações */
+    @keyframes fade-in-down {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fade-in-up {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @media (max-width: 640px) {
+      .presentation-card {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1.25rem;
+      }
+      .card-content {
+        padding-right: 0;
+      }
+      .btn-action {
+        width: 100%;
+      }
+      h1 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-glow-1"></div>
+  <div class="bg-glow-2"></div>
+
+  <div class="container">
+    
+    <header>
+      <div class="badge">
+        <span class="badge-dot"></span>
+        Canal de Apresentações
+      </div>
+      <h1>Painel de Apresentações Executivas</h1>
+      <p class="subtitle">Acesso restrito a relatórios estratégicos e apresentações de resultados da squad Locavia.</p>
+    </header>
+
+    <main class="presentations-grid">
+
+      <!-- ========================================== -->
+      <!-- CARD: TORRE DE DADOS LM -->
+      <!-- ========================================== -->
+      <div class="presentation-card" style="border-color: rgba(139, 92, 246, 0.25);">
+        <div class="card-content">
+          <div class="card-meta">
+            <span style="color: var(--brand-accent);">Principal</span>
+            <span class="card-date">• 25 de Maio de 2026</span>
+          </div>
+          <h2 class="card-title">Torre de Dados LM · Proposta Operacional</h2>
+          <p class="card-desc">Análise comparativa das duas propostas operacionais para a torre de dados: Venice Advisor (inspeção e apoio) ou Venice Accountability (compromisso formal de entrega).</p>
+        </div>
+        <a href="torre-dados-lm.html" class="btn-action">
+          Visualizar Proposta
+          <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path>
+          </svg>
+        </a>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- CARD: APRESENTAÇÃO DE MODELO -->
+      <!-- ========================================== -->
+      <div class="presentation-card">
+        <div class="card-content">
+          <div class="card-meta">
+            <span>Template</span>
+            <span class="card-date">• 25 de Maio de 2026</span>
+          </div>
+          <h2 class="card-title">Template Estrutura & Metas</h2>
+          <p class="card-desc">Modelo interativo padrão mostrando a transição da squad para automação e métricas de Vazão.</p>
+        </div>
+        <a href="apresentacao-modelo.html" class="btn-action">
+          Visualizar Slides
+          <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path>
+          </svg>
+        </a>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- [DICA] COMO ADICIONAR NOVAS APRESENTAÇÕES: -->
+      <!-- Copie o bloco abaixo para adicionar uma nova apresentação -->
+      <!-- ========================================== -->
+      <!--
+      <div class="presentation-card">
+        <div class="card-content">
+          <div class="card-meta">
+            <span>Resultados</span>
+            <span class="card-date">• DD de Mês de AAAA</span>
+          </div>
+          <h2 class="card-title">Nome da Nova Apresentação</h2>
+          <p class="card-desc">Uma breve descrição do que trata essa nova apresentação para a diretoria.</p>
+        </div>
+        <a href="nome-da-sua-apresentacao.html" class="btn-action">
+          Visualizar Slides
+          <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path>
+          </svg>
+        </a>
+      </div>
+      -->
+
+    </main>
+
+    <!-- Instruções para o desenvolvedor ocultas visualmente ou de rodapé sutil -->
+    <section class="help-panel">
+      <div class="help-title">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"></path>
+        </svg>
+        Dica: Como adicionar novas apresentações?
+      </div>
+      <p class="help-desc">
+        Para subir uma nova apresentação em HTML, basta criar um arquivo `.html` dentro da pasta 
+        <strong style="color: white;">presentations-executive-8c9f/</strong> e adicionar um novo card no arquivo 
+        <strong style="color: white;">index.html</strong>. O build do Vite cuidará de compilar e publicar tudo automaticamente!
+      </p>
+      <code class="help-code">
+&lt;!-- Exemplo de Card no index.html --&gt;
+&lt;div class="presentation-card"&gt;
+  &lt;div class="card-content"&gt;
+    &lt;div class="card-meta"&gt;&lt;span&gt;Diretoria&lt;/span&gt;&lt;span class="card-date"&gt;• 12/06/2026&lt;/span&gt;&lt;/div&gt;
+    &lt;h2 class="card-title"&gt;Resultados Q2&lt;/h2&gt;
+    &lt;p class="card-desc"&gt;Análise de vazão da Squad Locavia Automação.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;a href="resultados-q2.html" class="btn-action"&gt;Visualizar Slides&lt;/a&gt;
+&lt;/div&gt;
+      </code>
+    </section>
+
+  </div>
+
+  <footer>
+    &copy; 2026 Locavia Automação. Todos os direitos reservados.
+  </footer>
+
+</body>
+</html>
