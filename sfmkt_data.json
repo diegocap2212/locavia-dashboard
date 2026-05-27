@@ -1,6 +1,62 @@
 {
   "items": [
     {
+      "key": "SFMKT-134",
+      "summary": "Teste de Integração entre as nuvens",
+      "type": "Subtarefa",
+      "status": "SPRINT BACKLOG",
+      "statusCategory": "TODO",
+      "assignee": null,
+      "created": "2026-05-27T09:35:08.958-0300",
+      "resolved": null,
+      "sprint": "SFMKT-SP Sprint 16",
+      "sprintId": 20388,
+      "sprintState": "active",
+      "storyPoints": null,
+      "priority": "Medium",
+      "labels": [],
+      "leadTimeDays": null,
+      "cycleTimeDays": null,
+      "timeInTodoDays": null,
+      "dq": {
+        "missingResolutionDate": false,
+        "missingAssignee": true,
+        "noStatusTransitions": false,
+        "noSprint": false,
+        "staleTodo": false,
+        "suspiciouslyLongLead": false,
+        "doneWithoutCycleData": false
+      }
+    },
+    {
+      "key": "SFMKT-133",
+      "summary": "Criação do Usuário de integração ",
+      "type": "Subtarefa",
+      "status": "EM DESENVOLVIMENTO",
+      "statusCategory": "IN_PROGRESS",
+      "assignee": "Izaque Bernardo",
+      "created": "2026-05-27T09:33:53.365-0300",
+      "resolved": null,
+      "sprint": "SFMKT-SP Sprint 16",
+      "sprintId": 20388,
+      "sprintState": "active",
+      "storyPoints": null,
+      "priority": "Medium",
+      "labels": [],
+      "leadTimeDays": null,
+      "cycleTimeDays": null,
+      "timeInTodoDays": 0,
+      "dq": {
+        "missingResolutionDate": false,
+        "missingAssignee": false,
+        "noStatusTransitions": false,
+        "noSprint": false,
+        "staleTodo": false,
+        "suspiciouslyLongLead": false,
+        "doneWithoutCycleData": false
+      }
+    },
+    {
       "key": "SFMKT-132",
       "summary": "Implementar integração nativa entre Sales Cloud e Marketing Cloud (Marketing Cloud Connect)",
       "type": "História",
@@ -2241,7 +2297,7 @@
       }
     }
   ],
-  "synced_at": "2026-05-27T12:13:43.480Z",
+  "synced_at": "2026-05-27T16:30:54.282Z",
   "project": "SFMKT",
-  "total_fetched": 80
+  "total_fetched": 82
 }
