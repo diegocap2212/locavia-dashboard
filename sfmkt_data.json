@@ -2323,93 +2323,9 @@
         "suspiciouslyLongLead": false,
         "doneWithoutCycleData": false
       }
-    },
-    {
-      "key": "SFMKT-5",
-      "summary": "Detalhes da jornada mapeados: Dados da jornada do cliente (idade, perfil PF/PJ, origem da campanha, interações com site e WhatsApp) estão disponíveis e confiáveis.",
-      "type": "Subtarefa",
-      "status": "DESENV CONCLUIDO",
-      "statusCategory": "DONE",
-      "assignee": "Kellison Ruan Borges Bispo",
-      "created": "2026-01-28T10:27:27.802-0300",
-      "resolved": "2026-02-16T09:02:11.425-0300",
-      "sprint": "SFMKT-SP Sprint 2",
-      "sprintId": 15156,
-      "sprintState": "closed",
-      "storyPoints": null,
-      "priority": "Medium",
-      "labels": [],
-      "leadTimeDays": 19,
-      "cycleTimeDays": 10,
-      "timeInTodoDays": 9,
-      "dq": {
-        "missingResolutionDate": false,
-        "missingAssignee": false,
-        "noStatusTransitions": false,
-        "noSprint": false,
-        "staleTodo": false,
-        "suspiciouslyLongLead": false,
-        "doneWithoutCycleData": false
-      }
-    },
-    {
-      "key": "SFMKT-4",
-      "summary": "Informações do RD Station Vendas e Marketing mapeadas",
-      "type": "Subtarefa",
-      "status": "DESENV CONCLUIDO",
-      "statusCategory": "DONE",
-      "assignee": "João Henrique",
-      "created": "2026-01-28T10:26:27.306-0300",
-      "resolved": "2026-02-22T16:23:32.011-0300",
-      "sprint": "SFMKT-SP Sprint 2",
-      "sprintId": 15156,
-      "sprintState": "closed",
-      "storyPoints": null,
-      "priority": "Medium",
-      "labels": [],
-      "leadTimeDays": 25,
-      "cycleTimeDays": 18,
-      "timeInTodoDays": 7,
-      "dq": {
-        "missingResolutionDate": false,
-        "missingAssignee": false,
-        "noStatusTransitions": false,
-        "noSprint": false,
-        "staleTodo": false,
-        "suspiciouslyLongLead": false,
-        "doneWithoutCycleData": false
-      }
-    },
-    {
-      "key": "SFMKT-3",
-      "summary": "[MARKETINGCLOUD]  Mapear processos do RD Station Marketing",
-      "type": "História",
-      "status": "DESENV CONCLUIDO",
-      "statusCategory": "DONE",
-      "assignee": "Kellison Ruan Borges Bispo",
-      "created": "2026-01-28T10:22:25.701-0300",
-      "resolved": "2026-02-22T16:23:19.723-0300",
-      "sprint": "SFMKT-SP Sprint 2",
-      "sprintId": 15156,
-      "sprintState": "closed",
-      "storyPoints": null,
-      "priority": "Medium",
-      "labels": [],
-      "leadTimeDays": 25,
-      "cycleTimeDays": 12,
-      "timeInTodoDays": 13,
-      "dq": {
-        "missingResolutionDate": false,
-        "missingAssignee": false,
-        "noStatusTransitions": false,
-        "noSprint": false,
-        "staleTodo": false,
-        "suspiciouslyLongLead": false,
-        "doneWithoutCycleData": false
-      }
     }
   ],
-  "synced_at": "2026-05-28T12:59:37.301Z",
+  "synced_at": "2026-05-28T16:53:17.352Z",
   "project": "SFMKT",
-  "total_fetched": 86
+  "total_fetched": 83
 }
