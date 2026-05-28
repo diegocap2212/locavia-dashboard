@@ -1,6 +1,118 @@
 {
   "items": [
     {
+      "key": "SFMKT-138",
+      "summary": "Elaborar o cronograma inicial de disparos para aquecimento de IP",
+      "type": "Subtarefa",
+      "status": "EM DESENVOLVIMENTO",
+      "statusCategory": "IN_PROGRESS",
+      "assignee": null,
+      "created": "2026-05-28T09:39:00.434-0300",
+      "resolved": null,
+      "sprint": "SFMKT-SP Sprint 16",
+      "sprintId": 20388,
+      "sprintState": "active",
+      "storyPoints": null,
+      "priority": "Medium",
+      "labels": [],
+      "leadTimeDays": null,
+      "cycleTimeDays": null,
+      "timeInTodoDays": 0,
+      "dq": {
+        "missingResolutionDate": false,
+        "missingAssignee": true,
+        "noStatusTransitions": false,
+        "noSprint": false,
+        "staleTodo": false,
+        "suspiciouslyLongLead": false,
+        "doneWithoutCycleData": false
+      }
+    },
+    {
+      "key": "SFMKT-137",
+      "summary": "Internalizar os HTMLs como assets no Marketing Cloud",
+      "type": "Subtarefa",
+      "status": "EM DESENVOLVIMENTO",
+      "statusCategory": "IN_PROGRESS",
+      "assignee": null,
+      "created": "2026-05-28T09:35:55.279-0300",
+      "resolved": null,
+      "sprint": "SFMKT-SP Sprint 16",
+      "sprintId": 20388,
+      "sprintState": "active",
+      "storyPoints": null,
+      "priority": "Medium",
+      "labels": [],
+      "leadTimeDays": null,
+      "cycleTimeDays": null,
+      "timeInTodoDays": 0,
+      "dq": {
+        "missingResolutionDate": false,
+        "missingAssignee": true,
+        "noStatusTransitions": false,
+        "noSprint": false,
+        "staleTodo": false,
+        "suspiciouslyLongLead": false,
+        "doneWithoutCycleData": false
+      }
+    },
+    {
+      "key": "SFMKT-136",
+      "summary": "[MARKETING CLOUD] Criação de Cronograma de Disparos para Aquecimento de IP",
+      "type": "História",
+      "status": "EM DESENVOLVIMENTO",
+      "statusCategory": "IN_PROGRESS",
+      "assignee": "Josivan Santos de Freitas",
+      "created": "2026-05-28T08:55:56.492-0300",
+      "resolved": null,
+      "sprint": "SFMKT-SP Sprint 16",
+      "sprintId": 20388,
+      "sprintState": "active",
+      "storyPoints": null,
+      "priority": "Medium",
+      "labels": [],
+      "leadTimeDays": null,
+      "cycleTimeDays": null,
+      "timeInTodoDays": 0,
+      "dq": {
+        "missingResolutionDate": false,
+        "missingAssignee": false,
+        "noStatusTransitions": false,
+        "noSprint": false,
+        "staleTodo": false,
+        "suspiciouslyLongLead": false,
+        "doneWithoutCycleData": false
+      }
+    },
+    {
+      "key": "SFMKT-135",
+      "summary": "[MARKETING CLOUD] Internalizar assets (HTMLs) para aquecimento de IP de AssineCar. ",
+      "type": "História",
+      "status": "EM DESENVOLVIMENTO",
+      "statusCategory": "IN_PROGRESS",
+      "assignee": "Josivan Santos de Freitas",
+      "created": "2026-05-28T08:46:05.180-0300",
+      "resolved": null,
+      "sprint": "SFMKT-SP Sprint 16",
+      "sprintId": 20388,
+      "sprintState": "active",
+      "storyPoints": null,
+      "priority": "Medium",
+      "labels": [],
+      "leadTimeDays": null,
+      "cycleTimeDays": null,
+      "timeInTodoDays": 0,
+      "dq": {
+        "missingResolutionDate": false,
+        "missingAssignee": false,
+        "noStatusTransitions": false,
+        "noSprint": false,
+        "staleTodo": false,
+        "suspiciouslyLongLead": false,
+        "doneWithoutCycleData": false
+      }
+    },
+    {
       "key": "SFMKT-134",
       "summary": "Teste de Integração entre as nuvens",
       "type": "Subtarefa",
@@ -2297,7 +2409,7 @@
       }
     }
   ],
-  "synced_at": "2026-05-28T09:53:44.089Z",
+  "synced_at": "2026-05-28T12:59:37.301Z",
   "project": "SFMKT",
-  "total_fetched": 82
+  "total_fetched": 86
 }
