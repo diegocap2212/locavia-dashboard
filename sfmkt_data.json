@@ -6,7 +6,7 @@
       "type": "Subtarefa",
       "status": "EM DESENVOLVIMENTO",
       "statusCategory": "IN_PROGRESS",
-      "assignee": null,
+      "assignee": "Josivan Santos de Freitas",
       "created": "2026-05-28T09:39:00.434-0300",
       "resolved": null,
       "sprint": "SFMKT-SP Sprint 16",
@@ -20,7 +20,7 @@
       "timeInTodoDays": 0,
       "dq": {
         "missingResolutionDate": false,
-        "missingAssignee": true,
+        "missingAssignee": false,
         "noStatusTransitions": false,
         "noSprint": false,
         "staleTodo": false,
@@ -34,7 +34,7 @@
       "type": "Subtarefa",
       "status": "EM DESENVOLVIMENTO",
       "statusCategory": "IN_PROGRESS",
-      "assignee": null,
+      "assignee": "Josivan Santos de Freitas",
       "created": "2026-05-28T09:35:55.279-0300",
       "resolved": null,
       "sprint": "SFMKT-SP Sprint 16",
@@ -48,7 +48,7 @@
       "timeInTodoDays": 0,
       "dq": {
         "missingResolutionDate": false,
-        "missingAssignee": true,
+        "missingAssignee": false,
         "noStatusTransitions": false,
         "noSprint": false,
         "staleTodo": false,
@@ -118,7 +118,7 @@
       "type": "Subtarefa",
       "status": "SPRINT BACKLOG",
       "statusCategory": "TODO",
-      "assignee": null,
+      "assignee": "Izaque Bernardo",
       "created": "2026-05-27T09:35:08.958-0300",
       "resolved": null,
       "sprint": "SFMKT-SP Sprint 16",
@@ -132,7 +132,7 @@
       "timeInTodoDays": null,
       "dq": {
         "missingResolutionDate": false,
-        "missingAssignee": true,
+        "missingAssignee": false,
         "noStatusTransitions": false,
         "noSprint": false,
         "staleTodo": false,
@@ -2325,7 +2325,7 @@
       }
     }
   ],
-  "synced_at": "2026-05-29T10:37:37.508Z",
+  "synced_at": "2026-05-29T13:52:41.991Z",
   "project": "SFMKT",
   "total_fetched": 83
 }
