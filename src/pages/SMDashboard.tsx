@@ -57,10 +57,6 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
           </h1>
           <p className="text-sm text-slate-500 mt-1 flex items-center">
             {items.length} issues analisadas · Atualizado em {format(new Date(lastSyncDate), 'dd/MM/yyyy HH:mm')}
-            {/* DEBUG INFO: */}
-            <span className="ml-4 text-xs text-rose-500">
-              Debug: (Items={items.length}, Raw={data?.debug?.raw}, Filtered={data?.debug?.filtered}, Active={data?.debug?.active})
-            </span>
           </p>
         </div>
         
