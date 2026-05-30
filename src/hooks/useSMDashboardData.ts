@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import type { DashboardItem } from '../types/jira';
 import type { SMConfig } from '../config/sm-config';
 import { parseISO, startOfWeek, endOfWeek, isWithinInterval, addDays, subDays } from 'date-fns';
+import importedData from '../data.json';
 
 export interface WeeklyConeMetrics {
   weekStart: Date;
@@ -32,19 +33,14 @@ export function useSMDashboardData(smConfig: SMConfig, selectedTeamId: string, d
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/src/data.json')
-      .then(res => {
-        if (!res.ok) throw new Error('Falha ao carregar data.json');
-        return res.json();
-      })
-      .then((data: DashboardItem[]) => {
-        setRawData(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        setError(err.message);
-        setLoading(false);
-      });
+    try {
+      // Simulate async loading to match the previous API, but load synchronously from the bundled import
+      setRawData(importedData as unknown as DashboardItem[]);
+      setLoading(false);
+    } catch (err: any) {
+      setError(err.message);
+      setLoading(false);
+    }
   }, []);
 
   const data = useMemo(() => {
