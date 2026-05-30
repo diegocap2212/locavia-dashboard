@@ -34,9 +34,8 @@ async function main() {
   ];
 
   const simpleJql = [
-    'project is not empty',
+    `( (cf[11330] in (${releases.join(',')}) AND project is not empty) OR (project in (RM, SFMKT) AND created >= -180d) )`,
     'and type not in (Epic, subTaskIssueTypes())',
-    `and cf[11330] in (${releases.join(',')})`,
     'and cf[13065] is EMPTY',
     'and (cf[12683] not in ("TESTES-LOCAVIA") or cf[12683] is EMPTY)',
     'ORDER BY created DESC'
@@ -45,7 +44,7 @@ async function main() {
   console.log(`Iniciando sincronização Jira... JQL: ${simpleJql}`);
 
   try {
-    const issues = await client.searchIssues(simpleJql, ['*all']);
+    const issues = await client.searchIssues(simpleJql);
     console.log(`Foram retornadas ${issues.length} issues da API.`);
 
     if (issues.length === 0) {
@@ -55,7 +54,7 @@ async function main() {
       process.exit(1);
     }
 
-    const dashboardItems = issues.map(mapJiraIssueToDashboardItem).map(calculateMetrics);
+    const dashboardItems = issues.map(issue => calculateMetrics(mapJiraIssueToDashboardItem(issue), issue));
     
     // Save to data.json
     const outputPath = path.resolve(process.cwd(), 'src/data.json');

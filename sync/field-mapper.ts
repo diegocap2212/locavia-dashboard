@@ -1,80 +1,27 @@
 import { JiraApiIssue, DashboardItem } from '../src/types/jira';
 
 const teamMapping: Record<string, string> = {
-  // De-para baseado na coluna "time" da planilha CSV
-  'WHATSAPP': 'Atendimento WhatsApp',
-  'COMERCIAL': 'Crédito e Proposta',
-  'POS_VENDA': 'Pós Venda Salesforce',
-  'MIGRA_BLIP': 'Portal de Auto Atendimento',
-  'VENDAS_AUTO-ATENDIMENTO': 'Portal de Auto Atendimento',
-  'CONTRATOS': 'Contratos / Multas / Ressarcimento / Manutenção',
-  'MOB': 'Mobilização',
-  'SEMINOVOS': 'Seminovos',
-  'ESTOQUE': 'Compras e Estoque',
-  'FATURAMENTO': 'Faturamento',
-  'GOVERNANÇA_DADOS': 'Governança de Dados',
-  'VENDAS_ASSISTIDAS': 'Portal de Vendas Assistidas',
-  'MANUTENÇÃO': 'Contratos / Multas / Ressarcimento / Manutenção',
-  'MULTAS': 'Contratos / Multas / Ressarcimento / Manutenção',
-  'CADASTRO_DE_USUÁRIO': 'Core System',
-  'COMPRAS': 'Compras e Estoque',
-  'ATENDIMENTO': 'Core System',
-  'MOB/DESMOB': 'Mobilização',
-  'RESSARCIMENTO': 'Contratos / Multas / Ressarcimento / Manutenção',
-  'COBRANÇA': 'Core System',
-  'PRICING': 'Pricing',
-  'MIGRAÇÃO': 'Migração de Dados',
-  'LAKE-DOMINIO': 'Relatórios de BI',
-  'LAKE-ESTRUTURANTE': 'Construção do Data Lake',
-  'BI/LAKE': 'Relatórios de BI',
-  'PROPOSTA': 'Crédito e Proposta',
-  'RISCO': 'Crédito e Proposta',
-  'CREDITO': 'Crédito e Proposta',
-  'SALESFORCE_PÓSVEND': 'Pós Venda Salesforce',
-  
-  'PAGAMENTOS': 'Crédito e Proposta',
-
-  // Siglas de fallback
-  'GOL': 'Portal de Vendas Assistidas',
-  'TERA': 'Faturamento',
-  'OPTIMUS': 'Contratos / Multas / Ressarcimento / Manutenção',
-  'AMAROK': 'Contratos / Multas / Ressarcimento / Manutenção',
-  'SCANIA': 'Compras e Estoque',
-  'JETTA': 'Mobilização',
-  'TIGUAN': 'Sustentação (Bugs)',
-  'PARATI': 'Evoluções / Buy a Feature',
-  'NIVUS': 'Portal de Auto Atendimento',
-  'UP': 'Atendimento WhatsApp',
-  'SANTANA': 'Migração de Dados',
-  'TAOS': 'Crédito e Proposta',
-  'FUSCA': 'Pós Venda Salesforce',
-  'PLATAFORMA': 'Core System',
-  'D.LAKE DOMINIO': 'Relatórios de BI'
+  // Aliases based on user provided table
+  'VENDAS_ASSISTIDAS': 'GOL',
+  'FATURAMENTO': 'TERA',
+  'S&D': 'OPTIMUS',
+  'COMERCIAL': 'NIVUS',
+  'CRÉDITO': 'TAOS',
+  'SALES_FORCE': 'FUSCA',
+  'WHATSAPP': 'UP',
+  'D.LAKE': 'BI',
+  'D.LAKE_DOMINIO': 'BI',
+  'COMPRAS': 'CEM',
+  'ESTOQUE': 'CEM',
+  'MOB': 'CEM'
 };
 
 const prefixToCar: Record<string, string> = {
   'CTO': 'OPTIMUS',
   'VAA': 'NIVUS',
-  'SN': 'SANTANA',
-  'WA': 'WHATSAPP',
-  'UP': 'UP',
-  'APV': 'SALESFORCE_PÓSVEND',
-  'JAC': 'WHATSAPP',
-  'MDD': 'SANTANA',
-  'LKD': 'LAKE-DOMINIO',
-  'MIGRA': 'MIGRAÇÃO',
-  'COMP': 'COMPRAS',
-  'RM': 'JETTA',
-  'TERA': 'FATURAMENTO',
-  'PRICI': 'PRICING',
+  'APV': 'FUSCA',
   'LI': 'GOL',
-  'MP': 'COMPRAS',
-  'JVE': 'JETTA',
-  'MAN': 'MANUTENÇÃO',
-  'CRED': 'CREDITO',
-  'DESMOB': 'MIGRAÇÃO',
-  'MS': 'FATURAMENTO',
-  'GOL': 'GOL'
+  'JVE': 'JETTA'
 };
 
 export function mapJiraIssueToDashboardItem(issue: JiraApiIssue): DashboardItem {
@@ -207,9 +154,26 @@ export function mapJiraIssueToDashboardItem(issue: JiraApiIssue): DashboardItem 
     Priority: issue.fields.priority?.name || 'Medium',
     Assignee: issue.fields.assignee?.displayName || null,
     Labels: issue.fields.labels || [],
+    CommitmentDate: issue.fields.customfield_10102 || null, // Data de Compromentimento
+    StartDate: issue.fields.customfield_10015 || null,      // Start date
+    FuraFila: issue.fields.customfield_10165 || [],         // Fura Fila
+    NaturezaDemanda: issue.fields.customfield_12683 || [],  // Natureza da Demanda
     CycleTime: null,
+    TimeInTodo: null,
     LeadTime: null,
+    LeadTimeP85: null,
+    LeadTimeP15: null,
     TimeInStatus: {},
+    IsPlanned: false, // Calculated later
+    DataQuality: {
+      missingResolutionDate: false,
+      missingAssignee: false,
+      noStatusTransitions: false,
+      noSprint: false,
+      staleTodo: false,
+      suspiciouslyLongLead: false,
+      doneWithoutCycleData: false
+    },
     Source: 'api'
   };
 }

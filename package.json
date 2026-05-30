@@ -20,6 +20,7 @@
     "cone:audit": "tsx scripts/cone-audit.ts"
   },
   "dependencies": {
+    "date-fns": "^4.4.0",
     "dotenv": "^17.4.1",
     "framer-motion": "^12.38.0",
     "lucide-react": "^0.577.0",
