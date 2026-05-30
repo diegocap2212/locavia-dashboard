@@ -1,8 +1,14 @@
 import { useState, useEffect, useMemo } from 'react';
 import type { DashboardItem } from '../types/jira';
 import type { SMConfig } from '../config/sm-config';
-import { parseISO, startOfWeek, endOfWeek, isWithinInterval, addDays, subDays } from 'date-fns';
+import { startOfWeek, endOfWeek, isWithinInterval, addDays, subDays } from 'date-fns';
 import importedData from '../data.json';
+
+// Safe date parser to handle Jira timezone offsets correctly in all browsers
+const parseDate = (d: string | null | undefined) => {
+  if (!d) return new Date(0);
+  return new Date(d);
+};
 
 export interface WeeklyConeMetrics {
   weekStart: Date;
@@ -64,8 +70,8 @@ export function useSMDashboardData(smConfig: SMConfig, selectedTeamId: string, d
 
     // Filter to issues relevant to the period (created or updated or resolved in period)
     const activeItems = filteredItems.filter(item => {
-      const created = parseISO(item.Created);
-      const updated = parseISO(item.UpdatedAt);
+      const created = parseDate(item.Created);
+      const updated = parseDate(item.UpdatedAt);
       return created >= periodStart || updated >= periodStart;
     });
 
@@ -92,9 +98,9 @@ export function useSMDashboardData(smConfig: SMConfig, selectedTeamId: string, d
       const weekCycleTimes: number[] = [];
 
       activeItems.forEach(item => {
-        const created = parseISO(item.Created);
-        const resolved = item.Resolved ? parseISO(item.Resolved) : null;
-        const commit = item.CommitmentDate ? parseISO(item.CommitmentDate) : null;
+        const created = parseDate(item.Created);
+        const resolved = item.Resolved ? parseDate(item.Resolved) : null;
+        const commit = item.CommitmentDate ? parseDate(item.CommitmentDate) : null;
         
         const isCreatedInWeek = isWithinInterval(created, { start: currStart, end: currEnd });
         const isResolvedInWeek = resolved && isWithinInterval(resolved, { start: currStart, end: currEnd });
@@ -135,7 +141,7 @@ export function useSMDashboardData(smConfig: SMConfig, selectedTeamId: string, d
       });
 
       // Features Totais (acumulado de criados)
-      const featuresTotal = activeItems.filter(i => parseISO(i.Created) <= currEnd).length;
+      const featuresTotal = activeItems.filter(i => parseDate(i.Created) <= currEnd).length;
 
       const aFazer = previousAFazer + planejados + naoPlanejados + furaFila - realizado - descartados;
       
@@ -190,6 +196,11 @@ export function useSMDashboardData(smConfig: SMConfig, selectedTeamId: string, d
         cycleTimeMedian: cycleTimeMedian ? Math.round(cycleTimeMedian) : null,
         wip,
         aFazer: globalAFazer
+      },
+      debug: {
+        raw: rawData.length,
+        filtered: filteredItems.length,
+        active: activeItems.length
       }
     };
   }, [rawData, smConfig, selectedTeamId, daysAgo]);
