@@ -555,30 +555,30 @@
     "Type": "História",
     "Key": "RM-4362",
     "Summary": "Criar regra para cidade de emplacamento ao abrir pedido de compra",
-    "Status": "PRONTO PRA DESENVOLVER",
-    "StatusCategory": "IN_PROGRESS",
+    "Status": "SPRINT BACKLOG",
+    "StatusCategory": "TODO",
     "Team": "OPTIMUS",
     "Created": "2026-05-29T09:51:22.731-0300",
     "Resolved": null,
-    "UpdatedAt": "2026-05-30T10:23:27.124-0300",
+    "UpdatedAt": "2026-05-30T13:46:39.677-0300",
     "Release": "CEM-R1",
     "StoryPoints": null,
     "Priority": "Medium",
     "Assignee": null,
     "Labels": [],
-    "CommitmentDate": null,
+    "CommitmentDate": "2026-05-30",
     "StartDate": null,
     "FuraFila": [],
     "NaturezaDemanda": [
       "EVOLUÇÃO"
     ],
-    "CycleTime": 2,
+    "CycleTime": null,
     "TimeInTodo": 1,
     "LeadTime": null,
     "LeadTimeP85": null,
     "LeadTimeP15": null,
     "TimeInStatus": {},
-    "IsPlanned": false,
+    "IsPlanned": true,
     "DataQuality": {
       "missingResolutionDate": false,
       "missingAssignee": true,
@@ -2308,7 +2308,7 @@
     "NaturezaDemanda": [
       "EVOLUÇÃO"
     ],
-    "CycleTime": 1,
+    "CycleTime": 2,
     "TimeInTodo": 2,
     "LeadTime": null,
     "LeadTimeP85": null,
@@ -10329,7 +10329,7 @@
     "NaturezaDemanda": [
       "SUSTENTAÇÃO"
     ],
-    "CycleTime": 9,
+    "CycleTime": 10,
     "TimeInTodo": 13,
     "LeadTime": null,
     "LeadTimeP85": null,
@@ -20699,7 +20699,7 @@
     "NaturezaDemanda": [
       "EVOLUÇÃO"
     ],
-    "CycleTime": 44,
+    "CycleTime": 45,
     "TimeInTodo": 1,
     "LeadTime": null,
     "LeadTimeP85": null,
