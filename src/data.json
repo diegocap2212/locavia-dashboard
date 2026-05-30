@@ -2230,7 +2230,7 @@
     "NaturezaDemanda": [
       "EVOLUÇÃO"
     ],
-    "CycleTime": 1,
+    "CycleTime": 2,
     "TimeInTodo": 2,
     "LeadTime": null,
     "LeadTimeP85": null,
@@ -2386,7 +2386,7 @@
     "NaturezaDemanda": [
       "EVOLUÇÃO"
     ],
-    "CycleTime": 3,
+    "CycleTime": 4,
     "TimeInTodo": 1,
     "LeadTime": null,
     "LeadTimeP85": null,
@@ -5422,12 +5422,12 @@
     "Type": "História",
     "Key": "RM-4082",
     "Summary": "[Compras] - Modificações na Impressão do Pedido de Compra",
-    "Status": "QA EM PROGRESSO",
+    "Status": "DESENV CONCLUIDO",
     "StatusCategory": "DONE",
     "Team": "PARATI",
     "Created": "2026-05-21T10:11:13.297-0300",
     "Resolved": null,
-    "UpdatedAt": "2026-05-30T16:45:29.341-0300",
+    "UpdatedAt": "2026-05-30T19:08:26.204-0300",
     "Release": "CEM-R1",
     "StoryPoints": null,
     "Priority": "Medium",
@@ -21979,7 +21979,7 @@
     "NaturezaDemanda": [
       "O4R2"
     ],
-    "CycleTime": 33,
+    "CycleTime": 34,
     "TimeInTodo": 15,
     "LeadTime": null,
     "LeadTimeP85": null,
