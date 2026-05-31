@@ -137,7 +137,7 @@
     "NaturezaDemanda": [
       "O4R2"
     ],
-    "CycleTime": 1,
+    "CycleTime": 2,
     "TimeInTodo": 1,
     "LeadTime": null,
     "LeadTimeP85": null,
@@ -533,7 +533,7 @@
     "NaturezaDemanda": [
       "EVOLUÇÃO"
     ],
-    "CycleTime": 2,
+    "CycleTime": 3,
     "TimeInTodo": 1,
     "LeadTime": null,
     "LeadTimeP85": null,
@@ -560,7 +560,7 @@
     "Team": "OPTIMUS",
     "Created": "2026-05-29T09:51:22.731-0300",
     "Resolved": null,
-    "UpdatedAt": "2026-05-30T18:18:40.250-0300",
+    "UpdatedAt": "2026-05-31T11:29:26.317-0300",
     "Release": "CEM-R1",
     "StoryPoints": null,
     "Priority": "Medium",
@@ -572,7 +572,7 @@
     "NaturezaDemanda": [
       "EVOLUÇÃO"
     ],
-    "CycleTime": 2,
+    "CycleTime": 3,
     "TimeInTodo": 1,
     "LeadTime": null,
     "LeadTimeP85": null,
@@ -808,7 +808,7 @@
     "NaturezaDemanda": [
       "EVOLUÇÃO"
     ],
-    "CycleTime": 2,
+    "CycleTime": 3,
     "TimeInTodo": 1,
     "LeadTime": null,
     "LeadTimeP85": null,
@@ -884,7 +884,7 @@
     "StartDate": "2026-05-29",
     "FuraFila": [],
     "NaturezaDemanda": [],
-    "CycleTime": 2,
+    "CycleTime": 3,
     "TimeInTodo": 1,
     "LeadTime": null,
     "LeadTimeP85": null,
@@ -1142,12 +1142,12 @@
     "Type": "História",
     "Key": "RM-4326",
     "Summary": "Criar novo status Aguardando Implantação ",
-    "Status": "SPRINT BACKLOG",
-    "StatusCategory": "TODO",
+    "Status": "EM DESENVOLVIMENTO",
+    "StatusCategory": "IN_PROGRESS",
     "Team": "JETTA",
     "Created": "2026-05-28T15:31:57.424-0300",
     "Resolved": null,
-    "UpdatedAt": "2026-05-29T11:34:59.962-0300",
+    "UpdatedAt": "2026-05-31T11:14:08.746-0300",
     "Release": "CEM-R1",
     "StoryPoints": null,
     "Priority": "Medium",
@@ -1156,12 +1156,12 @@
       "EVOLUÇÃO"
     ],
     "CommitmentDate": "2026-05-29",
-    "StartDate": null,
+    "StartDate": "2026-05-31",
     "FuraFila": [],
     "NaturezaDemanda": [
       "EVOLUÇÃO"
     ],
-    "CycleTime": null,
+    "CycleTime": 3,
     "TimeInTodo": 1,
     "LeadTime": null,
     "LeadTimeP85": null,
@@ -1229,7 +1229,7 @@
     "Team": "OPTIMUS",
     "Created": "2026-05-28T15:13:07.179-0300",
     "Resolved": null,
-    "UpdatedAt": "2026-05-30T11:15:14.749-0300",
+    "UpdatedAt": "2026-05-31T10:34:58.642-0300",
     "Release": "O4R2",
     "StoryPoints": null,
     "Priority": "Medium",
@@ -1241,9 +1241,9 @@
     "NaturezaDemanda": [
       "EVOLUÇÃO"
     ],
-    "CycleTime": 2,
+    "CycleTime": 3,
     "TimeInTodo": 1,
-    "LeadTime": 2,
+    "LeadTime": 3,
     "LeadTimeP85": null,
     "LeadTimeP15": null,
     "TimeInStatus": {},
@@ -1971,12 +1971,12 @@
     "Type": "História",
     "Key": "RM-4303",
     "Summary": "Permitir retorno do veículo para etapa anterior da Mobilização",
-    "Status": "SPRINT BACKLOG",
-    "StatusCategory": "TODO",
+    "Status": "EM DESENVOLVIMENTO",
+    "StatusCategory": "IN_PROGRESS",
     "Team": "JETTA",
     "Created": "2026-05-28T07:25:48.289-0300",
     "Resolved": null,
-    "UpdatedAt": "2026-05-29T11:23:34.700-0300",
+    "UpdatedAt": "2026-05-31T11:45:24.500-0300",
     "Release": "CEM-R1",
     "StoryPoints": null,
     "Priority": "Medium",
@@ -1985,12 +1985,12 @@
       "EVOLUÇÃO"
     ],
     "CommitmentDate": "2026-05-29",
-    "StartDate": null,
+    "StartDate": "2026-05-31",
     "FuraFila": [],
     "NaturezaDemanda": [
       "EVOLUÇÃO"
     ],
-    "CycleTime": null,
+    "CycleTime": 4,
     "TimeInTodo": 1,
     "LeadTime": null,
     "LeadTimeP85": null,
@@ -2017,7 +2017,7 @@
     "Team": "JETTA",
     "Created": "2026-05-28T07:14:21.218-0300",
     "Resolved": null,
-    "UpdatedAt": "2026-05-30T20:24:47.304-0300",
+    "UpdatedAt": "2026-05-31T11:22:34.472-0300",
     "Release": "CEM-R1",
     "StoryPoints": null,
     "Priority": "Medium",
@@ -2031,9 +2031,9 @@
     "NaturezaDemanda": [
       "EVOLUÇÃO"
     ],
-    "CycleTime": 3,
+    "CycleTime": 4,
     "TimeInTodo": 1,
-    "LeadTime": 3,
+    "LeadTime": 4,
     "LeadTimeP85": null,
     "LeadTimeP15": null,
     "TimeInStatus": {},
@@ -2058,7 +2058,7 @@
     "Team": "JETTA",
     "Created": "2026-05-28T06:57:33.144-0300",
     "Resolved": null,
-    "UpdatedAt": "2026-05-29T16:13:32.373-0300",
+    "UpdatedAt": "2026-05-31T11:14:02.521-0300",
     "Release": "CEM-R1",
     "StoryPoints": null,
     "Priority": "Medium",
@@ -2099,7 +2099,7 @@
     "Team": "SCANIA S 650",
     "Created": "2026-05-27T19:43:02.130-0300",
     "Resolved": null,
-    "UpdatedAt": "2026-05-30T14:32:26.340-0300",
+    "UpdatedAt": "2026-05-31T10:08:31.834-0300",
     "Release": "CEM-R1",
     "StoryPoints": null,
     "Priority": "Medium",
@@ -2113,9 +2113,9 @@
     "NaturezaDemanda": [
       "EVOLUÇÃO"
     ],
-    "CycleTime": 2,
+    "CycleTime": 3,
     "TimeInTodo": 1,
-    "LeadTime": 3,
+    "LeadTime": 4,
     "LeadTimeP85": null,
     "LeadTimeP15": null,
     "TimeInStatus": {},
@@ -2140,7 +2140,7 @@
     "Team": "SCANIA S 650",
     "Created": "2026-05-27T19:40:25.804-0300",
     "Resolved": null,
-    "UpdatedAt": "2026-05-29T16:39:44.515-0300",
+    "UpdatedAt": "2026-05-31T10:22:11.683-0300",
     "Release": "CEM-R1",
     "StoryPoints": null,
     "Priority": "Medium",
@@ -2979,7 +2979,7 @@
     "NaturezaDemanda": [
       "EVOLUÇÃO"
     ],
-    "CycleTime": 5,
+    "CycleTime": 6,
     "TimeInTodo": 1,
     "LeadTime": null,
     "LeadTimeP85": null,
@@ -3753,7 +3753,7 @@
     "NaturezaDemanda": [
       "O4R3"
     ],
-    "CycleTime": 6,
+    "CycleTime": 7,
     "TimeInTodo": 1,
     "LeadTime": null,
     "LeadTimeP85": null,
@@ -3858,7 +3858,7 @@
     "Team": "OPTIMUS",
     "Created": "2026-05-25T09:27:06.794-0300",
     "Resolved": null,
-    "UpdatedAt": "2026-05-30T16:50:19.975-0300",
+    "UpdatedAt": "2026-05-31T11:32:28.985-0300",
     "Release": "CEM-R1",
     "StoryPoints": null,
     "Priority": "Medium",
@@ -3872,7 +3872,7 @@
     ],
     "CycleTime": 6,
     "TimeInTodo": 1,
-    "LeadTime": 6,
+    "LeadTime": 7,
     "LeadTimeP85": null,
     "LeadTimeP15": null,
     "TimeInStatus": {},
@@ -4714,12 +4714,12 @@
     "Type": "História",
     "Key": "RM-4126",
     "Summary": "Direcionar Semireboque diretamente para Aguardando Licenciamento",
-    "Status": "AGUARDANDO DEPLOY QA",
+    "Status": "AGUARDANDO QA",
     "StatusCategory": "DONE",
     "Team": "SCANIA S 650",
     "Created": "2026-05-22T15:37:13.742-0300",
     "Resolved": null,
-    "UpdatedAt": "2026-05-30T10:29:25.343-0300",
+    "UpdatedAt": "2026-05-31T11:44:50.096-0300",
     "Release": "CEM-R1",
     "StoryPoints": null,
     "Priority": "Medium",
@@ -4733,9 +4733,9 @@
     "NaturezaDemanda": [
       "EVOLUÇÃO"
     ],
-    "CycleTime": 4,
+    "CycleTime": 5,
     "TimeInTodo": 4,
-    "LeadTime": 8,
+    "LeadTime": 9,
     "LeadTimeP85": null,
     "LeadTimeP15": null,
     "TimeInStatus": {},
@@ -5732,12 +5732,12 @@
     "Type": "História",
     "Key": "RM-4074",
     "Summary": "Receber novos dados do EuroIT para composição do pedido de compra de veículos no Locavia",
-    "Status": "QA EM PROGRESSO",
+    "Status": "DESENV CONCLUIDO",
     "StatusCategory": "DONE",
     "Team": "SCANIA S 650",
     "Created": "2026-05-20T14:50:56.649-0300",
     "Resolved": null,
-    "UpdatedAt": "2026-05-28T09:29:37.960-0300",
+    "UpdatedAt": "2026-05-31T11:46:01.985-0300",
     "Release": "CEM-R1",
     "StoryPoints": null,
     "Priority": "Medium",
@@ -5749,9 +5749,9 @@
     "StartDate": "2026-05-21",
     "FuraFila": [],
     "NaturezaDemanda": [],
-    "CycleTime": 8,
+    "CycleTime": 11,
     "TimeInTodo": 1,
-    "LeadTime": 8,
+    "LeadTime": 11,
     "LeadTimeP85": null,
     "LeadTimeP15": null,
     "TimeInStatus": {},
@@ -6804,7 +6804,7 @@
     "NaturezaDemanda": [
       "EVOLUÇÃO"
     ],
-    "CycleTime": 13,
+    "CycleTime": 14,
     "TimeInTodo": 1,
     "LeadTime": null,
     "LeadTimeP85": null,
@@ -10843,7 +10843,7 @@
     "NaturezaDemanda": [
       "SUSTENTAÇÃO"
     ],
-    "CycleTime": 13,
+    "CycleTime": 14,
     "TimeInTodo": 11,
     "LeadTime": null,
     "LeadTimeP85": null,
@@ -11063,7 +11063,7 @@
     "Team": "TIGUAN",
     "Created": "2026-05-07T14:47:35.747-0300",
     "Resolved": null,
-    "UpdatedAt": "2026-05-30T15:20:24.651-0300",
+    "UpdatedAt": "2026-05-31T10:53:27.721-0300",
     "Release": "OUTROS",
     "StoryPoints": null,
     "Priority": "Medium",
@@ -18132,7 +18132,7 @@
     "NaturezaDemanda": [
       "O4R2"
     ],
-    "CycleTime": 37,
+    "CycleTime": 38,
     "TimeInTodo": 2,
     "LeadTime": null,
     "LeadTimeP85": null,
@@ -18195,12 +18195,12 @@
     "Type": "Bug",
     "Key": "RM-3415",
     "Summary": "CH2604-00878 /CH2604-01292- Algumas placas apresentam erro ao vincular no item de contrato",
-    "Status": "AGUARDANDO QA",
+    "Status": "QA EM PROGRESSO",
     "StatusCategory": "DONE",
     "Team": "TIGUAN",
     "Created": "2026-04-22T16:47:09.300-0300",
     "Resolved": null,
-    "UpdatedAt": "2026-05-14T11:05:43.848-0300",
+    "UpdatedAt": "2026-05-31T11:41:32.157-0300",
     "Release": "OUTROS",
     "StoryPoints": null,
     "Priority": "Medium",
@@ -18212,9 +18212,9 @@
     "NaturezaDemanda": [
       "SUSTENTAÇÃO"
     ],
-    "CycleTime": 9,
+    "CycleTime": 26,
     "TimeInTodo": 13,
-    "LeadTime": 22,
+    "LeadTime": 39,
     "LeadTimeP85": null,
     "LeadTimeP15": null,
     "TimeInStatus": {},
@@ -23548,7 +23548,7 @@
     "NaturezaDemanda": [
       "EVOLUÇÃO"
     ],
-    "CycleTime": 51,
+    "CycleTime": 52,
     "TimeInTodo": 1,
     "LeadTime": null,
     "LeadTimeP85": null,
@@ -23702,7 +23702,7 @@
     "NaturezaDemanda": [
       "EVOLUÇÃO"
     ],
-    "CycleTime": 51,
+    "CycleTime": 52,
     "TimeInTodo": 1,
     "LeadTime": null,
     "LeadTimeP85": null,
@@ -24450,7 +24450,7 @@
     "NaturezaDemanda": [
       "O4R2"
     ],
-    "CycleTime": 41,
+    "CycleTime": 42,
     "TimeInTodo": 11,
     "LeadTime": null,
     "LeadTimeP85": null,
@@ -46225,7 +46225,7 @@
     "NaturezaDemanda": [
       "SUSTENTAÇÃO"
     ],
-    "CycleTime": 111,
+    "CycleTime": 112,
     "TimeInTodo": 1,
     "LeadTime": null,
     "LeadTimeP85": null,
@@ -60161,7 +60161,7 @@
     "NaturezaDemanda": [
       "SUSTENTAÇÃO"
     ],
-    "CycleTime": 143,
+    "CycleTime": 144,
     "TimeInTodo": 23,
     "LeadTime": null,
     "LeadTimeP85": null,
@@ -64360,47 +64360,6 @@
     "Source": "api"
   },
   {
-    "Type": "Bug",
-    "Key": "RM-1016",
-    "Summary": "Ajustar validação da reserva ao substituir placa",
-    "Status": "CONCLUIDO",
-    "StatusCategory": "DONE",
-    "Team": "TIGUAN",
-    "Created": "2025-12-02T10:07:38.702-0300",
-    "Resolved": null,
-    "UpdatedAt": "2026-01-28T08:57:36.711-0300",
-    "Release": "apps",
-    "StoryPoints": null,
-    "Priority": "Medium",
-    "Assignee": null,
-    "Labels": [
-      "SUSTENTAÇÃO"
-    ],
-    "CommitmentDate": "2025-12-02",
-    "StartDate": "2025-12-02",
-    "FuraFila": [],
-    "NaturezaDemanda": [
-      "SUSTENTAÇÃO"
-    ],
-    "CycleTime": 29,
-    "TimeInTodo": 1,
-    "LeadTime": 57,
-    "LeadTimeP85": null,
-    "LeadTimeP15": null,
-    "TimeInStatus": {},
-    "IsPlanned": true,
-    "DataQuality": {
-      "missingResolutionDate": true,
-      "missingAssignee": true,
-      "noStatusTransitions": false,
-      "noSprint": false,
-      "staleTodo": false,
-      "suspiciouslyLongLead": false,
-      "doneWithoutCycleData": false
-    },
-    "Source": "api"
-  },
-  {
     "Type": "História",
     "Key": "RM-1001",
     "Summary": "LOCAVIA | Construir tela de cadastro de materiais",
@@ -66058,7 +66017,7 @@
     "NaturezaDemanda": [
       "EVOLUÇÃO"
     ],
-    "CycleTime": 193,
+    "CycleTime": 194,
     "TimeInTodo": 1,
     "LeadTime": null,
     "LeadTimeP85": null,
