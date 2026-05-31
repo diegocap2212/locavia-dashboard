@@ -1678,7 +1678,7 @@
     "NaturezaDemanda": [
       "EVOLUÇÃO"
     ],
-    "CycleTime": 2,
+    "CycleTime": 3,
     "TimeInTodo": 1,
     "LeadTime": null,
     "LeadTimeP85": null,
@@ -1873,7 +1873,7 @@
     "NaturezaDemanda": [
       "EVOLUÇÃO"
     ],
-    "CycleTime": 3,
+    "CycleTime": 4,
     "TimeInTodo": 1,
     "LeadTime": null,
     "LeadTimeP85": null,
@@ -1949,7 +1949,7 @@
     "NaturezaDemanda": [
       "EVOLUÇÃO"
     ],
-    "CycleTime": 3,
+    "CycleTime": 4,
     "TimeInTodo": 1,
     "LeadTime": null,
     "LeadTimeP85": null,
@@ -2072,7 +2072,7 @@
     "NaturezaDemanda": [
       "EVOLUÇÃO"
     ],
-    "CycleTime": 3,
+    "CycleTime": 4,
     "TimeInTodo": 1,
     "LeadTime": null,
     "LeadTimeP85": null,
@@ -6412,7 +6412,7 @@
     "NaturezaDemanda": [
       "EVOLUÇÃO"
     ],
-    "CycleTime": 12,
+    "CycleTime": 13,
     "TimeInTodo": 1,
     "LeadTime": null,
     "LeadTimeP85": null,
@@ -6650,7 +6650,7 @@
       "SAP",
       "SUSTENTAÇÃO"
     ],
-    "CycleTime": 5,
+    "CycleTime": 6,
     "TimeInTodo": 8,
     "LeadTime": null,
     "LeadTimeP85": null,
@@ -9002,7 +9002,7 @@
     "NaturezaDemanda": [
       "EVOLUÇÃO"
     ],
-    "CycleTime": 18,
+    "CycleTime": 19,
     "TimeInTodo": 1,
     "LeadTime": null,
     "LeadTimeP85": null,
@@ -9041,7 +9041,7 @@
     "NaturezaDemanda": [
       "EVOLUÇÃO"
     ],
-    "CycleTime": 18,
+    "CycleTime": 19,
     "TimeInTodo": 1,
     "LeadTime": null,
     "LeadTimeP85": null,
@@ -12563,7 +12563,7 @@
     "NaturezaDemanda": [
       "EVOLUÇÃO"
     ],
-    "CycleTime": 6,
+    "CycleTime": 7,
     "TimeInTodo": 20,
     "LeadTime": null,
     "LeadTimeP85": null,
@@ -18686,7 +18686,7 @@
     "StartDate": "2026-04-22",
     "FuraFila": [],
     "NaturezaDemanda": [],
-    "CycleTime": 39,
+    "CycleTime": 40,
     "TimeInTodo": 2,
     "LeadTime": null,
     "LeadTimeP85": null,
@@ -32521,7 +32521,7 @@
     "NaturezaDemanda": [
       "SUSTENTAÇÃO"
     ],
-    "CycleTime": 55,
+    "CycleTime": 56,
     "TimeInTodo": 17,
     "LeadTime": null,
     "LeadTimeP85": null,
