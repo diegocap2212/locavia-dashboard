@@ -371,7 +371,7 @@
     "NaturezaDemanda": [
       "EVOLUÇÃO"
     ],
-    "CycleTime": 1,
+    "CycleTime": 2,
     "TimeInTodo": 2,
     "LeadTime": null,
     "LeadTimeP85": null,
@@ -4731,7 +4731,7 @@
     "NaturezaDemanda": [
       "EVOLUÇÃO"
     ],
-    "CycleTime": 3,
+    "CycleTime": 4,
     "TimeInTodo": 7,
     "LeadTime": null,
     "LeadTimeP85": null,
@@ -13697,7 +13697,7 @@
     "NaturezaDemanda": [
       "EVOLUÇÃO"
     ],
-    "CycleTime": 31,
+    "CycleTime": 32,
     "TimeInTodo": 1,
     "LeadTime": null,
     "LeadTimeP85": null,
