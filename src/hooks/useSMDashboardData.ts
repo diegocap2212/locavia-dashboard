@@ -3,11 +3,13 @@ import type { DashboardItem } from '../types/jira';
 import type { SMConfig } from '../config/sm-config';
 import { startOfWeek, endOfWeek, isWithinInterval, addDays, subDays } from 'date-fns';
 import importedData from '../data.json';
+import { excelToJSDate } from './useDashboardData';
 
 // Safe date parser to handle Jira timezone offsets correctly in all browsers
 const parseDate = (d: string | null | undefined) => {
   if (!d) return new Date(0);
-  return new Date(d);
+  const parsed = excelToJSDate(d);
+  return parsed && !isNaN(parsed.getTime()) ? parsed : new Date(0);
 };
 
 export interface WeeklyConeMetrics {

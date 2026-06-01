@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import { Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ComposedChart, Line } from 'recharts';
 import type { DashboardItem } from '../types/jira';
-import { parseISO, startOfWeek, format } from 'date-fns';
+import { startOfWeek, format } from 'date-fns';
+import { excelToJSDate } from '../hooks/useDashboardData';
 
 interface Props {
   items: DashboardItem[];
@@ -30,7 +31,8 @@ export const WeeklyThroughputChart: React.FC<Props> = ({ items }) => {
     const weeksMap = new Map<string, Record<string, any>>();
 
     doneItems.forEach(item => {
-      const resolved = parseISO(item.Resolved!);
+      const resolved = excelToJSDate(item.Resolved);
+      if (!resolved || isNaN(resolved.getTime())) return;
       const weekStart = startOfWeek(resolved, { weekStartsOn: 1 });
       const weekKey = format(weekStart, 'yyyy-MM-dd');
       const weekLabel = `${weekStart.getDate().toString().padStart(2, '0')}/${(weekStart.getMonth() + 1).toString().padStart(2, '0')}`;

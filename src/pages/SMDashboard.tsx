@@ -13,6 +13,7 @@ import { FlowBalanceChart } from '../components/FlowBalanceChart';
 import { LeadCycleTimeHistogram } from '../components/LeadCycleTimeHistogram';
 import { CheckCircle2, Clock, Zap, Activity, Layers, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
+import { excelToJSDate } from '../hooks/useDashboardData';
 
 interface Props {
   smConfig: SMConfig;
@@ -48,6 +49,7 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
 
   const { items, kpis, weeks, weeklyFlowData, issueTypeBreakdown, leadTimeHistogram } = data;
   const lastSyncDate = items.length > 0 ? items[0].UpdatedAt : new Date().toISOString();
+  const parsedSyncDate = excelToJSDate(lastSyncDate) || new Date();
 
   return (
     <div className="min-h-screen bg-slate-50 p-6 md:p-8 font-sans">
@@ -61,7 +63,7 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
             Dashboard — {smConfig.name}
           </h1>
           <p className="text-sm text-slate-500 mt-1 flex items-center">
-            {items.length} issues analisadas · Atualizado em {format(new Date(lastSyncDate), 'dd/MM/yyyy HH:mm')}
+            {items.length} issues analisadas · Atualizado em {format(parsedSyncDate, 'dd/MM/yyyy HH:mm')}
           </p>
         </div>
         
