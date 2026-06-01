@@ -3,8 +3,40 @@ import { fetchData, type JiraItem } from '../services/dataService';
 import rawDataFallback from '../data.json';
 import releaseConfig from '../config/release-config.json';
 
-// Statuses to exclude for Locavia Principal (Matches spreadsheet logic: only exclude discarded)
+export interface ChartDataPoint {
+  name: string;
+  "A Fazer (Real)": number | null;
+  fullDate: Date;
+  scope?: number;
+  delivered?: number;
+  aFazer?: number;
+  [key: string]: string | number | Date | null | undefined;
+}
+
+export interface WeeklyPerformancePoint {
+  name: string;
+  "Saídas": number;
+  "História": number;
+  "Bug": number;
+  "Tarefa": number;
+  "Spike": number;
+  "Entradas": number;
+  "Saldo": number;
+  "Vazão Total": number;
+  "Lead Time (Méd)": number;
+  date: Date;
+}
+
+// Statuses to exclude for Locavia Principal (Matches spreadsheet logic)
 const LOCAVIA_EXCLUDED_STATUSES = [
+  '1. BACKLOG',
+  'BACKLOG',
+  'SPRINT BACKLOG',
+  'EM REFINAMENTO',
+  'REFINANDO',
+  'A REFINAR',
+  'SANEAMENTO',
+  'ESPERANDO',
   'DESCARTADO',
   'CANCELADO',
   'NOGO',
@@ -27,8 +59,13 @@ const BF_CEM_EXCLUDED_STATUSES = [
 
 const LOCAVIA_RELEASES = new Set(['O4R1', 'O4R2', 'O4R3']);
 const BF_CEM_RELEASES = new Set(['BAF', 'BAF-QW', 'CEM', 'CEM-R1', 'CEM-R2']);
-// Times capturados pela Jornada (Removido para alinhamento com a planilha que usa apenas releases específicas)
-const BF_CEM_JORNADA_TEAMS = new Set<string>([]); 
+// Times capturados pela Jornada (Mapeados para alinhamento com os times de BI e Estoque/Mob na planilha)
+const BF_CEM_JORNADA_TEAMS = new Set([
+  'Compras e Estoque',
+  'Mobilização',
+  'Relatórios de BI',
+  'Construção do Data Lake',
+]); 
 
 
 export type ConeType = 'locavia' | 'bf-cem';
@@ -79,7 +116,7 @@ const excelToJSDate = (dateStr: string | null) => {
       }
     } else {
       // handle 2-digit years if they still exist
-      let [first, second, y] = parts;
+      const [first, second, y] = parts;
       year = (y < 50 ? 2000 : 1900) + y;
       if (first > 12) {
         day = first; month = second;
@@ -118,7 +155,7 @@ export const formatDate = (date: Date) => {
 // Data Normalization Layer
 const normalizeJqlData = (data: unknown[]): JiraItem[] => {
   return data.map(rawItem => {
-    const item = rawItem as Record<string, any>;
+    const item = rawItem as Record<string, unknown>;
     let release = String(item.Release || 'OUTROS').toUpperCase();
 
     // Hot-fix for O4R2 Variations (Matching Field Mapper logic)
@@ -242,7 +279,7 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
     }).filter(d => (d["A Fazer (Real)"] !== null || d.fullDate >= getMon(new Date())) && d.fullDate >= new Date(2024, 11, 1)); // Filter to show from Dec 2024
 
     // 4. Projections & Velocity
-    const chartData: any[] = [...dynamicHistory];
+    const chartData: ChartDataPoint[] = [...dynamicHistory];
     
     // Pegar o deadline da release selecionada ou o maior entre elas (dentro do cone atual)
     const selectedReleaseDeadlines = releaseConfig.releases
@@ -405,13 +442,13 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
     const temporalMatrixData = { weeks: matrixWeeks, rows: matrixRows };
 
     // 5. Weekly Performance (Throughput/LeadTime)
-    const weeklyStats: any[] = [];
+    const weeklyStats: WeeklyPerformancePoint[] = [];
     if (filtered.length > 0) {
       const minDate = filtered.reduce((m, i) => {
         const d = excelToJSDate(i.Created);
         return (d && d < m) ? d : m;
       }, new Date());
-      let curr = getMon(minDate);
+      const curr = getMon(minDate);
       const now = new Date();
       while (curr <= now || weeklyStats.length < 5) {
         const wStart = new Date(curr);
@@ -461,7 +498,7 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
           i.StatusCategory !== 'DONE' &&
           !currentExclusions.includes(i.Status.toUpperCase())
         ).length,
-        avgCycleTime: (() => {
+        avgLeadTime: (() => {
           const doneItems = filtered.filter(i => i.StatusCategory === 'DONE' && i.Created);
           const totalMs = doneItems.reduce((acc, i) => {
             const end = i.Resolved ? excelToJSDate(i.Resolved) : excelToJSDate(i.UpdatedAt);

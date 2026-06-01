@@ -1,0 +1,31 @@
+--- TAB ANALYSIS ---
+
+=== SHEET: CONE ===
+Headers: ["Semana","Time GOL",null,null,"Time TERA",null,null,"Time AMAROK",null,null,"Time OPTMUS"]
+Row 1: [7,null,null,"SM: Gabriela\r\nTcL: Gercy Campos"]
+
+=== SHEET: CONE (2) ===
+Headers: ["Semana","Time GOL",null,null,"Time TERA",null,null,"Time AMAROK",null,null,"Time OPTMUS"]
+Row 1: ["Semana","M","P","Execução","M","P","Execução","M","P","Execução","M","P","Execução"]
+
+=== SHEET: Cone FTD ===
+Headers: ["Cone: baseado na nossa vazão, chegaremos na data alvo? O que cabe até data alvo?"]
+Row 1: [null,"Quantidade de Épicos",0,"Épicos","considerar apenas os épicos que estão no mapa de release"]
+
+=== SHEET: NIVUS NOT FOUND ===
+
+=== SHEET: UP ===
+Headers: ["Cone: baseado na nossa vazão, chegaremos na data alvo? O que cabe até data alvo?"]
+Row 1: [null,"Quantidade de Épicos",7,"Épicos","considerar apenas os épicos que estão no mapa de release"]
+
+=== SHEET: GOL O4R2 ===
+Headers: ["Cone: baseado na nossa vazão, chegaremos na data alvo? O que cabe até data alvo?"]
+Row 1: [null,"Quantidade de Épicos",48,"Épicos","considerar apenas os épicos que estão no mapa de release"]
+
+=== SHEET: GOL O4R1 ===
+Headers: ["Cone: baseado na nossa vazão, chegaremos na data alvo? O que cabe até data alvo?"]
+Row 1: [null,"Quantidade de Épicos",3,"Épicos","considerar apenas os épicos que estão no mapa de release"]
+
+=== SHEET: Amarok O4R2 ===
+Headers: ["Cone: baseado na nossa vazão, chegaremos na data alvo? O que cabe até data alvo?"]
+Row 1: [null,"Quantidade de Épicos",2,"Épicos","considerar apenas os épicos que estão no mapa de release"]

@@ -46,3 +46,30 @@ test.describe('Dashboard Locavia E2E', () => {
     expect(count).toBeGreaterThan(0);
   });
 });
+
+test.describe('Scrum Master View E2E', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/sm/gabriela');
+    await page.waitForSelector('text=Carregando métricas...', { state: 'hidden', timeout: 10000 });
+  });
+
+  test('deve carregar a tela de SM de Gabriela com 4 KPIs e sem Cycle Time', async ({ page }) => {
+    await expect(page.locator('h1')).toContainText('Dashboard — Gabriela');
+    
+    const metrics = page.locator('.metric-card');
+    await expect(metrics).toHaveCount(4);
+
+    // Verify that none of the metric labels contain "Cycle Time"
+    const count = await metrics.count();
+    for (let i = 0; i < count; i++) {
+      const label = await metrics.nth(i).locator('.metric-label').innerText();
+      expect(label).not.toContain('Cycle Time');
+    }
+  });
+
+  test('deve permitir navegar pelos times do SM', async ({ page }) => {
+    // Find team selector buttons
+    const buttons = page.locator('button:has-text("Visão Geral"), button:has-text("Taos"), button:has-text("Gol")');
+    await expect(buttons).toHaveCount(3); // Visão Geral + Taos + Gol (SFMktplace is separate)
+  });
+});

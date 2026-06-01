@@ -1,0 +1,22 @@
+import * as XLSX from 'xlsx';
+import fs from 'fs';
+import path from 'path';
+
+const file = 'Cone LOCAVIA AUTOMAÇÃO O4R2 (5).xlsx';
+const filePath = path.join(process.cwd(), file);
+
+if (fs.existsSync(filePath)) {
+  const workbook = XLSX.read(fs.readFileSync(filePath));
+  workbook.SheetNames.forEach(sheetName => {
+    const worksheet = workbook.Sheets[sheetName];
+    const json: any[] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+    
+    json.forEach((row, rowIndex) => {
+      const rowStr = JSON.stringify(row).toLowerCase();
+      if (rowStr.includes('optimus') || rowStr.includes('nivus')) {
+        console.log(`Sheet: ${sheetName}, Row: ${rowIndex + 1}`);
+        console.log(JSON.stringify(row));
+      }
+    });
+  });
+}

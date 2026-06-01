@@ -16,15 +16,15 @@ export const KPICard: React.FC<KPICardProps> = ({
   title, value, subtext, icon: Icon, iconColorClass = 'text-blue-500', trend, trendValue 
 }) => {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between transition-all hover:shadow-md hover:border-slate-300">
+    <div className="metric-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between transition-all hover:shadow-md hover:border-slate-300">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">{title}</h3>
+        <h3 className="metric-label text-sm font-semibold text-slate-500 uppercase tracking-wider">{title}</h3>
         <div className={clsx("p-2 rounded-lg bg-slate-50", iconColorClass)}>
           <Icon size={20} />
         </div>
       </div>
       <div>
-        <div className="text-3xl font-bold text-slate-800 mb-1">{value}</div>
+        <div className="metric-value text-3xl font-bold text-slate-800 mb-1">{value}</div>
         {(subtext || trend) && (
           <div className="flex items-center text-sm">
             {trend && trendValue && (

@@ -1,0 +1,131 @@
+{
+  "totalWithoutTeam": 44,
+  "prefixes": [
+    "SN",
+    "MDD",
+    "CTO",
+    "APV"
+  ],
+  "samples": [
+    {
+      "key": "SN-1445",
+      "summary": "[SN] Utilizar crédito gerado por cancelamento de ficha de venda",
+      "teamCol": ";;",
+      "customTeamCol": "ID. BUZZ"
+    },
+    {
+      "key": "SN-1292",
+      "summary": "[SN] Cancelamento de Ficha com Boleto recebido, e crédito na ficha de venda",
+      "teamCol": ";;",
+      "customTeamCol": "ID. BUZZ"
+    },
+    {
+      "key": "MDD-755",
+      "summary": "Ajustar Migração de Contratinhos S&D Colaboradores para o Locavia",
+      "teamCol": ";;",
+      "customTeamCol": "SANTANA"
+    },
+    {
+      "key": "MDD-754",
+      "summary": "Ajustar Migração de Veículos de S&D Colaboradores para o Locavia",
+      "teamCol": ";;",
+      "customTeamCol": "SANTANA"
+    },
+    {
+      "key": "MDD-752",
+      "summary": "Ajustar Migração de Motoristas de S&D Colaboradores para o Locavia",
+      "teamCol": ";;",
+      "customTeamCol": "SANTANA"
+    },
+    {
+      "key": "MDD-746",
+      "summary": "Migrar Contratos Master de S&D Colaboradores para o Locavia",
+      "teamCol": ";;",
+      "customTeamCol": "SANTANA"
+    },
+    {
+      "key": "CTO-1018",
+      "summary": "Flag “Cobrar Km Excedente” padrão no Contrato Master (CaaS) para o produto Veiculos para APP",
+      "teamCol": ";;",
+      "customTeamCol": "OPTIMUS"
+    },
+    {
+      "key": "CTO-1004",
+      "summary": "Incluir filtro “Situação/Status do Contrato” na Listagem de Contratos Master (CaaS)",
+      "teamCol": ";;",
+      "customTeamCol": "OPTIMUS"
+    },
+    {
+      "key": "CTO-911",
+      "summary": "[Contratos] Ajuste da Regra de Expiração de Reservas",
+      "teamCol": ";;",
+      "customTeamCol": "OPTIMUS"
+    },
+    {
+      "key": "CTO-906",
+      "summary": "Tornar obrigatória a vinculação de reserva ao contrato",
+      "teamCol": ";;",
+      "customTeamCol": "OPTIMUS"
+    },
+    {
+      "key": "CTO-883",
+      "summary": "[Faturamento] Remover campos de dados do cartão da tela de Adicionar Forma de Pagamento [Reserva e Contrato CaaS)",
+      "teamCol": ";;",
+      "customTeamCol": "OPTIMUS"
+    },
+    {
+      "key": "CTO-880",
+      "summary": "Ajustar data do Termo de Multas  para refletir a data da substituição do veículo",
+      "teamCol": ";;",
+      "customTeamCol": "OPTIMUS"
+    },
+    {
+      "key": "CTO-877",
+      "summary": "Reserva: Vincular Empresa ↔ Local de Retirada (mesmo valor) e refletir na Devolução",
+      "teamCol": ";;",
+      "customTeamCol": "OPTIMUS"
+    },
+    {
+      "key": "CTO-869",
+      "summary": "[Contratos] Trava ações de Substituir e Encerrar (Histórico de Contratos Caas)",
+      "teamCol": ";;",
+      "customTeamCol": "OPTIMUS"
+    },
+    {
+      "key": "CTO-865",
+      "summary": "Cadastro de Motivos de Encerramento de Contrato",
+      "teamCol": ";;",
+      "customTeamCol": "OPTIMUS"
+    },
+    {
+      "key": "CTO-858",
+      "summary": "Atualização de versão às 12h para ajuste de disponibilidades dos grupos",
+      "teamCol": ";;",
+      "customTeamCol": "OPTIMUS"
+    },
+    {
+      "key": "CTO-857",
+      "summary": "[Contratos] Flag reserva marcada",
+      "teamCol": ";;",
+      "customTeamCol": "OPTIMUS"
+    },
+    {
+      "key": "CTO-850",
+      "summary": "[Faturamento] Flag \"Fatura Antecipada\" desabilitada ao salvar contrato",
+      "teamCol": ";;",
+      "customTeamCol": "AMAROK"
+    },
+    {
+      "key": "CTO-829",
+      "summary": "Após \"Substituir veículo\", o veículo vai para situação \"Retorno Locação\".",
+      "teamCol": ";;",
+      "customTeamCol": "OPTIMUS"
+    },
+    {
+      "key": "CTO-828",
+      "summary": "Definir defaults no Contrato Master",
+      "teamCol": ";;",
+      "customTeamCol": "OPTIMUS"
+    }
+  ]
+}

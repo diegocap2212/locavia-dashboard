@@ -9,10 +9,19 @@ interface Props {
   data: WeeklyFlowDataPoint[];
 }
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    dataKey: string | number | undefined;
+    value: number;
+  }>;
+  label?: string;
+}
+
+const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   if (!active || !payload?.length) return null;
-  const entradas = payload.find((p: any) => p.dataKey === 'entradas')?.value || 0;
-  const saidas = payload.find((p: any) => p.dataKey === 'saidas')?.value || 0;
+  const entradas = payload.find((p) => p.dataKey === 'entradas')?.value || 0;
+  const saidas = payload.find((p) => p.dataKey === 'saidas')?.value || 0;
   const saldo = entradas - saidas;
   return (
     <div className="bg-white p-4 rounded-xl shadow-lg border border-slate-200 min-w-[180px]">

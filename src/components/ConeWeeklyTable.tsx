@@ -23,7 +23,6 @@ export const ConeWeeklyTable: React.FC<Props> = ({ data }) => {
             <th className="py-3 px-3 text-center text-slate-400">Desc.</th>
             <th className="py-3 px-3 text-center">A Fazer</th>
             <th className="py-3 px-3 text-center" title="Lead Time Médio">LT Méd</th>
-            <th className="py-3 px-3 text-center" title="Cycle Time Médio">CT Méd</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100">
@@ -39,7 +38,6 @@ export const ConeWeeklyTable: React.FC<Props> = ({ data }) => {
               <td className="py-2 px-3 text-center text-slate-400">{row.descartados > 0 ? row.descartados : '-'}</td>
               <td className="py-2 px-3 text-center font-semibold text-slate-700">{row.aFazer}</td>
               <td className="py-2 px-3 text-center text-slate-600">{row.leadTimeMed !== null ? `${row.leadTimeMed}d` : '-'}</td>
-              <td className="py-2 px-3 text-center text-slate-600">{row.cycleTimeMed !== null ? `${row.cycleTimeMed}d` : '-'}</td>
             </tr>
           ))}
         </tbody>

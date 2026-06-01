@@ -12,6 +12,19 @@ export interface JiraItem {
   [key: string]: unknown;
 }
 
+interface GVizCol {
+  id?: string;
+  label?: string;
+}
+
+interface GVizCell {
+  v: string | number | boolean | null;
+}
+
+interface GVizRow {
+  c: (GVizCell | null)[];
+}
+
 const CLOUD_DATA_URL = import.meta.env.VITE_CLOUD_DATA_URL;
 
 export const fetchData = async (): Promise<JiraItem[]> => {
@@ -38,16 +51,18 @@ export const fetchData = async (): Promise<JiraItem[]> => {
         const gvizData = JSON.parse(jsonStr);
         
         // Transform gviz format to our JiraItem[] format
-        const rows = gvizData.table.rows;
-        const cols = gvizData.table.cols.map((c: any) => c.label || c.id);
+        const rows = gvizData.table.rows as GVizRow[];
+        const cols = (gvizData.table.cols as GVizCol[]).map(c => c.label || c.id || '');
         
-        return rows.map((row: any) => {
-            const item: Record<string, any> = {};
-            row.c.forEach((cell: any, i: number) => {
+        return rows.map(row => {
+            const item: Record<string, unknown> = {};
+            row.c.forEach((cell, i) => {
                 const colName = cols[i];
-                item[colName] = cell ? cell.v : null;
+                if (colName) {
+                    item[colName] = cell ? cell.v : null;
+                }
             });
-            return item as JiraItem;
+            return item as unknown as JiraItem;
         });
     }
 

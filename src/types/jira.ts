@@ -8,7 +8,7 @@ export interface JiraApiIssue {
     created: string;        // ISO 8601
     resolutiondate: string | null;
     fixVersions: { name: string }[];
-    [key: string]: any; // Allow custom fields
+    [key: string]: unknown; // Allow custom fields
     labels: string[];
     priority: { name: string };
     assignee: { displayName: string } | null;
@@ -35,7 +35,6 @@ export interface DataQualityFlags {
   noSprint: boolean;
   staleTodo: boolean;
   suspiciouslyLongLead: boolean;
-  doneWithoutCycleData: boolean;
 }
 
 // Formato normalizado para o dashboard (evolução do formato atual)
@@ -58,7 +57,6 @@ export interface DashboardItem {
   StartDate: string | null;           // Start date
   FuraFila: string[];                 // Labels fura-fila
   NaturezaDemanda: string[];          // Natureza da Demanda
-  CycleTime: number | null;           // Dias (1º In Progress → Resolved)
   TimeInTodo: number | null;          // Dias (Created → 1º In Progress)
   LeadTime: number | null;            // Dias (Created → Resolved)
   LeadTimeP85: number | null;         // Percentil 85

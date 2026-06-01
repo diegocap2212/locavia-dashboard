@@ -17,10 +17,25 @@ export const PlannedVsDeliveredChart: React.FC<Props> = ({ data }) => {
     'Saldo': (d.planejados + d.naoPlanejados + d.furaFila) - d.realizado
   }));
 
-  const renderTooltip = (props: any) => {
-    const { active, payload, label } = props;
+  interface TooltipProps {
+    active?: boolean;
+    payload?: readonly {
+      payload?: {
+        'Entrada (Total)': number;
+        'Planejadas': number;
+        'Não Planejadas': number;
+        'Fura Fila': number;
+        'Realizadas': number;
+        'Saldo': number;
+      };
+    }[];
+    label?: string | number;
+  }
+
+  const renderTooltip = ({ active, payload, label }: TooltipProps) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
+      if (!data) return null;
       return (
         <div className="bg-white p-4 border border-slate-200 shadow-lg rounded-lg">
           <p className="font-bold text-slate-800 mb-2">{label}</p>
@@ -33,7 +48,7 @@ export const PlannedVsDeliveredChart: React.FC<Props> = ({ data }) => {
             <p className="text-emerald-600">✅ Realizadas: <span className="font-bold">{data['Realizadas']}</span></p>
             <div className="border-t border-slate-100 my-1"></div>
             <p className={data['Saldo'] > 0 ? "text-amber-600" : "text-emerald-600"}>
-              ⚖️ Saldo (Gargalo): <span className="font-bold">{data['Saldo'] > 0 ? '+' : ''}{data['Saldo']}</span>
+               ⚖️ Saldo (Gargalo): <span className="font-bold">{data['Saldo'] > 0 ? '+' : ''}{data['Saldo']}</span>
             </p>
           </div>
         </div>

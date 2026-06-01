@@ -14,14 +14,12 @@ export const DataQualityPanel: React.FC<Props> = ({ items }) => {
 
     let noAssignee = 0;
     let doneNoResolution = 0;
-    let doneNoCycle = 0;
     let staleTodo = 0;
     let missingCommit = 0;
 
     items.forEach(item => {
       if (item.DataQuality?.missingAssignee) noAssignee++;
       if (item.DataQuality?.missingResolutionDate) doneNoResolution++;
-      if (item.DataQuality?.doneWithoutCycleData) doneNoCycle++;
       if (item.DataQuality?.staleTodo) staleTodo++;
       
       // Especifico da nova metodologia Cone
@@ -30,7 +28,7 @@ export const DataQualityPanel: React.FC<Props> = ({ items }) => {
       }
     });
 
-    const issuesCount = noAssignee + doneNoResolution + doneNoCycle + staleTodo + missingCommit;
+    const issuesCount = noAssignee + doneNoResolution + staleTodo + missingCommit;
     const score = Math.max(0, 100 - (issuesCount / total) * 100);
 
     return {
@@ -40,7 +38,6 @@ export const DataQualityPanel: React.FC<Props> = ({ items }) => {
         { label: 'Sem Responsável', count: noAssignee, type: 'warning' },
         { label: 'Sem Data de Compromisso (Aberto)', count: missingCommit, type: 'warning' },
         { label: 'DONE sem Resolvido', count: doneNoResolution, type: 'error' },
-        { label: 'DONE sem Cycle Time', count: doneNoCycle, type: 'warning' },
         { label: 'TODO parado há >30d', count: staleTodo, type: 'error' },
       ].sort((a, b) => b.count - a.count)
     };

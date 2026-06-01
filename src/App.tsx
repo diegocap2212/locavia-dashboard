@@ -383,8 +383,8 @@ const App: React.FC = () => {
               <h3 className="metric-label">Lead Time</h3>
               <div className="icon-wrapper icon-gray"><Clock size={20} /></div>
             </div>
-            <div className="metric-value">{metrics.avgCycleTime} <span style={{fontSize:'1.25rem', color:'var(--text-muted)'}}>d</span></div>
-            <p className="metric-sub">Tempo médio de ciclo</p>
+            <div className="metric-value">{metrics.avgLeadTime} <span style={{fontSize:'1.25rem', color:'var(--text-muted)'}}>d</span></div>
+            <p className="metric-sub">Tempo médio (Criado → Resolvido)</p>
           </motion.div>
         </motion.div>
 

@@ -1,0 +1,964 @@
+--- COMPREHENSVE TAB ANALYSIS ---
+
+=== SHEET: Visão Geral ===
+[
+  [
+    "Times Locavia",
+    "Melhor caso",
+    null,
+    "Pior caso",
+    null,
+    "QA"
+  ],
+  [
+    "ID.4",
+    45957,
+    7,
+    46097,
+    7,
+    46066,
+    -3
+  ],
+  [
+    "Scania",
+    46097,
+    2,
+    46118,
+    2,
+    "Produção"
+  ]
+]
+
+=== SHEET: Visão O4R1 ===
+[
+  [
+    "Times Locavia",
+    "Melhor caso",
+    null,
+    "Pior caso",
+    null,
+    "QA"
+  ],
+  [
+    "ID.4",
+    45957,
+    7,
+    46097,
+    7,
+    46020,
+    -3
+  ],
+  [
+    "Scania",
+    46097,
+    2,
+    46118,
+    2,
+    "Produção"
+  ]
+]
+
+=== SHEET: Modelo Estrutura ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? O que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    1,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Qtd de Story / Task / Bug / Spike",
+    13,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: CONE (2) ===
+[
+  [
+    "Semana",
+    "Time GOL",
+    null,
+    null,
+    "Time TERA",
+    null,
+    null,
+    "Time AMAROK",
+    null,
+    null,
+    "Time OPTMUS"
+  ],
+  [
+    "Semana",
+    "M",
+    "P",
+    "Execução",
+    "M",
+    "P",
+    "Execução",
+    "M",
+    "P",
+    "Execução",
+    "M",
+    "P",
+    "Execução"
+  ],
+  [
+    45929,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    9,
+    9
+  ]
+]
+
+=== SHEET: CONE ===
+[
+  [
+    "Semana",
+    "Time GOL",
+    null,
+    null,
+    "Time TERA",
+    null,
+    null,
+    "Time AMAROK",
+    null,
+    null,
+    "Time OPTMUS"
+  ],
+  [
+    7,
+    null,
+    null,
+    "SM: Gabriela\r\nTcL: Gercy Campos"
+  ],
+  [
+    "Semana",
+    "M",
+    "P",
+    "Execução",
+    "M",
+    "P",
+    "Execução",
+    "M",
+    "P",
+    "Execução",
+    "M",
+    "P",
+    "Execução"
+  ]
+]
+
+=== SHEET: GOL O4R1 ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? O que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    3,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Qtd de Story / Task / Bug / Spike",
+    12,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: GOL - TESTE ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? O que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    null,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Features",
+    15,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: TERA - TESTE ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? O que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    null,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Features",
+    20,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: OPTMIUS - TESTE ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? O que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    null,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Features",
+    53,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: GOL O4R2 ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? O que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    48,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Features",
+    62,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: GOL (R1.5) ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? O que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    48,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Qtd de Story / Task / Bug / Spike",
+    63,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: Tera ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? \r\nO que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    1,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Qtd de Story / Task / Bug / Spike",
+    3,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: Tera (O4R1) ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? \r\nO que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    1,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Qtd de Story / Task / Bug / Spike",
+    2,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: Amarok O4R1 - TASK FORCE ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? O que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    2,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Qtd de Story / Task / Bug / Spike",
+    8,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: Amarok O4R2 ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? O que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    2,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Qtd de Story / Task / Bug / Spike",
+    8,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: Amarok O4R1 - Plano A ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? O que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    2,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Qtd de Story / Task / Bug / Spike",
+    8,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: Optimus - Manutenção ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? O que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    1,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Qtd de Story / Task / Bug / Spike",
+    9,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: Amarok O4R1 - Plano B ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? O que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    2,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Qtd de Story / Task / Bug / Spike",
+    8,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: Optimus O4R2 ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? O que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    3,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Qtd de Story / Task / Bug / Spike",
+    3,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: Optimus O4R1 ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? O que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    1,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Qtd de Story / Task / Bug / Spike",
+    9,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: Tiguan ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? O que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    4,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Qtd de Story / Task / Bug / Spike",
+    8,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: Jetta (2) ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? \r\nO que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    1,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Qtd de Story / Task / Bug / Spike",
+    15,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: Jetta ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? \r\nO que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    1,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Qtd de Story / Task / Bug / Spike",
+    15,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: Amarok (via JIRA) ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? O que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    2,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Qtd de Story / Task / Bug / Spike",
+    17,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: Parati ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? \r\nO que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    1,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Qtd de Story / Task / Bug / Spike",
+    2,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: Scania (JIRA) ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? O que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    null,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Qtd de Story / Task / Bug / Spike",
+    23,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: Scania ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? O que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    3,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Qtd de Story / Task / Bug / Spike",
+    29,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: NIVUS  ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? O que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    5,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Qtd de Story / Task / Bug / Spike",
+    26,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: UP ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? O que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    7,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Qtd de Story / Task / Bug / Spike",
+    46,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: Tera (O4R2) ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? \r\nO que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    3,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Qtd de Story / Task / Bug / Spike",
+    13,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: Fusca O4R1 ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? O que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    18,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release",
+    null,
+    null,
+    null,
+    null,
+    "cross"
+  ],
+  [
+    null,
+    "Qtd de Story / Task / Bug / Spike",
+    68,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação",
+    null,
+    null,
+    null,
+    null,
+    "epic",
+    "hist",
+    "epicos ",
+    "hist",
+    "concluido",
+    "ag teste",
+    "desnv"
+  ]
+]
+
+=== SHEET: Fusca O4R2 ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? O que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    2,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Qtd de Story / Task / Bug / Spike",
+    6,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: Fusca - Antigo ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? \r\nO que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    18,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Qtd de Story / Task / Bug",
+    36,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: Santana ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? \r\nO que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    6,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Qtd de Story / Task / Bug / Spike",
+    18,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: Brasilia ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? O que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    12,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Qtd de Story / Task / Bug / Spike",
+    79,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: Taos ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? O que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    1,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Qtd de Story / Task / Bug / Spike",
+    2,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: ID4 ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? \r\nO que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    4,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    10
+  ],
+  [
+    null,
+    "Qtd de Story / Task / Bug / Spike",
+    13,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: Dominios  O4R2 ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? \r\nO que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    2,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Qtd de Story / Task / Bug / Spike",
+    10,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: Arquitetura ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? O que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    56,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Qtd de Story / Task / Bug / Spike",
+    56,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: Infra-OTI ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? O que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    56,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Qtd de Story / Task / Bug / Spike",
+    56,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]
+
+=== SHEET: Gol (Release 3) ===
+[
+  [
+    "Qtd inicial de itens",
+    1
+  ],
+  [
+    "Qtd atual total blk + wip",
+    3
+  ],
+  [
+    "Data início",
+    45642
+  ]
+]
+
+=== SHEET: Cone FTD ===
+[
+  [
+    "Cone: baseado na nossa vazão, chegaremos na data alvo? O que cabe até data alvo?"
+  ],
+  [
+    null,
+    "Quantidade de Épicos",
+    0,
+    "Épicos",
+    "considerar apenas os épicos que estão no mapa de release"
+  ],
+  [
+    null,
+    "Qtd de Story / Task / Bug / Spike",
+    14,
+    "Story / Tarefa / Bug / Spike",
+    "considerar o trabalho de todos os integrantes do time, inclsuive tasks de dívidas técnicas e automação"
+  ]
+]

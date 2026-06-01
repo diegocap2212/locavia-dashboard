@@ -11,9 +11,19 @@ interface Props {
   data: DataItem[];
 }
 
+interface CustomLabelProps {
+  cx?: number;
+  cy?: number;
+  midAngle?: number;
+  innerRadius?: number;
+  outerRadius?: number;
+  percent?: number;
+}
+
 const RADIAN = Math.PI / 180;
-const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
-  if (percent < 0.05) return null; // Don't render labels for tiny slices
+const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: CustomLabelProps) => {
+  if (percent === undefined || percent < 0.05) return null; // Don't render labels for tiny slices
+  if (cx === undefined || cy === undefined || midAngle === undefined || innerRadius === undefined || outerRadius === undefined) return null;
   const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
   const x = cx + radius * Math.cos(-midAngle * RADIAN);
   const y = cy + radius * Math.sin(-midAngle * RADIAN);
@@ -25,7 +35,14 @@ const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent
   );
 };
 
-const CustomTooltip = ({ active, payload }: any) => {
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    payload: DataItem;
+  }>;
+}
+
+const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
   if (!active || !payload?.length) return null;
   const { name, value, color } = payload[0].payload;
   return (

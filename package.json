@@ -8,7 +8,7 @@
     "build": "npm run sync:sfmkt && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "sync": "tsx scripts/sync-data.ts",
+    "sync": "npm run update-data",
     "sync:jira": "tsx sync/sync-jira.ts",
     "sync:sfmkt": "tsx sync/sfmkt-sync.ts",
     "sync:discover-fields": "tsx sync/sync-discover.ts",

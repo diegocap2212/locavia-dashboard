@@ -1,0 +1,367 @@
+{
+  "auditDate": "2026-06-01T13:26:04.466Z",
+  "coneLocavia": {
+    "O4R1": {
+      "Atendimento WhatsApp": {
+        "total": 24,
+        "done": 20,
+        "inProgress": 0,
+        "todo": 4,
+        "excluded": 4,
+        "inCone": 20
+      },
+      "Compras e Estoque": {
+        "total": 9,
+        "done": 5,
+        "inProgress": 1,
+        "todo": 3,
+        "excluded": 3,
+        "inCone": 6
+      },
+      "Contratos / Multas / Ressarcimento / Manutenção": {
+        "total": 137,
+        "done": 110,
+        "inProgress": 0,
+        "todo": 27,
+        "excluded": 27,
+        "inCone": 110
+      },
+      "Core System": {
+        "total": 5,
+        "done": 4,
+        "inProgress": 0,
+        "todo": 1,
+        "excluded": 1,
+        "inCone": 4
+      },
+      "Crédito e Proposta": {
+        "total": 3,
+        "done": 2,
+        "inProgress": 0,
+        "todo": 1,
+        "excluded": 1,
+        "inCone": 2
+      },
+      "Faturamento": {
+        "total": 40,
+        "done": 26,
+        "inProgress": 0,
+        "todo": 14,
+        "excluded": 14,
+        "inCone": 26
+      },
+      "Migração de Dados": {
+        "total": 18,
+        "done": 12,
+        "inProgress": 0,
+        "todo": 6,
+        "excluded": 6,
+        "inCone": 12
+      },
+      "Portal de Auto Atendimento": {
+        "total": 4,
+        "done": 4,
+        "inProgress": 0,
+        "todo": 0,
+        "excluded": 0,
+        "inCone": 4
+      },
+      "Portal de Vendas Assistidas": {
+        "total": 19,
+        "done": 18,
+        "inProgress": 0,
+        "todo": 1,
+        "excluded": 1,
+        "inCone": 18
+      },
+      "Pricing": {
+        "total": 4,
+        "done": 3,
+        "inProgress": 0,
+        "todo": 1,
+        "excluded": 1,
+        "inCone": 3
+      },
+      "Pós Venda Salesforce": {
+        "total": 76,
+        "done": 74,
+        "inProgress": 0,
+        "todo": 2,
+        "excluded": 2,
+        "inCone": 74
+      },
+      "Seminovos": {
+        "total": 1,
+        "done": 1,
+        "inProgress": 0,
+        "todo": 0,
+        "excluded": 0,
+        "inCone": 1
+      }
+    },
+    "O4R2": {
+      "Atendimento WhatsApp": {
+        "total": 5,
+        "done": 4,
+        "inProgress": 0,
+        "todo": 1,
+        "excluded": 1,
+        "inCone": 4
+      },
+      "Compras e Estoque": {
+        "total": 10,
+        "done": 6,
+        "inProgress": 2,
+        "todo": 2,
+        "excluded": 2,
+        "inCone": 8
+      },
+      "Construção do Data Lake": {
+        "total": 1,
+        "done": 1,
+        "inProgress": 0,
+        "todo": 0,
+        "excluded": 0,
+        "inCone": 1
+      },
+      "Contratos / Multas / Ressarcimento / Manutenção": {
+        "total": 57,
+        "done": 38,
+        "inProgress": 7,
+        "todo": 12,
+        "excluded": 13,
+        "inCone": 44
+      },
+      "Core System": {
+        "total": 5,
+        "done": 4,
+        "inProgress": 0,
+        "todo": 1,
+        "excluded": 1,
+        "inCone": 4
+      },
+      "Crédito e Proposta": {
+        "total": 28,
+        "done": 20,
+        "inProgress": 1,
+        "todo": 7,
+        "excluded": 7,
+        "inCone": 21
+      },
+      "Faturamento": {
+        "total": 32,
+        "done": 25,
+        "inProgress": 2,
+        "todo": 5,
+        "excluded": 6,
+        "inCone": 26
+      },
+      "Governança de Dados": {
+        "total": 1,
+        "done": 1,
+        "inProgress": 0,
+        "todo": 0,
+        "excluded": 0,
+        "inCone": 1
+      },
+      "Migração de Dados": {
+        "total": 25,
+        "done": 23,
+        "inProgress": 1,
+        "todo": 1,
+        "excluded": 1,
+        "inCone": 24
+      },
+      "Mobilização": {
+        "total": 8,
+        "done": 8,
+        "inProgress": 0,
+        "todo": 0,
+        "excluded": 0,
+        "inCone": 8
+      },
+      "Portal de Auto Atendimento": {
+        "total": 83,
+        "done": 69,
+        "inProgress": 2,
+        "todo": 12,
+        "excluded": 12,
+        "inCone": 71
+      },
+      "Portal de Vendas Assistidas": {
+        "total": 45,
+        "done": 30,
+        "inProgress": 5,
+        "todo": 10,
+        "excluded": 10,
+        "inCone": 35
+      },
+      "Pós Venda Salesforce": {
+        "total": 36,
+        "done": 32,
+        "inProgress": 1,
+        "todo": 3,
+        "excluded": 3,
+        "inCone": 33
+      },
+      "Relatórios de BI": {
+        "total": 20,
+        "done": 7,
+        "inProgress": 6,
+        "todo": 7,
+        "excluded": 12,
+        "inCone": 8
+      }
+    }
+  },
+  "coneBfCem": {
+    "BAF": {
+      "Contratos / Multas / Ressarcimento / Manutenção": {
+        "total": 59,
+        "done": 46,
+        "inProgress": 0,
+        "todo": 13,
+        "excluded": 13,
+        "inCone": 46
+      },
+      "Crédito e Proposta": {
+        "total": 2,
+        "done": 2,
+        "inProgress": 0,
+        "todo": 0,
+        "excluded": 0,
+        "inCone": 2
+      },
+      "Faturamento": {
+        "total": 11,
+        "done": 4,
+        "inProgress": 2,
+        "todo": 5,
+        "excluded": 5,
+        "inCone": 6
+      },
+      "Migração de Dados": {
+        "total": 2,
+        "done": 0,
+        "inProgress": 0,
+        "todo": 2,
+        "excluded": 2,
+        "inCone": 0
+      },
+      "Mobilização": {
+        "total": 16,
+        "done": 13,
+        "inProgress": 3,
+        "todo": 0,
+        "excluded": 0,
+        "inCone": 16
+      },
+      "Seminovos": {
+        "total": 11,
+        "done": 9,
+        "inProgress": 1,
+        "todo": 1,
+        "excluded": 1,
+        "inCone": 10
+      }
+    },
+    "BAF-QW": {
+      "Contratos / Multas / Ressarcimento / Manutenção": {
+        "total": 11,
+        "done": 6,
+        "inProgress": 3,
+        "todo": 2,
+        "excluded": 3,
+        "inCone": 8
+      },
+      "Mobilização": {
+        "total": 1,
+        "done": 1,
+        "inProgress": 0,
+        "todo": 0,
+        "excluded": 0,
+        "inCone": 1
+      }
+    },
+    "CEM": {
+      "Compras e Estoque": {
+        "total": 90,
+        "done": 26,
+        "inProgress": 29,
+        "todo": 35,
+        "excluded": 37,
+        "inCone": 53
+      },
+      "Mobilização": {
+        "total": 22,
+        "done": 12,
+        "inProgress": 5,
+        "todo": 5,
+        "excluded": 5,
+        "inCone": 17
+      },
+      "Relatórios de BI": {
+        "total": 12,
+        "done": 6,
+        "inProgress": 0,
+        "todo": 6,
+        "excluded": 6,
+        "inCone": 6
+      }
+    },
+    "CEM-R1": {
+      "Relatórios de BI": {
+        "total": 21,
+        "done": 7,
+        "inProgress": 11,
+        "todo": 3,
+        "excluded": 3,
+        "inCone": 18
+      }
+    },
+    "CEM-R2": {
+      "Compras e Estoque": {
+        "total": 1,
+        "done": 0,
+        "inProgress": 0,
+        "todo": 1,
+        "excluded": 1,
+        "inCone": 0
+      },
+      "Relatórios de BI": {
+        "total": 3,
+        "done": 0,
+        "inProgress": 1,
+        "todo": 2,
+        "excluded": 3,
+        "inCone": 0
+      }
+    },
+    "OUTROS": {
+      "Compras e Estoque": {
+        "total": 76,
+        "done": 56,
+        "inProgress": 9,
+        "todo": 11,
+        "excluded": 11,
+        "inCone": 65
+      },
+      "Mobilização": {
+        "total": 10,
+        "done": 9,
+        "inProgress": 0,
+        "todo": 1,
+        "excluded": 1,
+        "inCone": 9
+      },
+      "Relatórios de BI": {
+        "total": 100,
+        "done": 42,
+        "inProgress": 12,
+        "todo": 46,
+        "excluded": 54,
+        "inCone": 46
+      }
+    }
+  }
+}

@@ -25,7 +25,6 @@ export interface WeeklyConeMetrics {
   novos: number;
   aFazer: number;
   leadTimeMed: number | null;
-  cycleTimeMed: number | null;
 }
 
 export interface WeeklyFlowDataPoint {
@@ -34,7 +33,6 @@ export interface WeeklyFlowDataPoint {
   throughput: number;
   byType: Record<string, number>;
   leadTimeAvg: number | null;
-  cycleTimeAvg: number | null;
   entradas: number;
   saidas: number;
   saldo: number;
@@ -57,8 +55,8 @@ export function useSMDashboardData(smConfig: SMConfig, selectedTeamId: string, d
       // Simulate async loading to match the previous API, but load synchronously from the bundled import
       setRawData(importedData as unknown as DashboardItem[]);
       setLoading(false);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
       setLoading(false);
     }
   }, []);
@@ -138,7 +136,6 @@ export function useSMDashboardData(smConfig: SMConfig, selectedTeamId: string, d
       let descartados = 0;
       let novos = 0;
       const weekLeadTimes: number[] = [];
-      const weekCycleTimes: number[] = [];
 
       activeItems.forEach(item => {
         const created = parseDate(item.Created);
@@ -152,8 +149,7 @@ export function useSMDashboardData(smConfig: SMConfig, selectedTeamId: string, d
         // Realizado (DONE)
         if (item.StatusCategory === 'DONE' && isResolvedInWeek) {
           realizado++;
-          if (item.LeadTime !== null) weekLeadTimes.push(item.LeadTime);
-          if (item.CycleTime !== null) weekCycleTimes.push(item.CycleTime);
+          if (item.LeadTime !== null && item.LeadTime !== undefined) weekLeadTimes.push(item.LeadTime);
         }
 
         // Descartados
@@ -189,7 +185,6 @@ export function useSMDashboardData(smConfig: SMConfig, selectedTeamId: string, d
       const aFazer = previousAFazer + planejados + naoPlanejados + furaFila - realizado - descartados;
       
       const leadTimeMed = weekLeadTimes.length ? weekLeadTimes.reduce((a,b) => a+b, 0) / weekLeadTimes.length : null;
-      const cycleTimeMed = weekCycleTimes.length ? weekCycleTimes.reduce((a,b) => a+b, 0) / weekCycleTimes.length : null;
 
       weeks.push({
         weekStart: currStart,
@@ -203,8 +198,7 @@ export function useSMDashboardData(smConfig: SMConfig, selectedTeamId: string, d
         descartados,
         novos,
         aFazer,
-        leadTimeMed,
-        cycleTimeMed
+        leadTimeMed
       });
 
       previousAFazer = Math.max(0, aFazer); // Prevent negative backlog
@@ -212,20 +206,17 @@ export function useSMDashboardData(smConfig: SMConfig, selectedTeamId: string, d
     }
 
     // Global KPIs
-    const doneItems = activeItems.filter(i => i.StatusCategory === 'DONE' && i.LeadTime !== null);
+    const doneItems = activeItems.filter(i => i.StatusCategory === 'DONE' && i.LeadTime !== null && i.LeadTime !== undefined);
     const sortedLeadTimes = doneItems.map(i => i.LeadTime as number).sort((a,b) => a-b);
-    const sortedCycleTimes = activeItems.filter(i => i.StatusCategory === 'DONE' && i.CycleTime !== null).map(i => i.CycleTime as number).sort((a,b) => a-b);
     
     const throughput = doneItems.length;
     const wip = activeItems.filter(i => i.StatusCategory === 'IN_PROGRESS').length;
     const globalAFazer = weeks.length > 0 ? weeks[weeks.length-1].aFazer : 0;
     
     const leadTimeAvg = sortedLeadTimes.length ? sortedLeadTimes.reduce((a,b) => a+b, 0) / sortedLeadTimes.length : null;
-    const cycleTimeAvg = sortedCycleTimes.length ? sortedCycleTimes.reduce((a,b) => a+b, 0) / sortedCycleTimes.length : null;
     
     const leadTimeP85 = percentile(sortedLeadTimes, 0.85);
     const leadTimeP15 = percentile(sortedLeadTimes, 0.15);
-    const cycleTimeMedian = percentile(sortedCycleTimes, 0.50);
 
     // ── Weekly Flow Data (for new charts) ──
     const normalizeType = (t: string): string => {
@@ -260,9 +251,8 @@ export function useSMDashboardData(smConfig: SMConfig, selectedTeamId: string, d
         byType[nType] = (byType[nType] || 0) + 1;
       });
 
-      // Lead/Cycle times for the week
-      const wLeadTimes = resolvedThisWeek.filter(i => i.LeadTime !== null).map(i => i.LeadTime as number);
-      const wCycleTimes = resolvedThisWeek.filter(i => i.CycleTime !== null).map(i => i.CycleTime as number);
+      // Lead times for the week
+      const wLeadTimes = resolvedThisWeek.filter(i => i.LeadTime !== null && i.LeadTime !== undefined).map(i => i.LeadTime as number);
 
       return {
         weekLabel: w.weekLabel,
@@ -270,7 +260,6 @@ export function useSMDashboardData(smConfig: SMConfig, selectedTeamId: string, d
         throughput: resolvedThisWeek.length,
         byType,
         leadTimeAvg: wLeadTimes.length ? Math.round(wLeadTimes.reduce((a,b) => a+b, 0) / wLeadTimes.length) : null,
-        cycleTimeAvg: wCycleTimes.length ? Math.round(wCycleTimes.reduce((a,b) => a+b, 0) / wCycleTimes.length) : null,
         entradas: createdThisWeek.length,
         saidas: resolvedThisWeek.length,
         saldo: createdThisWeek.length - resolvedThisWeek.length,
@@ -292,7 +281,7 @@ export function useSMDashboardData(smConfig: SMConfig, selectedTeamId: string, d
       issueTypeBreakdown.push({ name, value, color: typeColors[name] || '#94A3B8' });
     });
 
-    // ── Lead Time & Cycle Time Histograms ──
+    // ── Lead Time Histograms ──
     const buckets = [
       { label: '0-5d', min: 0, max: 5 },
       { label: '6-10d', min: 6, max: 10 },
@@ -305,10 +294,6 @@ export function useSMDashboardData(smConfig: SMConfig, selectedTeamId: string, d
       range: b.label,
       count: sortedLeadTimes.filter(v => v >= b.min && v <= b.max).length
     }));
-    const cycleTimeHistogram = buckets.map(b => ({
-      range: b.label,
-      count: sortedCycleTimes.filter(v => v >= b.min && v <= b.max).length
-    }));
 
     return {
       items: activeItems,
@@ -316,14 +301,11 @@ export function useSMDashboardData(smConfig: SMConfig, selectedTeamId: string, d
       weeklyFlowData,
       issueTypeBreakdown,
       leadTimeHistogram,
-      cycleTimeHistogram,
       kpis: {
         throughput,
         leadTimeAvg: leadTimeAvg ? Math.round(leadTimeAvg) : null,
         leadTimeP85: leadTimeP85 ? Math.round(leadTimeP85) : null,
         leadTimeP15: leadTimeP15 ? Math.round(leadTimeP15) : null,
-        cycleTimeAvg: cycleTimeAvg ? Math.round(cycleTimeAvg) : null,
-        cycleTimeMedian: cycleTimeMedian ? Math.round(cycleTimeMedian) : null,
         wip,
         aFazer: globalAFazer
       },

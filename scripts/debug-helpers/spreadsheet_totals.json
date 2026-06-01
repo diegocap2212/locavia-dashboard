@@ -1,0 +1,97 @@
+[
+  {
+    "Sheet": "GOL - TESTE",
+    "Epicos": 0,
+    "Items": 15
+  },
+  {
+    "Sheet": "TERA - TESTE",
+    "Epicos": 0,
+    "Items": 20
+  },
+  {
+    "Sheet": "OPTMIUS - TESTE",
+    "Epicos": 0,
+    "Items": 53
+  },
+  {
+    "Sheet": "GOL (R1.5)",
+    "Epicos": 48,
+    "Items": 63
+  },
+  {
+    "Sheet": "Tera",
+    "Epicos": 1,
+    "Items": 3
+  },
+  {
+    "Sheet": "RELEASE",
+    "Epicos": 0,
+    "Items": 603
+  },
+  {
+    "Sheet": "MATRIZ ESCOPO",
+    "Epicos": 0,
+    "Items": 1
+  },
+  {
+    "Sheet": "ESCOPO CRÉDITO",
+    "Epicos": 0,
+    "Items": 1
+  },
+  {
+    "Sheet": "ESCOPO PROPOSTA",
+    "Epicos": 0,
+    "Items": 18
+  },
+  {
+    "Sheet": "MATRIZ TIME",
+    "Epicos": 0,
+    "Items": 65
+  },
+  {
+    "Sheet": "D.LAKE DOMINIO O4R2",
+    "Epicos": 0,
+    "Items": 18
+  },
+  {
+    "Sheet": "GOL O4R2",
+    "Epicos": 0,
+    "Items": 68
+  },
+  {
+    "Sheet": "TERA O4R2",
+    "Epicos": 0,
+    "Items": 65
+  },
+  {
+    "Sheet": "OPTIMUS O4R2",
+    "Epicos": 0,
+    "Items": 91
+  },
+  {
+    "Sheet": "NIVUS O4R2",
+    "Epicos": 0,
+    "Items": 80
+  },
+  {
+    "Sheet": "TAOS O4R2",
+    "Epicos": 0,
+    "Items": 25
+  },
+  {
+    "Sheet": "FUSCA O4R2",
+    "Epicos": 0,
+    "Items": 91
+  },
+  {
+    "Sheet": "UP O4R2",
+    "Epicos": 0,
+    "Items": 39
+  },
+  {
+    "Sheet": "Amarok (via JIRA)",
+    "Epicos": 2,
+    "Items": 17
+  }
+]

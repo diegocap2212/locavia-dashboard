@@ -3,15 +3,14 @@ import type { SMConfig } from '../config/sm-config';
 import { useSMDashboardData } from '../hooks/useSMDashboardData';
 import { KPICard } from '../components/KPICard';
 import { PlannedVsDeliveredChart } from '../components/PlannedVsDeliveredChart';
-import { WeeklyThroughputChart } from '../components/WeeklyThroughputChart';
 import { LeadTimeCycleTimeScatter } from '../components/LeadTimeCycleTimeScatter';
 import { ConeWeeklyTable } from '../components/ConeWeeklyTable';
 import { DataQualityPanel } from '../components/DataQualityPanel';
 import { WeeklyFlowTrendChart } from '../components/WeeklyFlowTrendChart';
 import { IssueTypeDonut } from '../components/IssueTypeDonut';
 import { FlowBalanceChart } from '../components/FlowBalanceChart';
-import { LeadCycleTimeHistogram } from '../components/LeadCycleTimeHistogram';
-import { CheckCircle2, Clock, Zap, Activity, Layers, Loader2 } from 'lucide-react';
+import { LeadTimeHistogram } from '../components/LeadCycleTimeHistogram';
+import { CheckCircle2, Clock, Activity, Layers, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { excelToJSDate } from '../hooks/useDashboardData';
 
@@ -125,7 +124,7 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
         <KPICard 
           title="Throughput" 
           value={kpis.throughput} 
@@ -139,13 +138,6 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
           subtext={`P85: ${kpis.leadTimeP85 || '-'}d · P15: ${kpis.leadTimeP15 || '-'}d`}
           icon={Clock}
           iconColorClass="text-slate-500 bg-slate-100"
-        />
-        <KPICard 
-          title="Cycle Time" 
-          value={kpis.cycleTimeAvg !== null ? `${kpis.cycleTimeAvg}d` : '-'} 
-          subtext={`Mediana: ${kpis.cycleTimeMedian || '-'}d`}
-          icon={Zap}
-          iconColorClass="text-blue-500 bg-blue-50"
         />
         <KPICard 
           title="WIP" 
@@ -169,7 +161,7 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
           <h2 className="text-lg font-bold text-slate-800 mb-1 flex items-center">
             <span className="text-amber-500 mr-2">⚡</span> Vazão & Tempos por Semana
           </h2>
-          <p className="text-sm text-slate-500 mb-4">Throughput (barras por tipo) + Lead Time e Cycle Time (linhas)</p>
+          <p className="text-sm text-slate-500 mb-4">Throughput (barras por tipo) + Lead Time (linhas)</p>
           <div className="flex-1 min-h-0">
             <WeeklyFlowTrendChart data={weeklyFlowData} />
           </div>
@@ -186,21 +178,14 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
         </div>
       </div>
 
-      {/* ── ROW 2: Planejadas vs Realizadas + Throughput Semanal ── */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+      {/* ── ROW 2: Planejadas vs Realizadas ── */}
+      <div className="grid grid-cols-1 gap-6 mb-8">
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col h-[450px]">
           <h2 className="text-lg font-bold text-slate-800 mb-6 flex items-center">
             <span className="text-blue-500 mr-2">★</span> Planejadas vs Realizadas (Por Semana)
           </h2>
           <div className="flex-1">
             <PlannedVsDeliveredChart data={weeks} />
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col h-[450px]">
-          <h2 className="text-lg font-bold text-slate-800 mb-6">Entregas por Semana (Throughput)</h2>
-          <div className="flex-1">
-            <WeeklyThroughputChart items={items} />
           </div>
         </div>
       </div>
@@ -218,7 +203,7 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col h-[450px]">
-          <h2 className="text-lg font-bold text-slate-800 mb-1">Lead Time & Cycle Time</h2>
+          <h2 className="text-lg font-bold text-slate-800 mb-1">Lead Time</h2>
           <p className="text-sm text-slate-500 mb-4">Dispersão por entrega</p>
           <div className="flex-1 min-h-0">
             <LeadTimeCycleTimeScatter items={items} />
@@ -231,7 +216,7 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
           </h2>
           <p className="text-sm text-slate-500 mb-4">Histograma de dispersão do Lead Time</p>
           <div className="flex-1 min-h-0">
-            <LeadCycleTimeHistogram leadTimeData={leadTimeHistogram} />
+            <LeadTimeHistogram leadTimeData={leadTimeHistogram} />
           </div>
         </div>
       </div>

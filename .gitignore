@@ -28,7 +28,10 @@ dist-ssr
 # Data files
 *.xlsx
 *.csv
-scripts/
+scripts/*.csv
+scripts/*.json
+scripts/*.txt
+
 test-results/
 
 .vercel

@@ -1,0 +1,7 @@
+[
+  null,
+  "Quantidade de Épicos",
+  0,
+  "Épicos",
+  "considerar apenas os épicos que estão no mapa de release"
+]

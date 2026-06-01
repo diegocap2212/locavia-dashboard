@@ -141,21 +141,19 @@ async function processLocalCsv() {
       return dateStr;
     };
 
-    const jiraData = records.map((r: any) => {
-      let teamRaw = mapping.Team ? String(r[mapping.Team] || '').replace(/;;/g, '').trim() : '';
-      let customTeamRaw = mapping.CustomTeam ? String(r[mapping.CustomTeam] || '').replace(/;;/g, '').trim() : '';
+    const jiraData = records.map((r: Record<string, string | null | undefined>) => {
+      const teamRaw = mapping.Team ? String(r[mapping.Team] || '').replace(/;;/g, '').trim() : '';
+      const customTeamRaw = mapping.CustomTeam ? String(r[mapping.CustomTeam] || '').replace(/;;/g, '').trim() : '';
       
       const key = mapping.Key ? String(r[mapping.Key]).toUpperCase() : '';
-      let rawValues = [teamRaw, customTeamRaw].filter(v => v && v !== ';;');
+      const rawValues = [teamRaw, customTeamRaw].filter(v => v && v !== ';;');
       
       let foundArea = '';
-      let carRef = '';
       const allPossibleTeams = rawValues.join(';').split(';').map(v => v.trim().toUpperCase());
       
       for (const t of allPossibleTeams) {
         if (teamMapping[t]) {
           foundArea = teamMapping[t];
-          carRef = t;
           break;
         }
       }
@@ -165,7 +163,6 @@ async function processLocalCsv() {
         const carFromPrefix = prefixToCar[prefix];
         if (carFromPrefix) {
           foundArea = teamMapping[carFromPrefix] || carFromPrefix;
-          carRef = carFromPrefix;
         }
       }
 
@@ -174,31 +171,31 @@ async function processLocalCsv() {
           const matchedCar = knownCars.find(c => allPossibleTeams.some(p => p.includes(c)));
           if (matchedCar) {
             foundArea = teamMapping[matchedCar];
-            carRef = matchedCar;
           }
       }
 
       let finalTeam = 'OUTROS SQUADS';
       if (foundArea) {
-        if (carRef && carRef !== foundArea) {
-          finalTeam = `${carRef} (${foundArea})`;
-        } else {
-          finalTeam = foundArea;
-        }
+        finalTeam = foundArea;
       } else if (allPossibleTeams.length > 0 && allPossibleTeams[0]) {
-          finalTeam = allPossibleTeams[0];
+        finalTeam = allPossibleTeams[0];
       }
 
-      let releaseRaw = mapping.Release ? String(r[mapping.Release] || '') : '';
+      const releaseRaw = mapping.Release ? String(r[mapping.Release] || '') : '';
       let release = '';
       if (releaseRaw) {
-          const releaseParts = releaseRaw.split(';').map(p => p.trim());
-          const mainRelease = releaseParts.find(p => p.toUpperCase().startsWith('O4R'));
-          if (mainRelease) {
-            release = mainRelease.toUpperCase().replace(/[^A-Z0-9]/g, '');
+          const releaseParts = releaseRaw.split(';').map(p => p.trim().toUpperCase());
+          const knownReleases = ['O4R1', 'O4R2', 'O4R3', 'BAF', 'BAF-QW', 'CEM', 'CEM-R1', 'CEM-R2'];
+          const matched = releaseParts.find(p => knownReleases.includes(p));
+          if (matched) {
+            release = matched;
           } else {
-            const backup = releaseParts[0].toUpperCase();
-            if (['BAF', 'CEM'].includes(backup)) release = backup;
+            const o4rMatch = releaseParts.find(p => p.startsWith('O4R'));
+            if (o4rMatch) {
+              release = o4rMatch.replace(/[^A-Z0-9]/g, '');
+            } else if (releaseParts[0]) {
+              release = releaseParts[0];
+            }
           }
       }
 
@@ -237,6 +234,16 @@ async function processLocalCsv() {
         resolved = updated;
       }
 
+      let leadTime: number | null = null;
+      if (statusCategory === 'DONE' && created && resolved) {
+        const createdDate = new Date(created);
+        const resolvedDate = new Date(resolved);
+        if (!isNaN(createdDate.getTime()) && !isNaN(resolvedDate.getTime())) {
+          const diffTime = resolvedDate.getTime() - createdDate.getTime();
+          leadTime = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+        }
+      }
+
       return {
         Type: mapping.Type ? r[mapping.Type] : 'Unknown',
         Key: key || 'Unknown',
@@ -248,9 +255,10 @@ async function processLocalCsv() {
         Resolved: resolved,
         UpdatedAt: updated || created,
         Release: release || 'OUTROS',
+        LeadTime: leadTime,
         Source: 'excel'
       };
-    }).filter((j: any) => j.Key && j.Key !== 'Unknown');
+    }).filter(j => j.Key && j.Key !== 'Unknown');
 
     fs.writeFileSync(DATA_FILE, JSON.stringify(jiraData, null, 4));
     console.log(`✨ Dashboard atualizado com sucesso!`);

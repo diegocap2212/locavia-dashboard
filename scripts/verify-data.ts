@@ -22,16 +22,13 @@ async function verifyData() {
   console.log(`Potal de linhas no CSV: ${csvRecords.length}`);
   console.log(`Total de itens no JSON: ${jsonData.length}`);
 
-  const csvKeys = new Set(csvRecords.map((r: any) => Object.values(r)[1])); // Assuming 2nd col is Key (Chave)
-  // Wait, better to find the key column
+  // Find the key column
   const headers = Object.keys(csvRecords[0]);
   const keyCol = headers.find(h => h.toLowerCase().includes('chave'));
-  const statusCol = headers.find(h => h.toLowerCase().includes('status'));
-  const teamCol = headers.find(h => h.toLowerCase().includes('time') || h.toLowerCase().includes('equipe'));
 
   console.log('\n--- Estatísticas de Qualidade ---');
   if (keyCol) {
-      const validCsvItems = csvRecords.filter((r: any) => r[keyCol] && !String(r[keyCol]).toLowerCase().includes('unknown'));
+      const validCsvItems = csvRecords.filter((r: Record<string, string | null | undefined>) => r[keyCol] && !String(r[keyCol]).toLowerCase().includes('unknown'));
       console.log(`Itens válidos no CSV (com Chave): ${validCsvItems.length}`);
       
       if (validCsvItems.length !== jsonData.length) {
@@ -41,22 +38,28 @@ async function verifyData() {
       }
   }
 
-  const itemsMissingTeam = jsonData.filter((i: any) => !i.Team);
-  const itemsMissingStatus = jsonData.filter((i: any) => !i.Status || i.Status === 'UNKNOWN');
+  interface VerifyItem {
+    Team?: string;
+    Status?: string;
+    StatusCategory?: string;
+  }
+
+  const itemsMissingTeam = (jsonData as VerifyItem[]).filter((i) => !i.Team);
+  const itemsMissingStatus = (jsonData as VerifyItem[]).filter((i) => !i.Status || i.Status === 'UNKNOWN');
 
   if (itemsMissingTeam.length > 0) console.warn(`⚠️ ${itemsMissingTeam.length} itens sem Time.`);
   if (itemsMissingStatus.length > 0) console.error(`❌ ${itemsMissingStatus.length} itens com Status desconhecido.`);
 
   console.log('\n--- Resumo por Time (Itens Concluídos) ---');
-  const teams = Array.from(new Set(jsonData.map((i: any) => i.Team))).filter(Boolean).sort();
+  const teams = Array.from(new Set((jsonData as VerifyItem[]).map((i) => i.Team))).filter((t): t is string => !!t).sort();
   
   teams.forEach(team => {
-      const teamItems = jsonData.filter((i: any) => i.Team === team);
-      const doneItems = teamItems.filter((i: any) => i.StatusCategory === 'DONE');
+      const teamItems = (jsonData as VerifyItem[]).filter((i) => i.Team === team);
+      const doneItems = teamItems.filter((i) => i.StatusCategory === 'DONE');
       console.log(`Team [${String(team).padEnd(15)}]: ${doneItems.length} Concluídos / ${teamItems.length} Total`);
   });
 
-  const allDone = jsonData.filter((i: any) => i.StatusCategory === 'DONE').length;
+  const allDone = (jsonData as VerifyItem[]).filter((i) => i.StatusCategory === 'DONE').length;
   console.log(`\n🏆 TOTAL GERAL CONCLUÍDOS: ${allDone}`);
 }
 

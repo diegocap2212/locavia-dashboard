@@ -9,12 +9,23 @@ interface Props {
   data: WeeklyFlowDataPoint[];
 }
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    name: string;
+    value: number | null;
+    color: string;
+    dataKey: string;
+  }>;
+  label?: string;
+}
+
+const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   if (!active || !payload?.length) return null;
   return (
     <div className="bg-white p-4 rounded-xl shadow-lg border border-slate-200 min-w-[200px]">
       <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-2">Semana {label}</p>
-      {payload.map((entry: any) => (
+      {payload.map((entry) => (
         <div key={entry.dataKey} className="flex justify-between items-center py-0.5">
           <span className="flex items-center gap-2 text-sm text-slate-600">
             <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ background: entry.color }} />
@@ -39,7 +50,6 @@ export const WeeklyFlowTrendChart: React.FC<Props> = ({ data }) => {
     'Spike': d.byType['Spike'] || 0,
     'Outros': d.byType['Outros'] || 0,
     'Lead Time': d.leadTimeAvg,
-    'Cycle Time': d.cycleTimeAvg,
   }));
 
   if (chartData.length === 0) {
@@ -76,9 +86,6 @@ export const WeeklyFlowTrendChart: React.FC<Props> = ({ data }) => {
 
           <Line yAxisId="right" type="monotone" dataKey="Lead Time" stroke="#F59E0B"
             strokeWidth={2.5} dot={{ r: 3, fill: '#F59E0B', strokeWidth: 0 }}
-            activeDot={{ r: 5, strokeWidth: 2, stroke: 'white' }} connectNulls />
-          <Line yAxisId="right" type="monotone" dataKey="Cycle Time" stroke="#06B6D4"
-            strokeWidth={2.5} dot={{ r: 3, fill: '#06B6D4', strokeWidth: 0 }}
             activeDot={{ r: 5, strokeWidth: 2, stroke: 'white' }} connectNulls />
         </ComposedChart>
       </ResponsiveContainer>

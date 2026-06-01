@@ -1,10 +1,36 @@
 import React, { useMemo, useState } from 'react';
-import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ZAxis } from 'recharts';
+import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ZAxis } from 'recharts';
 import type { DashboardItem } from '../types/jira';
 
 interface Props {
   items: DashboardItem[];
 }
+
+interface TooltipPayload {
+  payload: {
+    id: string;
+    summary: string;
+    tipo: string;
+    dias: number;
+  };
+  fill?: string;
+}
+
+const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: TooltipPayload[] }) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    return (
+      <div className="bg-white p-3 border border-slate-200 shadow-lg rounded-lg max-w-xs">
+        <p className="font-bold text-slate-800 text-xs mb-1">{data.id}</p>
+        <p className="text-slate-600 text-xs mb-2 line-clamp-2">{data.summary}</p>
+        <p className="font-semibold" style={{ color: payload[0].fill }}>
+          {data.tipo}: {data.dias} dias
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
 
 export const LeadTimeCycleTimeScatter: React.FC<Props> = ({ items }) => {
   const [filterWeek, setFilterWeek] = useState<string>('ALL');
@@ -43,42 +69,14 @@ export const LeadTimeCycleTimeScatter: React.FC<Props> = ({ items }) => {
   }, [doneItems, filterWeek]);
 
   const chartData = useMemo(() => {
-    // Precisamos formatar os dados para o Recharts
-    // O ScatterChart precisa de arrays separados para mapear cor
-    const ltData = filteredItems.map((item, index) => ({
+    return filteredItems.map((item, index) => ({
       id: item.Key,
       summary: item.Summary,
       index: index + 1,
       dias: item.LeadTime || 0,
       tipo: 'Lead Time'
     }));
-
-    const ctData = filteredItems.filter(i => i.CycleTime !== null).map((item, index) => ({
-      id: item.Key,
-      summary: item.Summary,
-      index: index + 1, // Alinha no mesmo X 
-      dias: item.CycleTime || 0,
-      tipo: 'Cycle Time'
-    }));
-
-    return { ltData, ctData };
   }, [filteredItems]);
-
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      return (
-        <div className="bg-white p-3 border border-slate-200 shadow-lg rounded-lg max-w-xs">
-          <p className="font-bold text-slate-800 text-xs mb-1">{data.id}</p>
-          <p className="text-slate-600 text-xs mb-2 line-clamp-2">{data.summary}</p>
-          <p className="font-semibold" style={{ color: payload[0].fill }}>
-            {data.tipo}: {data.dias} dias
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
 
   if (doneItems.length === 0) {
     return <div className="h-[350px] w-full flex items-center justify-center text-slate-400">Sem dados para análise</div>;
@@ -107,10 +105,8 @@ export const LeadTimeCycleTimeScatter: React.FC<Props> = ({ items }) => {
             <YAxis type="number" dataKey="dias" name="Dias" axisLine={false} tickLine={false} tick={{fill: '#64748B'}} />
             <ZAxis range={[60, 60]} />
             <Tooltip content={<CustomTooltip />} cursor={{strokeDasharray: '3 3'}} />
-            <Legend wrapperStyle={{paddingTop: '10px'}} />
             
-            <Scatter name="Lead Time" data={chartData.ltData} fill="#94A3B8" opacity={0.6} />
-            <Scatter name="Cycle Time" data={chartData.ctData} fill="#3B82F6" opacity={0.8} />
+            <Scatter name="Lead Time" data={chartData} fill="#3B82F6" opacity={0.8} />
           </ScatterChart>
         </ResponsiveContainer>
       </div>

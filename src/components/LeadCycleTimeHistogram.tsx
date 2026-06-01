@@ -15,7 +15,15 @@ interface Props {
 
 const BUCKET_COLORS = ['#10B981', '#34D399', '#FBBF24', '#F59E0B', '#F97316', '#EF4444'];
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    value: number;
+  }>;
+  label?: string;
+}
+
+const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   if (!active || !payload?.length) return null;
   return (
     <div className="bg-white p-3 rounded-xl shadow-lg border border-slate-200">
@@ -28,7 +36,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   );
 };
 
-export const LeadCycleTimeHistogram: React.FC<Props> = ({ leadTimeData }) => {
+export const LeadTimeHistogram: React.FC<Props> = ({ leadTimeData }) => {
   const hasData = leadTimeData.some(d => d.count > 0);
   if (!hasData) {
     return (

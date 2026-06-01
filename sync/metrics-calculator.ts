@@ -54,14 +54,6 @@ export function calculateMetrics(item: DashboardItem, rawIssue: JiraApiIssue): D
       finalDoneDate = item.Resolved ? new Date(item.Resolved) : new Date(item.UpdatedAt);
     }
     
-    if (firstInProgressDate && finalDoneDate && finalDoneDate >= firstInProgressDate) {
-      const diffTime = finalDoneDate.getTime() - firstInProgressDate.getTime();
-      item.CycleTime = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    } else if (firstInProgressDate && item.StatusCategory === 'IN_PROGRESS') {
-      const diffTime = new Date().getTime() - firstInProgressDate.getTime();
-      item.CycleTime = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    }
-    
     if (firstInProgressDate && item.Created) {
        const createdDate = new Date(item.Created);
        if (firstInProgressDate > createdDate) {
@@ -98,8 +90,7 @@ export function calculateMetrics(item: DashboardItem, rawIssue: JiraApiIssue): D
     noStatusTransitions: (!rawIssue.changelog || !rawIssue.changelog.histories || rawIssue.changelog.histories.length === 0) && item.StatusCategory !== 'TODO',
     noSprint: false,
     staleTodo: item.StatusCategory === 'TODO' && untouchedDays > 30,
-    suspiciouslyLongLead: (item.LeadTime || 0) > 180,
-    doneWithoutCycleData: item.StatusCategory === 'DONE' && item.CycleTime === null
+    suspiciouslyLongLead: (item.LeadTime || 0) > 180
   };
   
   return item;
