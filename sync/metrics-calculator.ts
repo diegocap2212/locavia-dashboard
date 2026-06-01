@@ -2,14 +2,16 @@ import { DashboardItem, JiraApiIssue } from '../src/types/jira';
 
 const IN_PROGRESS = [
   'in progress', 'em andamento', 'em desenvolvimento', 'developing', 
-  'em execução', 'doing', 'em progresso', 'em teste', 'em refinamento',
-  'code review em progresso', 'qa em progresso'
+  'em execução', 'doing', 'em progresso', 'em refinamento',
+  'code review em progresso'
 ];
   
 const DONE_STATUSES = [
   'concluido', 'concluído', 'done', 'resolvido', 'finalizado', 
   'entregue', 'fechado', 'desenv concluido', 'desenv concluído',
-  'teste concluido'
+  'teste concluido', 'entrega finalizada', 'aguardando qa', 'qa em progresso',
+  'em teste', 'aguardando teste', 'aguardando deploy qa', 'aguardando deploy prod',
+  'aguardando homolog', 'homolog em progresso'
 ];
 
 export function calculateMetrics(item: DashboardItem, rawIssue: JiraApiIssue): DashboardItem {
@@ -30,18 +32,25 @@ export function calculateMetrics(item: DashboardItem, rawIssue: JiraApiIssue): D
       for (const historyItem of history.items) {
         if (historyItem.field === 'status') {
           const toString = (historyItem.toString || '').toLowerCase();
+          const isDone = DONE_STATUSES.some(s => toString === s || toString.includes(s));
           
-          if (!firstInProgressDate && IN_PROGRESS.some(s => toString.includes(s))) {
-            firstInProgressDate = new Date(history.created);
-          }
-          if (DONE_STATUSES.some(s => toString.includes(s))) {
-            finalDoneDate = new Date(history.created);
+          if (isDone) {
+            if (!finalDoneDate) {
+              finalDoneDate = new Date(history.created);
+            }
+          } else {
+            finalDoneDate = null;
+            if (!firstInProgressDate && IN_PROGRESS.some(s => toString.includes(s))) {
+              firstInProgressDate = new Date(history.created);
+            }
           }
         }
       }
     }
     
-    if (!finalDoneDate && item.StatusCategory === 'DONE') {
+    if (finalDoneDate) {
+      item.Resolved = finalDoneDate.toISOString();
+    } else if (!finalDoneDate && item.StatusCategory === 'DONE') {
       finalDoneDate = item.Resolved ? new Date(item.Resolved) : new Date(item.UpdatedAt);
     }
     
@@ -61,6 +70,10 @@ export function calculateMetrics(item: DashboardItem, rawIssue: JiraApiIssue): D
            item.TimeInTodo = 0;
        }
     }
+  }
+
+  if (item.StatusCategory === 'DONE' && !item.Resolved) {
+    item.Resolved = item.UpdatedAt;
   }
 
   // 3. Raw LeadTime (Created to Resolved)

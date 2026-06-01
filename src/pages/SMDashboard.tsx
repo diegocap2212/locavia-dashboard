@@ -7,6 +7,10 @@ import { WeeklyThroughputChart } from '../components/WeeklyThroughputChart';
 import { LeadTimeCycleTimeScatter } from '../components/LeadTimeCycleTimeScatter';
 import { ConeWeeklyTable } from '../components/ConeWeeklyTable';
 import { DataQualityPanel } from '../components/DataQualityPanel';
+import { WeeklyFlowTrendChart } from '../components/WeeklyFlowTrendChart';
+import { IssueTypeDonut } from '../components/IssueTypeDonut';
+import { FlowBalanceChart } from '../components/FlowBalanceChart';
+import { LeadCycleTimeHistogram } from '../components/LeadCycleTimeHistogram';
 import { CheckCircle2, Clock, Zap, Activity, Layers, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -17,8 +21,9 @@ interface Props {
 export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
   const [selectedTeam, setSelectedTeam] = useState<string>('ALL');
   const [daysAgo, setDaysAgo] = useState<number>(60);
+  const [selectedRelease, setSelectedRelease] = useState<string>('ALL');
   
-  const { data, loading, error } = useSMDashboardData(smConfig, selectedTeam, daysAgo);
+  const { data, loading, error, availableReleases } = useSMDashboardData(smConfig, selectedTeam, daysAgo, selectedRelease);
 
   if (loading) {
     return (
@@ -41,7 +46,7 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
     );
   }
 
-  const { items, kpis, weeks } = data;
+  const { items, kpis, weeks, weeklyFlowData, issueTypeBreakdown, leadTimeHistogram } = data;
   const lastSyncDate = items.length > 0 ? items[0].UpdatedAt : new Date().toISOString();
 
   return (
@@ -64,7 +69,7 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
           {/* Team Tabs */}
           <div className="flex bg-white rounded-lg p-1 border border-slate-200 shadow-sm overflow-x-auto">
             <button
-              onClick={() => setSelectedTeam('ALL')}
+              onClick={() => { setSelectedTeam('ALL'); setSelectedRelease('ALL'); }}
               className={`px-4 py-2 text-sm font-medium rounded-md transition-colors whitespace-nowrap ${
                 selectedTeam === 'ALL' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
               }`}
@@ -74,7 +79,7 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
             {smConfig.teams.map(t => (
               <button
                 key={t.carCode}
-                onClick={() => setSelectedTeam(t.carCode)}
+                onClick={() => { setSelectedTeam(t.carCode); setSelectedRelease('ALL'); }}
                 className={`px-4 py-2 text-sm font-medium rounded-md transition-colors whitespace-nowrap ${
                   selectedTeam === t.carCode ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                 }`}
@@ -83,6 +88,23 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
               </button>
             ))}
           </div>
+
+          {/* Release Filter */}
+          {availableReleases && availableReleases.length > 1 && (
+            <div className="flex bg-white rounded-lg p-1 border border-slate-200 shadow-sm shrink-0">
+              <select 
+                className="bg-transparent border-none text-sm font-medium text-slate-700 py-2 pl-3 pr-8 focus:ring-0 cursor-pointer w-full outline-none"
+                value={selectedRelease}
+                onChange={(e) => setSelectedRelease(e.target.value)}
+              >
+                {availableReleases.map(rel => (
+                  <option key={rel} value={rel}>
+                    {rel === 'ALL' ? 'Todas as Releases' : `Release: ${rel}`}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {/* Days Filter */}
           <div className="flex bg-white rounded-lg p-1 border border-slate-200 shadow-sm shrink-0">
@@ -139,7 +161,30 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
         />
       </div>
 
-      {/* Main Charts */}
+      {/* ── ROW 1: Flow Trends + Issue Type Donut ── */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
+        <div className="xl:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col h-[450px]">
+          <h2 className="text-lg font-bold text-slate-800 mb-1 flex items-center">
+            <span className="text-amber-500 mr-2">⚡</span> Vazão & Tempos por Semana
+          </h2>
+          <p className="text-sm text-slate-500 mb-4">Throughput (barras por tipo) + Lead Time e Cycle Time (linhas)</p>
+          <div className="flex-1 min-h-0">
+            <WeeklyFlowTrendChart data={weeklyFlowData} />
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col h-[450px]">
+          <h2 className="text-lg font-bold text-slate-800 mb-1 flex items-center">
+            <span className="text-blue-500 mr-2">◉</span> Entrega por Tipo
+          </h2>
+          <p className="text-sm text-slate-500 mb-4">Distribuição das entregas no período</p>
+          <div className="flex-1 min-h-0">
+            <IssueTypeDonut data={issueTypeBreakdown} />
+          </div>
+        </div>
+      </div>
+
+      {/* ── ROW 2: Planejadas vs Realizadas + Throughput Semanal ── */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col h-[450px]">
           <h2 className="text-lg font-bold text-slate-800 mb-6 flex items-center">
@@ -158,21 +203,43 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
         </div>
       </div>
 
+      {/* ── ROW 3: Flow Balance + Scatter + Histogram ── */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
-        <div className="xl:col-span-1 bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col h-[450px]">
-          <h2 className="text-lg font-bold text-slate-800 mb-2">Lead Time & Cycle Time</h2>
-          <p className="text-sm text-slate-500 mb-6">Dispersão por entrega. Use o filtro para analisar semanas específicas.</p>
-          <div className="flex-1">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col h-[450px]">
+          <h2 className="text-lg font-bold text-slate-800 mb-1 flex items-center">
+            <span className="text-emerald-500 mr-2">⇅</span> Balanço do Fluxo
+          </h2>
+          <p className="text-sm text-slate-500 mb-4">Entradas vs Saídas (últimas 8 semanas)</p>
+          <div className="flex-1 min-h-0">
+            <FlowBalanceChart data={weeklyFlowData} />
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col h-[450px]">
+          <h2 className="text-lg font-bold text-slate-800 mb-1">Lead Time & Cycle Time</h2>
+          <p className="text-sm text-slate-500 mb-4">Dispersão por entrega</p>
+          <div className="flex-1 min-h-0">
             <LeadTimeCycleTimeScatter items={items} />
           </div>
         </div>
-        
-        <div className="xl:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col overflow-hidden">
-          <h2 className="text-lg font-bold text-slate-800 mb-2">Resumo Semanal (Metodologia CONE)</h2>
-          <p className="text-sm text-slate-500 mb-6">Acompanhamento de planejamento, transbordo e entregas semana a semana.</p>
-          <div className="flex-1 overflow-auto rounded-lg border border-slate-200">
-            <ConeWeeklyTable data={weeks} />
+
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col h-[450px]">
+          <h2 className="text-lg font-bold text-slate-800 mb-1 flex items-center">
+            <span className="text-cyan-500 mr-2">📊</span> Distribuição Lead Time
+          </h2>
+          <p className="text-sm text-slate-500 mb-4">Histograma de dispersão do Lead Time</p>
+          <div className="flex-1 min-h-0">
+            <LeadCycleTimeHistogram leadTimeData={leadTimeHistogram} />
           </div>
+        </div>
+      </div>
+
+      {/* ── ROW 4: CONE Table ── */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col overflow-hidden mb-8">
+        <h2 className="text-lg font-bold text-slate-800 mb-2">Resumo Semanal (Metodologia CONE)</h2>
+        <p className="text-sm text-slate-500 mb-6">Acompanhamento de planejamento, transbordo e entregas semana a semana.</p>
+        <div className="flex-1 overflow-auto rounded-lg border border-slate-200">
+          <ConeWeeklyTable data={weeks} />
         </div>
       </div>
 

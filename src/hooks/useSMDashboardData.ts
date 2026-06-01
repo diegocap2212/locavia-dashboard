@@ -26,6 +26,18 @@ export interface WeeklyConeMetrics {
   cycleTimeMed: number | null;
 }
 
+export interface WeeklyFlowDataPoint {
+  weekLabel: string;
+  weekStart: Date;
+  throughput: number;
+  byType: Record<string, number>;
+  leadTimeAvg: number | null;
+  cycleTimeAvg: number | null;
+  entradas: number;
+  saidas: number;
+  saldo: number;
+}
+
 function percentile(sorted: number[], p: number): number | null {
   if (sorted.length === 0) return null;
   const idx = (sorted.length - 1) * p;
@@ -33,7 +45,7 @@ function percentile(sorted: number[], p: number): number | null {
   return sorted[lo] + (sorted[hi] - sorted[lo]) * (idx - lo);
 }
 
-export function useSMDashboardData(smConfig: SMConfig, selectedTeamId: string, daysAgo: number = 60) {
+export function useSMDashboardData(smConfig: SMConfig, selectedTeamId: string, daysAgo: number = 60, selectedRelease: string = 'ALL') {
   const [rawData, setRawData] = useState<DashboardItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -49,6 +61,26 @@ export function useSMDashboardData(smConfig: SMConfig, selectedTeamId: string, d
     }
   }, []);
 
+  const availableReleases = useMemo(() => {
+    if (!rawData.length) return [];
+    const teamsToInclude = selectedTeamId === 'ALL' 
+      ? smConfig.teams 
+      : smConfig.teams.filter(t => t.carCode === selectedTeamId);
+    
+    const teamItems = rawData.filter(item => {
+      const itemTeamUpper = (item.Team || '').toUpperCase();
+      return teamsToInclude.some(t => 
+        t.teamFieldValues.some(val => {
+          const valUpper = val.toUpperCase();
+          return itemTeamUpper.includes(valUpper) || valUpper.includes(itemTeamUpper);
+        }) || 
+        t.keyPrefixes.some(prefix => item.Key.startsWith(prefix))
+      );
+    });
+    const releases = teamItems.map(i => i.Release).filter(Boolean);
+    return ['ALL', ...new Set(releases)].sort();
+  }, [rawData, smConfig, selectedTeamId]);
+
   const data = useMemo(() => {
     if (!rawData.length) return null;
 
@@ -59,8 +91,12 @@ export function useSMDashboardData(smConfig: SMConfig, selectedTeamId: string, d
 
     const filteredItems = rawData.filter(item => {
       // Logic from mapJiraIssueToDashboardItem ensures Team/Prefix is populated
+      const itemTeamUpper = (item.Team || '').toUpperCase();
       return teamsToInclude.some(t => 
-        t.teamFieldValues.includes(item.Team) || 
+        t.teamFieldValues.some(val => {
+          const valUpper = val.toUpperCase();
+          return itemTeamUpper.includes(valUpper) || valUpper.includes(itemTeamUpper);
+        }) || 
         t.keyPrefixes.some(prefix => item.Key.startsWith(prefix))
       );
     });
@@ -68,8 +104,13 @@ export function useSMDashboardData(smConfig: SMConfig, selectedTeamId: string, d
     const now = new Date();
     const periodStart = subDays(now, daysAgo);
 
+    // Filter to issues matching selected release
+    const releaseFilteredItems = filteredItems.filter(item => {
+      return selectedRelease === 'ALL' || item.Release === selectedRelease;
+    });
+
     // Filter to issues relevant to the period (created or updated or resolved in period)
-    const activeItems = filteredItems.filter(item => {
+    const activeItems = releaseFilteredItems.filter(item => {
       const created = parseDate(item.Created);
       const updated = parseDate(item.UpdatedAt);
       return created >= periodStart || updated >= periodStart;
@@ -99,7 +140,7 @@ export function useSMDashboardData(smConfig: SMConfig, selectedTeamId: string, d
 
       activeItems.forEach(item => {
         const created = parseDate(item.Created);
-        const resolved = item.Resolved ? parseDate(item.Resolved) : null;
+        const resolved = (item.Resolved ? parseDate(item.Resolved) : null) || (item.StatusCategory === 'DONE' && item.UpdatedAt ? parseDate(item.UpdatedAt) : null);
         const commit = item.CommitmentDate ? parseDate(item.CommitmentDate) : null;
         
         const isCreatedInWeek = isWithinInterval(created, { start: currStart, end: currEnd });
@@ -184,9 +225,96 @@ export function useSMDashboardData(smConfig: SMConfig, selectedTeamId: string, d
     const leadTimeP15 = percentile(sortedLeadTimes, 0.15);
     const cycleTimeMedian = percentile(sortedCycleTimes, 0.50);
 
+    // ── Weekly Flow Data (for new charts) ──
+    const normalizeType = (t: string): string => {
+      const lower = t.toLowerCase();
+      if (['story', 'história', 'historia'].includes(lower)) return 'História';
+      if (['bug', 'defeito'].includes(lower)) return 'Bug';
+      if (['task', 'tarefa'].includes(lower)) return 'Tarefa';
+      if (lower === 'spike') return 'Spike';
+      return 'Outros';
+    };
+
+    const weeklyFlowData: WeeklyFlowDataPoint[] = weeks.map(w => {
+      const wStart = w.weekStart;
+      const wEnd = endOfWeek(wStart, { weekStartsOn: 1 });
+
+      // Items resolved this week (DONE)
+      const resolvedThisWeek = activeItems.filter(item => {
+        const resolved = (item.Resolved ? parseDate(item.Resolved) : null) || (item.StatusCategory === 'DONE' && item.UpdatedAt ? parseDate(item.UpdatedAt) : null);
+        return item.StatusCategory === 'DONE' && resolved && isWithinInterval(resolved, { start: wStart, end: wEnd });
+      });
+
+      // Items created this week
+      const createdThisWeek = activeItems.filter(item => {
+        const created = parseDate(item.Created);
+        return isWithinInterval(created, { start: wStart, end: wEnd });
+      });
+
+      // By type breakdown
+      const byType: Record<string, number> = { 'História': 0, 'Bug': 0, 'Tarefa': 0, 'Spike': 0, 'Outros': 0 };
+      resolvedThisWeek.forEach(item => {
+        const nType = normalizeType(item.Type);
+        byType[nType] = (byType[nType] || 0) + 1;
+      });
+
+      // Lead/Cycle times for the week
+      const wLeadTimes = resolvedThisWeek.filter(i => i.LeadTime !== null).map(i => i.LeadTime as number);
+      const wCycleTimes = resolvedThisWeek.filter(i => i.CycleTime !== null).map(i => i.CycleTime as number);
+
+      return {
+        weekLabel: w.weekLabel,
+        weekStart: wStart,
+        throughput: resolvedThisWeek.length,
+        byType,
+        leadTimeAvg: wLeadTimes.length ? Math.round(wLeadTimes.reduce((a,b) => a+b, 0) / wLeadTimes.length) : null,
+        cycleTimeAvg: wCycleTimes.length ? Math.round(wCycleTimes.reduce((a,b) => a+b, 0) / wCycleTimes.length) : null,
+        entradas: createdThisWeek.length,
+        saidas: resolvedThisWeek.length,
+        saldo: createdThisWeek.length - resolvedThisWeek.length,
+      };
+    });
+
+    // ── Issue Type Breakdown (Donut) ──
+    const allDone = activeItems.filter(i => i.StatusCategory === 'DONE');
+    const issueTypeBreakdown: { name: string; value: number; color: string }[] = [];
+    const typeColors: Record<string, string> = {
+      'História': '#3B82F6', 'Bug': '#EF4444', 'Tarefa': '#10B981', 'Spike': '#8B5CF6', 'Outros': '#94A3B8'
+    };
+    const typeCounts: Record<string, number> = {};
+    allDone.forEach(i => {
+      const nType = normalizeType(i.Type);
+      typeCounts[nType] = (typeCounts[nType] || 0) + 1;
+    });
+    Object.entries(typeCounts).sort((a,b) => b[1]-a[1]).forEach(([name, value]) => {
+      issueTypeBreakdown.push({ name, value, color: typeColors[name] || '#94A3B8' });
+    });
+
+    // ── Lead Time & Cycle Time Histograms ──
+    const buckets = [
+      { label: '0-5d', min: 0, max: 5 },
+      { label: '6-10d', min: 6, max: 10 },
+      { label: '11-15d', min: 11, max: 15 },
+      { label: '16-20d', min: 16, max: 20 },
+      { label: '21-30d', min: 21, max: 30 },
+      { label: '31+d', min: 31, max: Infinity },
+    ];
+    const leadTimeHistogram = buckets.map(b => ({
+      range: b.label,
+      count: sortedLeadTimes.filter(v => v >= b.min && v <= b.max).length
+    }));
+    const cycleTimeHistogram = buckets.map(b => ({
+      range: b.label,
+      count: sortedCycleTimes.filter(v => v >= b.min && v <= b.max).length
+    }));
+
     return {
       items: activeItems,
       weeks,
+      weeklyFlowData,
+      issueTypeBreakdown,
+      leadTimeHistogram,
+      cycleTimeHistogram,
       kpis: {
         throughput,
         leadTimeAvg: leadTimeAvg ? Math.round(leadTimeAvg) : null,
@@ -203,7 +331,7 @@ export function useSMDashboardData(smConfig: SMConfig, selectedTeamId: string, d
         active: activeItems.length
       }
     };
-  }, [rawData, smConfig, selectedTeamId, daysAgo]);
+  }, [rawData, smConfig, selectedTeamId, daysAgo, selectedRelease]);
 
-  return { data, loading, error };
+  return { data, loading, error, availableReleases };
 }

@@ -46,7 +46,7 @@ export const SM_CONFIGS: SMConfig[] = [
     name: 'Ed',
     avatar: 'ED',
     teams: [
-      { carCode: 'SCANIA', displayName: 'Scania', teamFieldValues: ['SCANIA'], 
+      { carCode: 'SCANIA', displayName: 'Scania', teamFieldValues: ['SCANIA', 'SCANIA S 650'], 
         keyPrefixes: ['SCANIA'] },
       { carCode: 'PARATI', displayName: 'Parati', teamFieldValues: ['PARATI'], 
         keyPrefixes: ['PARATI'] },

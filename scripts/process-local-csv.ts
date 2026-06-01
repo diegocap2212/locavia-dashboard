@@ -121,6 +121,7 @@ async function processLocalCsv() {
       CustomTeam: mapHeaderKey(headers, ['Campo personalizado (Time)']),
       Created: mapHeaderKey(headers, ['Criado', 'Created']),
       Resolved: mapHeaderKey(headers, ['Resolvido', 'Resolved']),
+      Updated: mapHeaderKey(headers, ['Atualizado', 'Updated', 'Modificado', 'Modified']),
       Release: mapHeaderKey(headers, ['release'], true) || mapHeaderKey(headers, ['Versões', 'Fix Version', 'Release', 'Campo personalizado (Release)'])
     };
 
@@ -228,6 +229,14 @@ async function processLocalCsv() {
         statusCategory = 'IN_PROGRESS';
       }
 
+      const created = parseDateWithAutoDetect(r[mapping.Created || '']);
+      let resolved = parseDateWithAutoDetect(r[mapping.Resolved || '']);
+      const updated = (mapping.Updated ? parseDateWithAutoDetect(r[mapping.Updated]) : null) || resolved || created;
+
+      if (statusCategory === 'DONE' && !resolved) {
+        resolved = updated;
+      }
+
       return {
         Type: mapping.Type ? r[mapping.Type] : 'Unknown',
         Key: key || 'Unknown',
@@ -235,9 +244,11 @@ async function processLocalCsv() {
         Status: status,
         StatusCategory: statusCategory,
         Team: finalTeam,
-        Created: parseDateWithAutoDetect(r[mapping.Created || '']),
-        Resolved: parseDateWithAutoDetect(r[mapping.Resolved || '']),
-        Release: release || 'OUTROS'
+        Created: created,
+        Resolved: resolved,
+        UpdatedAt: updated || created,
+        Release: release || 'OUTROS',
+        Source: 'excel'
       };
     }).filter((j: any) => j.Key && j.Key !== 'Unknown');
 
