@@ -1,19 +1,21 @@
-import React, { useState, lazy, Suspense } from 'react';
+import React, { lazy, Suspense } from 'react';
 import { Routes, Route, useNavigate, useLocation, useParams } from 'react-router-dom';
 import { motion, type Variants } from 'framer-motion';
-import { 
+import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
   Bar, ComposedChart, Line, BarChart
 } from 'recharts';
 import {
-  Users, Activity, CheckCircle2, Clock, RefreshCw, ChevronDown,
-  Bell, Calendar, ShoppingCart, UserCircle, Download
+  Users, Activity, CheckCircle2, Clock, RefreshCw,
+  UserCircle, ShoppingCart, Download
 } from 'lucide-react';
 import { useDashboardData, excelToJSDate, formatDate } from './hooks/useDashboardData';
 import TemporalDeliveryMatrix from './components/TemporalDeliveryMatrix';
 import { SMDashboard } from './pages/SMDashboard';
 import { SM_CONFIGS } from './config/sm-config';
 import PresentationDeck from './pages/PresentationDeck';
+import { MultiSelect } from './components/MultiSelect';
+import { DateRangeFilter } from './components/DateRangeFilter';
 import { getComments, exportComments } from './services/commentsService';
 import './App.css';
 
@@ -30,178 +32,72 @@ const itemVariants: Variants = {
   show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
 };
 
-const MultiSelect: React.FC<{
-  label: string;
-  options: string[];
-  selected: string[];
-  onChange: (vals: string[]) => void;
-  allLabel: string;
-}> = ({ label, options, selected, onChange, allLabel }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  
-  const toggle = (val: string) => {
-    if (val === allLabel) {
-      onChange([allLabel]);
-    } else {
-      let next = selected.includes(allLabel) ? [] : [...selected];
-      if (next.includes(val)) next = next.filter(v => v !== val);
-      else next.push(val);
-      if (next.length === 0) next = [allLabel];
-      onChange(next);
-    }
-  };
-
-  return (
-    <div style={{ position: 'relative', minWidth: '220px' }}>
-      <button 
-        onClick={() => setIsOpen(!isOpen)}
-        className="filter-dropdown"
-      >
-        <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px', fontWeight: 600 }}>{label}</span>
-          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%', fontSize: '0.9rem', fontWeight: 500 }}>
-            {selected.includes(allLabel) ? `Todas (${options.length})` : 
-             (selected.length === 1 ? selected[0] : `${selected.length} selecionados`)}
-          </span>
+/* ──────────────────────────────────────────────
+   Shared Navigation Header — used by all views
+   ────────────────────────────────────────────── */
+const NavigationHeader: React.FC<{
+  activeView: ActiveView;
+  onTabChange: (view: ActiveView) => void;
+  rightSlot?: React.ReactNode;
+}> = ({ activeView, onTabChange, rightSlot }) => (
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 2rem', marginBottom: '1rem' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', opacity: 0.65 }}>
+        <span style={{ color: 'var(--text-muted)', fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>powered by</span>
+        <img src="/venice-logo.png" alt="Venice" style={{ height: '12px', objectFit: 'contain' }} />
+      </div>
+      {rightSlot}
+    </div>
+    <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <span style={{ fontSize: '0.62rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em', marginBottom: '4px' }}>Consolidado</span>
+        <div style={{ display: 'flex', gap: '0.25rem', background: 'white', borderRadius: '8px', padding: '3px', border: '1px solid var(--border-color)' }}>
+          <button onClick={() => onTabChange('locavia')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '5px 12px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, background: activeView === 'locavia' ? 'var(--primary)' : 'transparent', color: activeView === 'locavia' ? 'white' : 'var(--text-muted)', transition: 'all 0.15s' }}>
+            <Users size={12} /> Principal
+          </button>
+          <button onClick={() => onTabChange('bf-cem')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '5px 12px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, background: activeView === 'bf-cem' ? 'var(--primary)' : 'transparent', color: activeView === 'bf-cem' ? 'white' : 'var(--text-muted)', transition: 'all 0.15s' }}>
+            <ShoppingCart size={12} /> BF / CEM
+          </button>
         </div>
-        <ChevronDown size={18} style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', color: 'var(--text-muted)' }} />
-      </button>
-      
-      {isOpen && (
-        <>
-          <div onClick={() => setIsOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 40 }} />
-          <motion.div initial={{ opacity: 0, y: 10, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} className="premium-card" style={{ 
-            position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0, zIndex: 50,
-            maxHeight: '280px', overflowY: 'auto', padding: '0.5rem'
-          }}>
-            <div 
-              onClick={() => { toggle(allLabel); setIsOpen(false); }}
-              style={{ 
-                padding: '0.6rem 0.8rem', cursor: 'pointer', borderRadius: '8px', 
-                background: selected.includes(allLabel) ? 'var(--primary-light)' : 'transparent', 
-                display: 'flex', alignItems: 'center', marginBottom: '4px', fontSize: '0.9rem', fontWeight: selected.includes(allLabel) ? 600 : 500,
-                color: selected.includes(allLabel) ? 'var(--primary)' : 'var(--text-main)'
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <span style={{ fontSize: '0.62rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em', marginBottom: '4px' }}>Agilistas / SMs</span>
+        <div style={{ display: 'flex', gap: '0.25rem', background: 'white', borderRadius: '8px', padding: '3px', border: '1px solid var(--border-color)' }}>
+          {SM_CONFIGS.map(c => (
+            <button
+              key={c.id}
+              onClick={() => onTabChange(`sm-${c.id}` as ActiveView)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '6px', padding: '5px 12px', borderRadius: '6px', border: 'none', cursor: 'pointer',
+                fontSize: '0.8rem', fontWeight: 600,
+                background: activeView === `sm-${c.id}` ? 'var(--primary)' : 'transparent',
+                color: activeView === `sm-${c.id}` ? 'white' : 'var(--text-muted)',
+                transition: 'all 0.15s'
               }}
             >
-              <div style={{ width: '16px', height: '16px', border: selected.includes(allLabel) ? 'none' : '1px solid var(--border-color)', borderRadius: '4px', marginRight: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: selected.includes(allLabel) ? 'var(--primary)' : 'transparent' }}>
-                {selected.includes(allLabel) && <div style={{ width: '8px', height: '8px', background: 'white', borderRadius: '2px' }} />}
-              </div>
-              {allLabel === 'TODOS' ? 'Todos os Times' : 'Todas as Releases'}
-            </div>
-            <div style={{ height: '1px', background: 'var(--border-color)', margin: '4px 0', opacity: 0.5 }} />
-            {options.map(opt => (
-              <div 
-                key={opt}
-                onClick={() => toggle(opt)}
-                style={{ 
-                  padding: '0.6rem 0.8rem', cursor: 'pointer', borderRadius: '8px', 
-                  background: selected.includes(opt) ? 'var(--primary-light)' : 'transparent', 
-                  display: 'flex', alignItems: 'center', marginBottom: '2px', fontSize: '0.9rem', fontWeight: selected.includes(opt) ? 600 : 500,
-                  color: selected.includes(opt) ? 'var(--primary)' : 'var(--text-main)'
-                }}
-              >
-                <div style={{ width: '16px', height: '16px', border: selected.includes(opt) ? 'none' : '1px solid var(--border-color)', borderRadius: '4px', marginRight: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: selected.includes(opt) ? 'var(--primary)' : 'transparent' }}>
-                  {selected.includes(opt) && <div style={{ width: '8px', height: '8px', background: 'white', borderRadius: '2px' }} />}
-                </div>
-                {opt}
-              </div>
-            ))}
-          </motion.div>
-        </>
-      )}
-    </div>
-  );
-};
-
-const DateRangeFilter: React.FC<{
-  startDate: string;
-  endDate: string;
-  onStartDateChange: (val: string) => void;
-  onEndDateChange: (val: string) => void;
-}> = ({ startDate, endDate, onStartDateChange, onEndDateChange }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const formatDisplay = () => {
-    if (!startDate && !endDate) return "Todo o período";
-    const startStr = startDate ? new Date(startDate).toLocaleDateString('pt-BR') : 'Início';
-    const endStr = endDate ? new Date(endDate).toLocaleDateString('pt-BR') : 'Fim';
-    return `${startDate ? startStr : ''} - ${endDate ? endStr : ''}`.replace(/^- |- $/g, '').trim() || "Todo o período";
-  };
-
-  return (
-    <div style={{ position: 'relative', minWidth: '220px' }}>
-      <button 
-        onClick={() => setIsOpen(!isOpen)}
-        className="filter-dropdown"
-      >
-        <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px', fontWeight: 600 }}>Período</span>
-          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%', fontSize: '0.9rem', fontWeight: 500 }}>
-            {formatDisplay()}
-          </span>
+              <UserCircle size={12} /> {c.name}
+            </button>
+          ))}
         </div>
-        <Calendar size={18} style={{ color: 'var(--text-muted)' }} />
-      </button>
-      
-      {isOpen && (
-        <>
-          <div onClick={() => setIsOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 40 }} />
-          <motion.div initial={{ opacity: 0, y: 10, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} className="premium-card" style={{ 
-            position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0, zIndex: 50,
-            padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.8rem'
-          }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-main)' }}>Data Inicial</label>
-              <input 
-                type="date" 
-                value={startDate} 
-                onChange={(e) => onStartDateChange(e.target.value)}
-                style={{
-                  padding: '8px', borderRadius: '6px', border: '1px solid var(--border-color)',
-                  background: 'var(--bg-color)', color: 'var(--text-main)', fontSize: '0.9rem',
-                  outline: 'none', fontFamily: 'inherit'
-                }}
-              />
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-main)' }}>Data Final</label>
-              <input 
-                type="date" 
-                value={endDate} 
-                onChange={(e) => onEndDateChange(e.target.value)}
-                style={{
-                  padding: '8px', borderRadius: '6px', border: '1px solid var(--border-color)',
-                  background: 'var(--bg-color)', color: 'var(--text-main)', fontSize: '0.9rem',
-                  outline: 'none', fontFamily: 'inherit'
-                }}
-              />
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
-              <button 
-                onClick={() => { onStartDateChange(''); onEndDateChange(''); }}
-                style={{
-                  padding: '6px 12px', fontSize: '0.8rem', background: 'transparent', 
-                  border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontWeight: 600
-                }}
-              >
-                Limpar
-              </button>
-            </div>
-          </motion.div>
-        </>
-      )}
+      </div>
     </div>
-  );
-};
+  </div>
+);
 
+/* ──────────────────────────────────────────
+   SM Dashboard Wrapper
+   ────────────────────────────────────────── */
 const SMDashboardWrapper = () => {
   const { smId } = useParams();
   const navigate = useNavigate();
   const config = SM_CONFIGS.find(c => c.id === smId);
-  
+
   if (!config) {
     return <div className="p-8 text-center bg-slate-50 min-h-screen">SM não encontrado</div>;
   }
+
+  const activeView: ActiveView = `sm-${smId}` as ActiveView;
 
   const handleTabChange = (view: ActiveView) => {
     if (view === 'locavia') navigate('/');
@@ -212,66 +108,35 @@ const SMDashboardWrapper = () => {
   return (
     <div className="dashboard-content">
       <div style={{ padding: '1.5rem 0 0', backgroundColor: '#f8fafc' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 2rem', marginBottom: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', opacity: 0.65 }}>
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>powered by</span>
-              <img src="/venice-logo.png" alt="Venice" style={{ height: '12px', objectFit: 'contain' }} />
-            </div>
-            <button 
-              onClick={() => navigate(`/presentation/${smId}`)}
-              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'white', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-main)', transition: 'all 0.2s', boxShadow: 'var(--shadow-sm)' }}
-            >
-              <span>📺</span> Apresentação
-            </button>
-            <button 
-              onClick={() => exportComments(getComments())}
-              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'white', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', transition: 'all 0.2s', boxShadow: 'var(--shadow-sm)' }}
-            >
-              <Download size={13} /> Exportar Análises
-            </button>
-          </div>
-          <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: '0.62rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em', marginBottom: '4px' }}>Consolidado</span>
-              <div style={{ display: 'flex', gap: '0.25rem', background: 'white', borderRadius: '8px', padding: '3px', border: '1px solid var(--border-color)' }}>
-                <button onClick={() => handleTabChange('locavia')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '5px 12px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, background: 'transparent', color: 'var(--text-muted)', transition: 'all 0.15s' }}>
-                  <Users size={12} /> Principal
-                </button>
-                <button onClick={() => handleTabChange('bf-cem')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '5px 12px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, background: 'transparent', color: 'var(--text-muted)', transition: 'all 0.15s' }}>
-                  <ShoppingCart size={12} /> BF / CEM
-                </button>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: '0.62rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em', marginBottom: '4px' }}>Agilistas / SMs</span>
-              <div style={{ display: 'flex', gap: '0.25rem', background: 'white', borderRadius: '8px', padding: '3px', border: '1px solid var(--border-color)' }}>
-                {SM_CONFIGS.map(c => (
-                  <button 
-                    key={c.id} 
-                    onClick={() => handleTabChange(`sm-${c.id}` as ActiveView)} 
-                    style={{ 
-                      display: 'flex', alignItems: 'center', gap: '6px', padding: '5px 12px', borderRadius: '6px', border: 'none', cursor: 'pointer', 
-                      fontSize: '0.8rem', fontWeight: 600, 
-                      background: smId === c.id ? 'var(--primary)' : 'transparent', 
-                      color: smId === c.id ? 'white' : 'var(--text-muted)', 
-                      transition: 'all 0.15s' 
-                    }}
-                  >
-                    <UserCircle size={12} /> {c.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
+        <NavigationHeader
+          activeView={activeView}
+          onTabChange={handleTabChange}
+          rightSlot={
+            <>
+              <button
+                onClick={() => navigate(`/presentation/${smId}`)}
+                style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'white', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-main)', transition: 'all 0.2s', boxShadow: 'var(--shadow-sm)' }}
+              >
+                <span>📺</span> Apresentação
+              </button>
+              <button
+                onClick={() => exportComments(getComments())}
+                style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'white', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', transition: 'all 0.2s', boxShadow: 'var(--shadow-sm)' }}
+              >
+                <Download size={13} /> Exportar Análises
+              </button>
+            </>
+          }
+        />
         <SMDashboard smConfig={config} />
       </div>
     </div>
   );
 };
 
+/* ──────────────────────────────────────────
+   Main App
+   ────────────────────────────────────────── */
 const App: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -309,7 +174,7 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/presentation/:smId" element={<PresentationDeck />} />
         <Route path="/sm/:smId" element={<SMDashboardWrapper />} />
-        
+
         <Route path="/cone-bf-cem" element={
           <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}><RefreshCw className="animate-spin" size={32} color="var(--primary)" /></div>}>
             <div className="dashboard-wrapper">
@@ -365,25 +230,23 @@ const App: React.FC = () => {
               </div>
             </div>
           </div>
-          
+
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
             {activeView === 'locavia' && <div style={{ display: 'flex', gap: '1rem' }}>
               <MultiSelect label="Time" options={teams} selected={selectedTeams} onChange={setSelectedTeams} allLabel="TODOS" />
               <MultiSelect label="Release" options={releases} selected={selectedReleases} onChange={setSelectedReleases} allLabel="TODAS" />
-              <DateRangeFilter 
-                startDate={startDate} endDate={endDate} 
-                onStartDateChange={setStartDate} onEndDateChange={setEndDate} 
+              <DateRangeFilter
+                startDate={startDate} endDate={endDate}
+                onStartDateChange={setStartDate} onEndDateChange={setEndDate}
               />
             </div>}
-            
-            <div style={{ width: '1px', height: '40px', background: 'var(--border-color)' }}></div>
-            
-            <div className="user-profile">
-              <div className="notification-bell">
-                <Bell size={18} />
-              </div>
-              <div className="avatar">JD</div>
-            </div>
+
+            <button
+              onClick={() => navigate('/presentation/locavia')}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--surface-color)', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', transition: 'all 0.2s', boxShadow: 'var(--shadow-sm)' }}
+            >
+              <span>📺</span> Apresentação
+            </button>
           </div>
         </motion.header>
 
@@ -394,7 +257,7 @@ const App: React.FC = () => {
               <div className="icon-wrapper icon-blue"><Users size={20} /></div>
             </div>
             <div className="metric-value">{metrics.totalItems}</div>
-            <p className="metric-sub">Items na release atuante</p>
+            <p className="metric-sub">Itens no escopo ativo</p>
           </motion.div>
 
           <motion.div className="premium-card metric-card" variants={itemVariants}>
@@ -403,7 +266,7 @@ const App: React.FC = () => {
               <div className="icon-wrapper icon-green"><CheckCircle2 size={20} /></div>
             </div>
             <div className="metric-value">{metrics.deliveredCount}</div>
-            <p className="metric-sub">Produtividade liquidada</p>
+            <p className="metric-sub">Concluídas no período</p>
           </motion.div>
 
           <motion.div className="premium-card metric-card" variants={itemVariants}>
@@ -412,7 +275,7 @@ const App: React.FC = () => {
               <div className="icon-wrapper icon-orange"><Activity size={20} /></div>
             </div>
             <div className="metric-value">{metrics.wipCount}</div>
-            <p className="metric-sub">Sendo desenvolvidos</p>
+            <p className="metric-sub">Em desenvolvimento</p>
           </motion.div>
 
           <motion.div className="premium-card metric-card" variants={itemVariants}>
@@ -433,7 +296,7 @@ const App: React.FC = () => {
               <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--warning)' }}></div> Tendência</span>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--success)' }}></div> Melhor Caso</span>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--danger)' }}></div> Pior Caso</span>
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#a855f7' }}></div> V. Necessária</span>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#a855f7' }}></div> Vel. Necessária</span>
             </div>
           </div>
           <div style={{ width: '100%', height: 380 }}>
@@ -448,7 +311,7 @@ const App: React.FC = () => {
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
                 <XAxis dataKey="name" stroke="var(--text-muted)" tick={{fontSize: 12, fontWeight: 500}} dy={10} axisLine={false} tickLine={false} />
                 <YAxis stroke="var(--text-muted)" tick={{fontSize: 12, fontWeight: 500}} axisLine={false} tickLine={false} />
-                <Tooltip 
+                <Tooltip
                   contentStyle={{ backgroundColor: 'var(--surface-color)', border: '1px solid var(--border-color)', borderRadius: '12px', boxShadow: 'var(--shadow-lg)', padding: '12px' }}
                   itemStyle={{ fontSize: '13px', fontWeight: 600, padding: '2px 0' }}
                   labelStyle={{ color: 'var(--text-muted)', marginBottom: '8px', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase' }}
@@ -482,7 +345,7 @@ const App: React.FC = () => {
         <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1fr', gap: '1.5rem', marginTop: '1.5rem' }}>
           <motion.div className="premium-card chart-section" variants={itemVariants}>
             <div className="chart-header">
-              <h3 className="chart-title">Throughput Mensurado</h3>
+              <h3 className="chart-title">Throughput Semanal</h3>
             </div>
             <div style={{ width: '100%', height: 320 }}>
               <ResponsiveContainer>
@@ -505,7 +368,7 @@ const App: React.FC = () => {
 
           <motion.div className="premium-card chart-section" variants={itemVariants} style={{ display: 'flex', flexDirection: 'column' }}>
             <div className="chart-header">
-              <h3 className="chart-title">Balanço do Fluxo (Delta)</h3>
+              <h3 className="chart-title">Fluxo de Entrada vs Saída</h3>
             </div>
             <div style={{ flex: 1, minHeight: 180 }}>
               <ResponsiveContainer>
@@ -522,9 +385,9 @@ const App: React.FC = () => {
             </div>
             <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Saldo (Semana Atual):</span>
-              <span style={{ 
+              <span style={{
                 fontSize: '2rem', fontWeight: 800, letterSpacing: '-0.02em',
-                color: (weeklyPerformance?.[weeklyPerformance.length-1]?.Saldo || 0) > 0 ? 'var(--danger)' : 'var(--success)' 
+                color: (weeklyPerformance?.[weeklyPerformance.length-1]?.Saldo || 0) > 0 ? 'var(--danger)' : 'var(--success)'
               }}>
                 {(weeklyPerformance?.[weeklyPerformance.length-1]?.Saldo || 0) > 0 ? '+' : ''}{weeklyPerformance?.[weeklyPerformance.length-1]?.Saldo || 0}
               </span>

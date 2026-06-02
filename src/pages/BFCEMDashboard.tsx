@@ -6,11 +6,15 @@ import {
   Bar, ComposedChart, Line, BarChart, Legend
 } from 'recharts';
 import {
-  Users, Activity, CheckCircle2, Clock, ChevronDown, Calendar, BarChart2, ShoppingCart
+  Users, Activity, CheckCircle2, Clock, ShoppingCart, UserCircle, Download
 } from 'lucide-react';
 import { useDashboardData, excelToJSDate, formatDate } from '../hooks/useDashboardData';
 import TemporalDeliveryMatrix from '../components/TemporalDeliveryMatrix';
 import { MetricCommentEditor } from '../components/MetricCommentEditor';
+import { MultiSelect } from '../components/MultiSelect';
+import { DateRangeFilter } from '../components/DateRangeFilter';
+import { SM_CONFIGS } from '../config/sm-config';
+import { getComments, exportComments } from '../services/commentsService';
 import { getQuinzenas, getAutomaticActiveQuinzena, getQuinzenaById } from '../config/quinzenas';
 
 const itemVariants: Variants = {
@@ -22,100 +26,7 @@ const containerVariants: Variants = {
   show: { opacity: 1, transition: { staggerChildren: 0.1 } }
 };
 
-const MultiSelect: React.FC<{
-  label: string;
-  options: string[];
-  selected: string[];
-  onChange: (vals: string[]) => void;
-  allLabel: string;
-}> = ({ label, options, selected, onChange, allLabel }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const toggle = (val: string) => {
-    if (val === allLabel) { onChange([allLabel]); return; }
-    let next = selected.includes(allLabel) ? [] : [...selected];
-    if (next.includes(val)) next = next.filter(v => v !== val);
-    else next.push(val);
-    if (next.length === 0) next = [allLabel];
-    onChange(next);
-  };
-  return (
-    <div style={{ position: 'relative', minWidth: '200px' }}>
-      <button onClick={() => setIsOpen(!isOpen)} className="filter-dropdown">
-        <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px', fontWeight: 600 }}>{label}</span>
-          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '0.9rem', fontWeight: 500 }}>
-            {selected.includes(allLabel) ? `Todas (${options.length})` : selected.length === 1 ? selected[0] : `${selected.length} selecionados`}
-          </span>
-        </div>
-        <ChevronDown size={18} style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', color: 'var(--text-muted)' }} />
-      </button>
-      {isOpen && (
-        <>
-          <div onClick={() => setIsOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 40 }} />
-          <motion.div initial={{ opacity: 0, y: 10, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} className="premium-card" style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0, zIndex: 50, maxHeight: '280px', overflowY: 'auto', padding: '0.5rem' }}>
-            <div onClick={() => { toggle(allLabel); setIsOpen(false); }} style={{ padding: '0.6rem 0.8rem', cursor: 'pointer', borderRadius: '8px', background: selected.includes(allLabel) ? 'var(--primary-light)' : 'transparent', display: 'flex', alignItems: 'center', marginBottom: '4px', fontSize: '0.9rem', fontWeight: selected.includes(allLabel) ? 600 : 500, color: selected.includes(allLabel) ? 'var(--primary)' : 'var(--text-main)' }}>
-              <div style={{ width: '16px', height: '16px', border: selected.includes(allLabel) ? 'none' : '1px solid var(--border-color)', borderRadius: '4px', marginRight: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: selected.includes(allLabel) ? 'var(--primary)' : 'transparent' }}>
-                {selected.includes(allLabel) && <div style={{ width: '8px', height: '8px', background: 'white', borderRadius: '2px' }} />}
-              </div>
-              {allLabel === 'TODOS' ? 'Todos os Times' : 'Todas as Releases'}
-            </div>
-            <div style={{ height: '1px', background: 'var(--border-color)', margin: '4px 0', opacity: 0.5 }} />
-            {options.map(opt => (
-              <div key={opt} onClick={() => toggle(opt)} style={{ padding: '0.6rem 0.8rem', cursor: 'pointer', borderRadius: '8px', background: selected.includes(opt) ? 'var(--primary-light)' : 'transparent', display: 'flex', alignItems: 'center', marginBottom: '2px', fontSize: '0.9rem', fontWeight: selected.includes(opt) ? 600 : 500, color: selected.includes(opt) ? 'var(--primary)' : 'var(--text-main)' }}>
-                <div style={{ width: '16px', height: '16px', border: selected.includes(opt) ? 'none' : '1px solid var(--border-color)', borderRadius: '4px', marginRight: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: selected.includes(opt) ? 'var(--primary)' : 'transparent' }}>
-                  {selected.includes(opt) && <div style={{ width: '8px', height: '8px', background: 'white', borderRadius: '2px' }} />}
-                </div>
-                {opt}
-              </div>
-            ))}
-          </motion.div>
-        </>
-      )}
-    </div>
-  );
-};
-
-const DateRangeFilter: React.FC<{
-  startDate: string; endDate: string;
-  onStartDateChange: (v: string) => void; onEndDateChange: (v: string) => void;
-}> = ({ startDate, endDate, onStartDateChange, onEndDateChange }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const formatDisplay = () => {
-    if (!startDate && !endDate) return "Todo o período";
-    const s = startDate ? new Date(startDate).toLocaleDateString('pt-BR') : 'Início';
-    const e = endDate ? new Date(endDate).toLocaleDateString('pt-BR') : 'Fim';
-    return `${startDate ? s : ''} - ${endDate ? e : ''}`.replace(/^- |- $/g, '').trim() || "Todo o período";
-  };
-  return (
-    <div style={{ position: 'relative', minWidth: '200px' }}>
-      <button onClick={() => setIsOpen(!isOpen)} className="filter-dropdown">
-        <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px', fontWeight: 600 }}>Período</span>
-          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '0.9rem', fontWeight: 500 }}>{formatDisplay()}</span>
-        </div>
-        <Calendar size={18} style={{ color: 'var(--text-muted)' }} />
-      </button>
-      {isOpen && (
-        <>
-          <div onClick={() => setIsOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 40 }} />
-          <motion.div initial={{ opacity: 0, y: 10, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} className="premium-card" style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0, zIndex: 50, padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-main)' }}>Data Inicial</label>
-              <input type="date" value={startDate} onChange={e => onStartDateChange(e.target.value)} style={{ padding: '8px', borderRadius: '6px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-main)', fontSize: '0.9rem', outline: 'none', fontFamily: 'inherit' }} />
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-main)' }}>Data Final</label>
-              <input type="date" value={endDate} onChange={e => onEndDateChange(e.target.value)} style={{ padding: '8px', borderRadius: '6px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-main)', fontSize: '0.9rem', outline: 'none', fontFamily: 'inherit' }} />
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
-              <button onClick={() => { onStartDateChange(''); onEndDateChange(''); }} style={{ padding: '6px 12px', fontSize: '0.8rem', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontWeight: 600 }}>Limpar</button>
-            </div>
-          </motion.div>
-        </>
-      )}
-    </div>
-  );
-};
+type ActiveView = 'locavia' | 'bf-cem' | 'sm-gabriela' | 'sm-rafael' | 'sm-ed';
 
 const BFCEMDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -150,6 +61,12 @@ const BFCEMDashboard: React.FC = () => {
   const activeSquadId = selectedTeams.includes('TODOS') ? 'bf-cem' : selectedTeams.slice().sort().join(',');
   const activeReleaseId = selectedReleases.includes('TODAS') ? 'ALL' : selectedReleases.slice().sort().join(',');
 
+  const handleTabChange = (view: ActiveView) => {
+    if (view === 'locavia') navigate('/');
+    else if (view === 'bf-cem') navigate('/cone-bf-cem');
+    else navigate(`/sm/${view.replace('sm-', '')}`);
+  };
+
   return (
     <motion.main className="dashboard-content" variants={containerVariants} initial="hidden" animate="show">
       <motion.header className="header" variants={itemVariants}>
@@ -161,23 +78,36 @@ const BFCEMDashboard: React.FC = () => {
             <span style={{ color: 'var(--text-muted)', fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>powered by</span>
             <img src="/venice-logo.png" alt="Venice" style={{ height: '12px', objectFit: 'contain' }} />
           </div>
-          <div style={{ display: 'flex', gap: '0.5rem', background: 'var(--surface-color)', borderRadius: '10px', padding: '4px', border: '1px solid var(--border-color)', width: 'fit-content' }}>
-            <button onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 16px', borderRadius: '7px', border: 'none', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600, background: 'transparent', color: 'var(--text-muted)', transition: 'all 0.2s' }}>
-              <Users size={13} /> Locavia Principal
-            </button>
-            <button style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 16px', borderRadius: '7px', border: 'none', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600, background: 'var(--primary)', color: 'white', transition: 'all 0.2s' }}>
-              <ShoppingCart size={13} /> BF / CEM
-            </button>
-            <button onClick={() => navigate('/metrics_sfmkt')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 16px', borderRadius: '7px', border: 'none', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600, background: 'transparent', color: 'var(--text-muted)', transition: 'all 0.2s' }}>
-              <BarChart2 size={13} /> SFMKT Sprint
-            </button>
+          {/* Unified Navigation Tabs */}
+          <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{ fontSize: '0.62rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em', marginBottom: '4px' }}>Consolidado</span>
+              <div style={{ display: 'flex', gap: '0.25rem', background: 'var(--surface-color)', borderRadius: '8px', padding: '3px', border: '1px solid var(--border-color)' }}>
+                <button onClick={() => handleTabChange('locavia')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '5px 12px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, background: 'transparent', color: 'var(--text-muted)', transition: 'all 0.15s' }}>
+                  <Users size={12} /> Principal
+                </button>
+                <button style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '5px 12px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, background: 'var(--primary)', color: 'white', transition: 'all 0.15s' }}>
+                  <ShoppingCart size={12} /> BF / CEM
+                </button>
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{ fontSize: '0.62rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em', marginBottom: '4px' }}>Agilistas / SMs</span>
+              <div style={{ display: 'flex', gap: '0.25rem', background: 'var(--surface-color)', borderRadius: '8px', padding: '3px', border: '1px solid var(--border-color)' }}>
+                {SM_CONFIGS.map(c => (
+                  <button key={c.id} onClick={() => handleTabChange(`sm-${c.id}` as ActiveView)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '5px 12px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, background: 'transparent', color: 'var(--text-muted)', transition: 'all 0.15s' }}>
+                    <UserCircle size={12} /> {c.name}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
             <div style={{ display: 'flex', flexDirection: 'column', minWidth: '220px' }}>
-              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px', fontWeight: 600 }}>Apresentação / Quinzena</span>
+              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px', fontWeight: 600 }}>Quinzena</span>
               <select
                 value={selectedQuinzenaId}
                 onChange={e => setSelectedQuinzenaId(e.target.value)}
@@ -207,9 +137,21 @@ const BFCEMDashboard: React.FC = () => {
               <DateRangeFilter startDate={startDate} endDate={endDate} onStartDateChange={setStartDate} onEndDateChange={setEndDate} />
             )}
           </div>
-          
-          <div style={{ display: 'flex', gap: '6px' }}>
 
+          <button
+            onClick={() => navigate('/presentation/bf-cem')}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--surface-color)', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-main)', transition: 'all 0.2s', boxShadow: 'var(--shadow-sm)' }}
+          >
+            <span>📺</span> Apresentação
+          </button>
+          <button
+            onClick={() => exportComments(getComments())}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--surface-color)', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', transition: 'all 0.2s', boxShadow: 'var(--shadow-sm)' }}
+          >
+            <Download size={13} /> Exportar Análises
+          </button>
+
+          <div style={{ display: 'flex', gap: '6px' }}>
             {(['BAF', 'BAF-QW', 'CEM'] as const).map(r => (
               <span key={r} style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 700, background: releaseBadgeColor[r] + '22', color: releaseBadgeColor[r], border: `1px solid ${releaseBadgeColor[r]}44` }}>
                 {r}
@@ -227,7 +169,7 @@ const BFCEMDashboard: React.FC = () => {
             <div className="icon-wrapper icon-blue"><Users size={20} /></div>
           </div>
           <div className="metric-value">{metrics.totalItems}</div>
-          <p className="metric-sub">Itens BAF + CEM no cone</p>
+          <p className="metric-sub">Itens no escopo ativo</p>
         </motion.div>
 
         <motion.div className="premium-card metric-card" variants={itemVariants}>
@@ -236,7 +178,7 @@ const BFCEMDashboard: React.FC = () => {
             <div className="icon-wrapper icon-green"><CheckCircle2 size={20} /></div>
           </div>
           <div className="metric-value">{metrics.deliveredCount}</div>
-          <p className="metric-sub">Produtividade liquidada</p>
+          <p className="metric-sub">Concluídas no período</p>
         </motion.div>
 
         <motion.div className="premium-card metric-card" variants={itemVariants}>
@@ -245,7 +187,7 @@ const BFCEMDashboard: React.FC = () => {
             <div className="icon-wrapper icon-orange"><Activity size={20} /></div>
           </div>
           <div className="metric-value">{metrics.wipCount}</div>
-          <p className="metric-sub">Sendo desenvolvidos</p>
+          <p className="metric-sub">Em desenvolvimento</p>
         </motion.div>
 
         <motion.div className="premium-card metric-card" variants={itemVariants}>
@@ -267,7 +209,7 @@ const BFCEMDashboard: React.FC = () => {
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--warning)' }} /> Tendência</span>
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--success)' }} /> Melhor Caso</span>
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--danger)' }} /> Pior Caso</span>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#a855f7' }} /> V. Necessária</span>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#a855f7' }} /> Vel. Necessária</span>
           </div>
         </div>
         <div style={{ width: '100%', height: 380 }}>
@@ -306,7 +248,7 @@ const BFCEMDashboard: React.FC = () => {
       <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1fr', gap: '1.5rem', marginTop: '1.5rem' }}>
         <motion.div className="premium-card chart-section" variants={itemVariants}>
           <div className="chart-header">
-            <h3 className="chart-title">Throughput Mensurado</h3>
+            <h3 className="chart-title">Throughput Semanal</h3>
           </div>
           <div style={{ width: '100%', height: 320 }}>
             <ResponsiveContainer>
@@ -329,7 +271,7 @@ const BFCEMDashboard: React.FC = () => {
 
         <motion.div className="premium-card chart-section" variants={itemVariants} style={{ display: 'flex', flexDirection: 'column' }}>
           <div className="chart-header">
-            <h3 className="chart-title">Balanço do Fluxo (Delta)</h3>
+            <h3 className="chart-title">Fluxo de Entrada vs Saída</h3>
           </div>
           <div style={{ flex: 1, minHeight: 180 }}>
             <ResponsiveContainer>

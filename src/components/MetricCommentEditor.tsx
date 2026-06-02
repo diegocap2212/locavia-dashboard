@@ -139,7 +139,7 @@ export const MetricCommentEditor: React.FC<Props> = ({
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
           <div style={{ padding: '0.75rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.03)', border: '1px solid rgba(239, 68, 68, 0.08)' }}>
             <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#ef4444', textTransform: 'uppercase', display: 'block', marginBottom: '2px' }}>
-              🔴 O Diagnóstico (Gap)
+              🔴 Diagnóstico
             </span>
             <p style={{ fontSize: '0.82rem', color: 'var(--text-main)', margin: 0, lineHeight: 1.45 }}>
               {gap || <span style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>Nenhum diagnóstico registrado pelo Scrum Master para esta métrica.</span>}
@@ -147,7 +147,7 @@ export const MetricCommentEditor: React.FC<Props> = ({
           </div>
           <div style={{ padding: '0.75rem', borderRadius: '8px', background: 'rgba(16, 185, 129, 0.03)', border: '1px solid rgba(16, 185, 129, 0.08)' }}>
             <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#10b981', textTransform: 'uppercase', display: 'block', marginBottom: '2px' }}>
-              🟢 Plano de Ação (Solução)
+              🟢 Plano de Ação
             </span>
             <p style={{ fontSize: '0.82rem', color: 'var(--text-main)', margin: 0, lineHeight: 1.45 }}>
               {action || <span style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>Nenhum plano de ação registrado pelo Scrum Master para esta métrica.</span>}

@@ -160,7 +160,7 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
         <KPICard 
           title="Throughput" 
           value={kpis.throughput} 
-          subtext={`entregas em ${daysAgo} dias`}
+          subtext={`entregas no período`}
           icon={CheckCircle2}
           iconColorClass="text-emerald-500 bg-emerald-50"
         />
@@ -174,7 +174,7 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
         <KPICard 
           title="WIP" 
           value={kpis.wip} 
-          subtext="issues In Progress"
+          subtext="em andamento"
           icon={Activity}
           iconColorClass="text-amber-500 bg-amber-50"
         />
