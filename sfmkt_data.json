@@ -1,6 +1,36 @@
 {
   "items": [
     {
+      "key": "SFMKT-139",
+      "summary": "[Migração SalesCloud] Deploy da Estrutura AssineCar PF",
+      "type": "História",
+      "status": "EM DESENVOLVIMENTO",
+      "statusCategory": "IN_PROGRESS",
+      "assignee": "Izaque Bernardo",
+      "created": "2026-06-02T09:27:34.021-0300",
+      "resolved": null,
+      "sprint": "SFMKT-SP Sprint 16",
+      "sprintId": 20724,
+      "sprintState": "active",
+      "storyPoints": null,
+      "priority": "Medium",
+      "labels": [
+        "EVOLUÇÃO"
+      ],
+      "leadTimeDays": null,
+      "cycleTimeDays": null,
+      "timeInTodoDays": 0,
+      "dq": {
+        "missingResolutionDate": false,
+        "missingAssignee": false,
+        "noStatusTransitions": false,
+        "noSprint": false,
+        "staleTodo": false,
+        "suspiciouslyLongLead": false,
+        "doneWithoutCycleData": false
+      }
+    },
+    {
       "key": "SFMKT-138",
       "summary": "Elaborar o cronograma inicial de disparos para aquecimento de IP",
       "type": "Subtarefa",
@@ -2297,7 +2327,7 @@
       }
     }
   ],
-  "synced_at": "2026-06-02T09:57:33.587Z",
+  "synced_at": "2026-06-02T13:53:52.049Z",
   "project": "SFMKT",
-  "total_fetched": 82
+  "total_fetched": 83
 }
