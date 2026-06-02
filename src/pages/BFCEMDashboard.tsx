@@ -6,10 +6,12 @@ import {
   Bar, ComposedChart, Line, BarChart, Legend
 } from 'recharts';
 import {
-  Users, Activity, CheckCircle2, Clock, ChevronDown, Calendar, BarChart2, ShoppingCart
+  Users, Activity, CheckCircle2, Clock, ChevronDown, Calendar, BarChart2, ShoppingCart, Download
 } from 'lucide-react';
 import { useDashboardData, excelToJSDate, formatDate } from '../hooks/useDashboardData';
 import TemporalDeliveryMatrix from '../components/TemporalDeliveryMatrix';
+import { MetricCommentEditor } from '../components/MetricCommentEditor';
+import { getComments, exportComments } from '../services/commentsService';
 
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 15 },
@@ -133,6 +135,9 @@ const BFCEMDashboard: React.FC = () => {
     'CEM': '#06b6d4',
   };
 
+  const activeSquadId = selectedTeams.includes('TODOS') ? 'bf-cem' : selectedTeams.slice().sort().join(',');
+  const activeReleaseId = selectedReleases.includes('TODAS') ? 'ALL' : selectedReleases.slice().sort().join(',');
+
   return (
     <motion.main className="dashboard-content" variants={containerVariants} initial="hidden" animate="show">
       <motion.header className="header" variants={itemVariants}>
@@ -157,12 +162,27 @@ const BFCEMDashboard: React.FC = () => {
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
           <div style={{ display: 'flex', gap: '1rem' }}>
             <MultiSelect label="Time" options={teams} selected={selectedTeams} onChange={setSelectedTeams} allLabel="TODOS" />
             <MultiSelect label="Release" options={releases} selected={selectedReleases} onChange={setSelectedReleases} allLabel="TODAS" />
             <DateRangeFilter startDate={startDate} endDate={endDate} onStartDateChange={setStartDate} onEndDateChange={setEndDate} />
           </div>
+          
+          <button 
+            onClick={() => navigate('/presentation/bf-cem')}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--surface-color)', color: 'var(--text-main)', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', boxShadow: 'var(--shadow-sm)' }}
+          >
+            <span>📺</span> Apresentação
+          </button>
+          
+          <button 
+            onClick={() => exportComments(getComments())}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--surface-color)', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', boxShadow: 'var(--shadow-sm)' }}
+          >
+            <Download size={14} /> Exportar Análises
+          </button>
+          
           <div style={{ width: '1px', height: '40px', background: 'var(--border-color)' }} />
           <div style={{ display: 'flex', gap: '6px' }}>
             {(['BAF', 'BAF-QW', 'CEM'] as const).map(r => (
@@ -303,6 +323,33 @@ const BFCEMDashboard: React.FC = () => {
             </span>
           </div>
         </motion.div>
+      </div>
+
+      {/* Comentários Qualitativos */}
+      <div style={{ marginTop: '1.5rem' }}>
+        <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ color: 'var(--primary)' }}>💬</span> Análises e Planos de Ação (Agilistas)
+        </h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+          <MetricCommentEditor 
+            squadId={activeSquadId} 
+            releaseId={activeReleaseId} 
+            metricId="vazao" 
+            metricLabel="Throughput" 
+          />
+          <MetricCommentEditor 
+            squadId={activeSquadId} 
+            releaseId={activeReleaseId} 
+            metricId="leadTime" 
+            metricLabel="Lead Time" 
+          />
+          <MetricCommentEditor 
+            squadId={activeSquadId} 
+            releaseId={activeReleaseId} 
+            metricId="flowBalance" 
+            metricLabel="Balanço do Fluxo" 
+          />
+        </div>
       </div>
 
       {/* Recent Items Table */}

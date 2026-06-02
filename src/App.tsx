@@ -7,12 +7,14 @@ import {
 } from 'recharts';
 import {
   Users, Activity, CheckCircle2, Clock, RefreshCw, ChevronDown,
-  Bell, Calendar, ShoppingCart, UserCircle
+  Bell, Calendar, ShoppingCart, UserCircle, Download
 } from 'lucide-react';
 import { useDashboardData, excelToJSDate, formatDate } from './hooks/useDashboardData';
 import TemporalDeliveryMatrix from './components/TemporalDeliveryMatrix';
 import { SMDashboard } from './pages/SMDashboard';
 import { SM_CONFIGS } from './config/sm-config';
+import PresentationDeck from './pages/PresentationDeck';
+import { getComments, exportComments } from './services/commentsService';
 import './App.css';
 
 const BFCEMDashboard = lazy(() => import('./pages/BFCEMDashboard'));
@@ -211,9 +213,23 @@ const SMDashboardWrapper = () => {
     <div className="dashboard-content">
       <div style={{ padding: '1.5rem 0 0', backgroundColor: '#f8fafc' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 2rem', marginBottom: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', opacity: 0.65 }}>
-            <span style={{ color: 'var(--text-muted)', fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>powered by</span>
-            <img src="/venice-logo.png" alt="Venice" style={{ height: '12px', objectFit: 'contain' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', opacity: 0.65 }}>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>powered by</span>
+              <img src="/venice-logo.png" alt="Venice" style={{ height: '12px', objectFit: 'contain' }} />
+            </div>
+            <button 
+              onClick={() => navigate(`/presentation/${smId}`)}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'white', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-main)', transition: 'all 0.2s', boxShadow: 'var(--shadow-sm)' }}
+            >
+              <span>📺</span> Apresentação
+            </button>
+            <button 
+              onClick={() => exportComments(getComments())}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'white', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', transition: 'all 0.2s', boxShadow: 'var(--shadow-sm)' }}
+            >
+              <Download size={13} /> Exportar Análises
+            </button>
           </div>
           <div style={{ display: 'flex', gap: '0.5rem', background: 'white', borderRadius: '10px', padding: '4px', border: '1px solid var(--border-color)', flexWrap: 'wrap' }}>
             <button onClick={() => handleTabChange('locavia')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 16px', borderRadius: '7px', border: 'none', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600, background: 'transparent', color: 'var(--text-muted)', transition: 'all 0.2s' }}>
@@ -281,6 +297,7 @@ const App: React.FC = () => {
   return (
     <div className="dashboard-wrapper">
       <Routes>
+        <Route path="/presentation/:smId" element={<PresentationDeck />} />
         <Route path="/sm/:smId" element={<SMDashboardWrapper />} />
         
         <Route path="/cone-bf-cem" element={
@@ -329,7 +346,7 @@ const App: React.FC = () => {
             </div>
           </div>
           
-          <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
             {activeView === 'locavia' && <div style={{ display: 'flex', gap: '1rem' }}>
               <MultiSelect label="Time" options={teams} selected={selectedTeams} onChange={setSelectedTeams} allLabel="TODOS" />
               <MultiSelect label="Release" options={releases} selected={selectedReleases} onChange={setSelectedReleases} allLabel="TODAS" />
@@ -338,6 +355,20 @@ const App: React.FC = () => {
                 onStartDateChange={setStartDate} onEndDateChange={setEndDate} 
               />
             </div>}
+            
+            <button 
+              onClick={() => navigate('/presentation/locavia')}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--surface-color)', color: 'var(--text-main)', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', boxShadow: 'var(--shadow-sm)' }}
+            >
+              <span>📺</span> Apresentação
+            </button>
+            
+            <button 
+              onClick={() => exportComments(getComments())}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--surface-color)', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', boxShadow: 'var(--shadow-sm)' }}
+            >
+              <Download size={14} /> Exportar Análises
+            </button>
             
             <div style={{ width: '1px', height: '40px', background: 'var(--border-color)' }}></div>
             

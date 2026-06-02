@@ -146,7 +146,7 @@ async function processLocalCsv() {
       const customTeamRaw = mapping.CustomTeam ? String(r[mapping.CustomTeam] || '').replace(/;;/g, '').trim() : '';
       
       const key = mapping.Key ? String(r[mapping.Key]).toUpperCase() : '';
-      const rawValues = [teamRaw, customTeamRaw].filter(v => v && v !== ';;');
+      const rawValues = [customTeamRaw, teamRaw].filter(v => v && v !== ';;');
       
       let foundArea = '';
       const allPossibleTeams = rawValues.join(';').split(';').map(v => v.trim().toUpperCase());

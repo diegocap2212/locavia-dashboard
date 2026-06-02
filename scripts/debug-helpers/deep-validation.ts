@@ -16,6 +16,7 @@ const LOCAVIA_RELEASES = new Set(['O4R1', 'O4R2', 'O4R3']);
 const BF_CEM_RELEASES = new Set(['BAF', 'BAF-QW', 'CEM', 'CEM-R1', 'CEM-R2']);
 const BF_CEM_JORNADA_TEAMS = new Set([
   'Compras e Estoque', 'Mobilização', 'Relatórios de BI', 'Construção do Data Lake',
+  'Evoluções / Buy a Feature', 'PARATI',
 ]);
 
 function normalizeStatus(s: string) {

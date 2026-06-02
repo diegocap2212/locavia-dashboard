@@ -41,6 +41,7 @@ const BF_CEM_RELEASES = new Set(['BAF', 'BAF-QW', 'CEM', 'CEM-R1', 'CEM-R2']);
 // Times capturados pela Jornada (sem release de cone) que pertencem ao BF/CEM
 const BF_CEM_JORNADA_TEAMS = new Set([
   'Compras e Estoque', 'Mobilização', 'Relatórios de BI', 'Construção do Data Lake',
+  'Evoluções / Buy a Feature', 'PARATI',
 ]);
 
 // Statuses que a planilha CONE exclui do escopo ativo

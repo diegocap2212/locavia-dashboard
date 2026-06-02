@@ -12,6 +12,7 @@ const CONE_EXCLUDED_STATUSES = [
 const BF_CEM_RELEASES = new Set(['BAF', 'BAF-QW', 'CEM', 'CEM-R1', 'CEM-R2']);
 const BF_CEM_JORNADA_TEAMS = new Set([
   'Compras e Estoque', 'Mobilização', 'Relatórios de BI', 'Construção do Data Lake',
+  'Evoluções / Buy a Feature', 'PARATI',
 ]);
 
 function normalizeStatus(s: string) {

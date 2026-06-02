@@ -116,19 +116,19 @@
       "key": "SFMKT-133",
       "summary": "Criação do Usuário de integração ",
       "type": "Subtarefa",
-      "status": "EM DESENVOLVIMENTO",
-      "statusCategory": "IN_PROGRESS",
+      "status": "DESENV CONCLUIDO",
+      "statusCategory": "DONE",
       "assignee": "Izaque Bernardo",
       "created": "2026-05-27T09:33:53.365-0300",
-      "resolved": null,
+      "resolved": "2026-06-01T17:01:41.218-0300",
       "sprint": "SFMKT-SP Sprint 16",
       "sprintId": 20724,
       "sprintState": "active",
       "storyPoints": null,
       "priority": "Medium",
       "labels": [],
-      "leadTimeDays": null,
-      "cycleTimeDays": null,
+      "leadTimeDays": 5,
+      "cycleTimeDays": 5,
       "timeInTodoDays": 0,
       "dq": {
         "missingResolutionDate": false,
@@ -2297,7 +2297,7 @@
       }
     }
   ],
-  "synced_at": "2026-06-01T13:24:16.649Z",
+  "synced_at": "2026-06-02T02:13:12.716Z",
   "project": "SFMKT",
   "total_fetched": 82
 }

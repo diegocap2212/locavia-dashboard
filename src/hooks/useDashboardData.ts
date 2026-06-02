@@ -65,6 +65,8 @@ const BF_CEM_JORNADA_TEAMS = new Set([
   'Mobilização',
   'Relatórios de BI',
   'Construção do Data Lake',
+  'Evoluções / Buy a Feature',
+  'PARATI'
 ]); 
 
 

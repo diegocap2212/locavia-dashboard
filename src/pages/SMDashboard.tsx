@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { SMConfig } from '../config/sm-config';
 import { useSMDashboardData } from '../hooks/useSMDashboardData';
 import { KPICard } from '../components/KPICard';
@@ -10,6 +11,7 @@ import { WeeklyFlowTrendChart } from '../components/WeeklyFlowTrendChart';
 import { IssueTypeDonut } from '../components/IssueTypeDonut';
 import { FlowBalanceChart } from '../components/FlowBalanceChart';
 import { LeadTimeHistogram } from '../components/LeadCycleTimeHistogram';
+import { MetricCommentEditor } from '../components/MetricCommentEditor';
 import { CheckCircle2, Clock, Activity, Layers, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { excelToJSDate } from '../hooks/useDashboardData';
@@ -19,6 +21,7 @@ interface Props {
 }
 
 export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
+  const navigate = useNavigate();
   const [selectedTeam, setSelectedTeam] = useState<string>('ALL');
   const [daysAgo, setDaysAgo] = useState<number>(60);
   const [selectedRelease, setSelectedRelease] = useState<string>('ALL');
@@ -60,6 +63,12 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
               {smConfig.avatar}
             </span>
             Dashboard — {smConfig.name}
+            <button
+              onClick={() => navigate(`/presentation/${smConfig.id}`)}
+              className="ml-4 px-3 py-1.5 text-xs font-semibold text-blue-600 hover:text-white bg-blue-50 hover:bg-blue-600 border border-blue-200 hover:border-transparent rounded-lg flex items-center gap-1.5 transition-all shadow-sm shrink-0 cursor-pointer"
+            >
+              <span>📺</span> Apresentação
+            </button>
           </h1>
           <p className="text-sm text-slate-500 mt-1 flex items-center">
             {items.length} issues analisadas · Atualizado em {format(parsedSyncDate, 'dd/MM/yyyy HH:mm')}
@@ -178,6 +187,15 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
         </div>
       </div>
 
+      <div className="mb-8">
+        <MetricCommentEditor 
+          squadId={smConfig.id} 
+          releaseId={selectedRelease} 
+          metricId="vazao" 
+          metricLabel="Vazão Semanal" 
+        />
+      </div>
+
       {/* ── ROW 2: Planejadas vs Realizadas ── */}
       <div className="grid grid-cols-1 gap-6 mb-8">
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col h-[450px]">
@@ -219,6 +237,21 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
             <LeadTimeHistogram leadTimeData={leadTimeHistogram} />
           </div>
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+        <MetricCommentEditor 
+          squadId={smConfig.id} 
+          releaseId={selectedRelease} 
+          metricId="leadTime" 
+          metricLabel="Lead Time" 
+        />
+        <MetricCommentEditor 
+          squadId={smConfig.id} 
+          releaseId={selectedRelease} 
+          metricId="flowBalance" 
+          metricLabel="Balanço do Fluxo" 
+        />
       </div>
 
       {/* ── ROW 4: CONE Table ── */}
