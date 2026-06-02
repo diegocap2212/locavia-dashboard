@@ -3,8 +3,12 @@ export interface MetricComment {
   action: string;
 }
 
-export interface ReleaseComments {
+export interface QuinzenaComments {
   [metricName: string]: MetricComment;
+}
+
+export interface ReleaseComments {
+  [quinzenaId: string]: QuinzenaComments;
 }
 
 export interface SquadComments {

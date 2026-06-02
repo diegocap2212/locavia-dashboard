@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, type Variants } from 'framer-motion';
 import {
@@ -12,6 +12,7 @@ import { useDashboardData, excelToJSDate, formatDate } from '../hooks/useDashboa
 import TemporalDeliveryMatrix from '../components/TemporalDeliveryMatrix';
 import { MetricCommentEditor } from '../components/MetricCommentEditor';
 import { getComments, exportComments } from '../services/commentsService';
+import { getQuinzenas, getAutomaticActiveQuinzena, getQuinzenaById } from '../config/quinzenas';
 
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 15 },
@@ -135,6 +136,18 @@ const BFCEMDashboard: React.FC = () => {
     'CEM': '#06b6d4',
   };
 
+  const [selectedQuinzenaId, setSelectedQuinzenaId] = useState<string>(() => getAutomaticActiveQuinzena());
+
+  useEffect(() => {
+    if (selectedQuinzenaId !== 'CUSTOM') {
+      const q = getQuinzenaById(selectedQuinzenaId);
+      if (q) {
+        setStartDate(q.startDate);
+        setEndDate(q.endDate);
+      }
+    }
+  }, [selectedQuinzenaId, setStartDate, setEndDate]);
+
   const activeSquadId = selectedTeams.includes('TODOS') ? 'bf-cem' : selectedTeams.slice().sort().join(',');
   const activeReleaseId = selectedReleases.includes('TODAS') ? 'ALL' : selectedReleases.slice().sort().join(',');
 
@@ -163,10 +176,37 @@ const BFCEMDashboard: React.FC = () => {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-          <div style={{ display: 'flex', gap: '1rem' }}>
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', minWidth: '220px' }}>
+              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px', fontWeight: 600 }}>Apresentação / Quinzena</span>
+              <select
+                value={selectedQuinzenaId}
+                onChange={e => setSelectedQuinzenaId(e.target.value)}
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  border: '1px solid var(--border-color)',
+                  background: 'var(--surface-color)',
+                  color: 'var(--text-main)',
+                  fontSize: '0.9rem',
+                  fontWeight: 500,
+                  outline: 'none',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  width: '100%'
+                }}
+              >
+                <option value="CUSTOM">Período Customizado</option>
+                {getQuinzenas().map(q => (
+                  <option key={q.id} value={q.id}>{q.label}</option>
+                ))}
+              </select>
+            </div>
             <MultiSelect label="Time" options={teams} selected={selectedTeams} onChange={setSelectedTeams} allLabel="TODOS" />
             <MultiSelect label="Release" options={releases} selected={selectedReleases} onChange={setSelectedReleases} allLabel="TODAS" />
-            <DateRangeFilter startDate={startDate} endDate={endDate} onStartDateChange={setStartDate} onEndDateChange={setEndDate} />
+            {selectedQuinzenaId === 'CUSTOM' && (
+              <DateRangeFilter startDate={startDate} endDate={endDate} onStartDateChange={setStartDate} onEndDateChange={setEndDate} />
+            )}
           </div>
           
           <button 
@@ -334,18 +374,21 @@ const BFCEMDashboard: React.FC = () => {
           <MetricCommentEditor 
             squadId={activeSquadId} 
             releaseId={activeReleaseId} 
+            quinzenaId={selectedQuinzenaId}
             metricId="vazao" 
             metricLabel="Throughput" 
           />
           <MetricCommentEditor 
             squadId={activeSquadId} 
             releaseId={activeReleaseId} 
+            quinzenaId={selectedQuinzenaId}
             metricId="leadTime" 
             metricLabel="Lead Time" 
           />
           <MetricCommentEditor 
             squadId={activeSquadId} 
             releaseId={activeReleaseId} 
+            quinzenaId={selectedQuinzenaId}
             metricId="flowBalance" 
             metricLabel="Balanço do Fluxo" 
           />

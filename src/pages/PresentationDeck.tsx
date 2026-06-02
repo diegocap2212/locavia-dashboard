@@ -14,6 +14,7 @@ import { useSMDashboardData } from '../hooks/useSMDashboardData';
 import { useDashboardData } from '../hooks/useDashboardData';
 import { getComments, exportComments } from '../services/commentsService';
 import type { CommentsData } from '../types/comments';
+import { getQuinzenas, getAutomaticActiveQuinzena, getQuinzenaById } from '../config/quinzenas';
 
 // Normalized interface for both SM and BFCEM/Locavia presentations
 interface PresentationData {
@@ -77,8 +78,14 @@ const SlideTooltip = ({ active, payload, label }: any) => {
   );
 };
 
+interface DeckLayoutProps {
+  data: PresentationData;
+  selectedQuinzenaId: string;
+  setSelectedQuinzenaId: (val: string) => void;
+}
+
 // Layout principal do Deck
-const DeckLayout: React.FC<{ data: PresentationData }> = ({ data }) => {
+const DeckLayout: React.FC<DeckLayoutProps> = ({ data, selectedQuinzenaId, setSelectedQuinzenaId }) => {
   const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [comments, setComments] = useState<CommentsData>({});
@@ -86,9 +93,9 @@ const DeckLayout: React.FC<{ data: PresentationData }> = ({ data }) => {
   // Carregar comentários
   useEffect(() => {
     setComments(getComments());
-  }, [data]);
+  }, [data, selectedQuinzenaId]);
 
-  const squadComments = comments[data.commentsSquadId]?.[data.commentsReleaseId] || {};
+  const squadComments = comments[data.commentsSquadId]?.[data.commentsReleaseId]?.[selectedQuinzenaId] || {};
 
   const slidesCount = 5;
 
@@ -173,29 +180,54 @@ const DeckLayout: React.FC<{ data: PresentationData }> = ({ data }) => {
         alignItems: 'center',
         zIndex: 50
       }}>
-        <button 
-          onClick={() => {
-            if (data.commentsSquadId === 'bf-cem') navigate('/cone-bf-cem');
-            else if (data.commentsSquadId === 'locavia') navigate('/');
-            else navigate(`/sm/${data.commentsSquadId}`);
-          }}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            padding: '8px 16px',
-            borderRadius: '8px',
-            color: '#9ca3af',
-            cursor: 'pointer',
-            fontSize: '0.85rem',
-            fontWeight: 600,
-            transition: 'all 0.2s'
-          }}
-        >
-          <ChevronLeft size={16} /> Voltar ao Painel
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <button 
+            onClick={() => {
+              if (data.commentsSquadId === 'bf-cem') navigate('/cone-bf-cem');
+              else if (data.commentsSquadId === 'locavia') navigate('/');
+              else navigate(`/sm/${data.commentsSquadId}`);
+            }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              padding: '8px 16px',
+              borderRadius: '8px',
+              color: '#9ca3af',
+              cursor: 'pointer',
+              fontSize: '0.85rem',
+              fontWeight: 600,
+              transition: 'all 0.2s'
+            }}
+          >
+            <ChevronLeft size={16} /> Voltar ao Painel
+          </button>
+
+          <select
+            value={selectedQuinzenaId}
+            onChange={(e) => setSelectedQuinzenaId(e.target.value)}
+            style={{
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              padding: '8px 14px',
+              borderRadius: '8px',
+              color: '#f3f4f6',
+              cursor: 'pointer',
+              fontSize: '0.85rem',
+              fontWeight: 600,
+              outline: 'none',
+              fontFamily: 'inherit'
+            }}
+          >
+            {getQuinzenas().map(q => (
+              <option key={q.id} value={q.id} style={{ background: '#090d16', color: '#f3f4f6' }}>
+                {q.label}
+              </option>
+            ))}
+          </select>
+        </div>
 
         <div style={{ display: 'flex', gap: '8px' }}>
           <button 
@@ -760,19 +792,51 @@ const DeckLayout: React.FC<{ data: PresentationData }> = ({ data }) => {
 };
 
 // Componente Wrappers para respeitar Hook order
-const SMPresentationDeckWrapper: React.FC<{ smId: string }> = ({ smId }) => {
+const SMPresentationDeckWrapper: React.FC<{
+  smId: string;
+  selectedQuinzenaId: string;
+  setSelectedQuinzenaId: (val: string) => void;
+}> = ({ smId, selectedQuinzenaId, setSelectedQuinzenaId }) => {
   const config = SM_CONFIGS.find(c => c.id === smId);
   if (!config) {
     return <div className="flex h-screen items-center justify-center bg-[#090d16] text-[#f3f4f6]">SM não encontrado</div>;
   }
-  return <SMPresentationDeck config={config} />;
+  return (
+    <SMPresentationDeck 
+      config={config} 
+      selectedQuinzenaId={selectedQuinzenaId}
+      setSelectedQuinzenaId={setSelectedQuinzenaId}
+    />
+  );
 };
 
-const SMPresentationDeck: React.FC<{ config: SMConfig }> = ({ config }) => {
-  const { data, loading } = useSMDashboardData(config, 'ALL', 60, 'ALL');
+const SMPresentationDeck: React.FC<{
+  config: SMConfig;
+  selectedQuinzenaId: string;
+  setSelectedQuinzenaId: (val: string) => void;
+}> = ({ config, selectedQuinzenaId, setSelectedQuinzenaId }) => {
+  const activeQuinzena = getQuinzenaById(selectedQuinzenaId);
+  const customStart = activeQuinzena?.startDate;
+  const customEnd = activeQuinzena?.endDate;
+
+  const { data, loading } = useSMDashboardData(config, 'ALL', 60, 'ALL', customStart, customEnd);
 
   const normalizedData = useMemo<PresentationData | null>(() => {
     if (!data) return null;
+
+    // Filter weeklyFlowData to match selected quinzena range if available
+    const start = customStart ? new Date(customStart) : null;
+    const end = customEnd ? new Date(customEnd) : null;
+
+    let filteredWeekly = data.weeklyFlowData;
+    if (start && end) {
+      filteredWeekly = data.weeklyFlowData.filter(d => d.weekStart >= start && d.weekStart <= end);
+    }
+
+    if (filteredWeekly.length === 0) {
+      filteredWeekly = data.weeklyFlowData.slice(-4);
+    }
+
     return {
       title: `Evolução de Vazão & Métricas — ${config.name}`,
       subtitle: `Visão consolidada das squads sob liderança de ${config.name}`,
@@ -783,7 +847,7 @@ const SMPresentationDeck: React.FC<{ config: SMConfig }> = ({ config }) => {
         wip: data.kpis.wip,
         aFazer: data.kpis.aFazer,
       },
-      throughputData: data.weeklyFlowData.slice(-10).map(d => ({
+      throughputData: filteredWeekly.map(d => ({
         name: d.weekLabel,
         throughput: d.throughput,
         stories: d.byType['História'] || 0,
@@ -793,7 +857,7 @@ const SMPresentationDeck: React.FC<{ config: SMConfig }> = ({ config }) => {
         others: d.byType['Outros'] || 0,
         leadTime: d.leadTimeAvg,
       })),
-      flowBalanceData: data.weeklyFlowData.slice(-10).map(d => ({
+      flowBalanceData: filteredWeekly.map(d => ({
         name: d.weekLabel,
         entradas: d.entradas,
         saidas: d.saidas,
@@ -802,20 +866,54 @@ const SMPresentationDeck: React.FC<{ config: SMConfig }> = ({ config }) => {
       commentsSquadId: config.id,
       commentsReleaseId: 'ALL',
     };
-  }, [data, config]);
+  }, [data, config, customStart, customEnd]);
 
   if (loading || !normalizedData) {
     return <div className="flex h-screen items-center justify-center bg-[#090d16] text-[#f3f4f6]">Carregando dados da apresentação...</div>;
   }
 
-  return <DeckLayout data={normalizedData} />;
+  return (
+    <DeckLayout 
+      data={normalizedData} 
+      selectedQuinzenaId={selectedQuinzenaId}
+      setSelectedQuinzenaId={setSelectedQuinzenaId}
+    />
+  );
 };
 
-const ConePresentationDeck: React.FC<{ type: 'bf-cem' | 'locavia' }> = ({ type }) => {
-  const { loading, weeklyPerformance, metrics } = useDashboardData(type);
+const ConePresentationDeck: React.FC<{
+  type: 'bf-cem' | 'locavia';
+  selectedQuinzenaId: string;
+  setSelectedQuinzenaId: (val: string) => void;
+}> = ({ type, selectedQuinzenaId, setSelectedQuinzenaId }) => {
+  const { loading, weeklyPerformance, metrics, setStartDate, setEndDate } = useDashboardData(type);
+
+  // Apply dates when quinzena selection changes
+  useEffect(() => {
+    const q = getQuinzenaById(selectedQuinzenaId);
+    if (q) {
+      setStartDate(q.startDate);
+      setEndDate(q.endDate);
+    }
+  }, [selectedQuinzenaId, setStartDate, setEndDate]);
 
   const normalizedData = useMemo<PresentationData | null>(() => {
     if (loading) return null;
+
+    // Filter weeklyPerformance to match selected quinzena range if available
+    const q = getQuinzenaById(selectedQuinzenaId);
+    const start = q ? new Date(q.startDate) : null;
+    const end = q ? new Date(q.endDate) : null;
+
+    let filteredPerf = weeklyPerformance;
+    if (start && end) {
+      filteredPerf = weeklyPerformance.filter(d => d.date >= start && d.date <= end);
+    }
+
+    if (filteredPerf.length === 0) {
+      filteredPerf = weeklyPerformance.slice(-4);
+    }
+
     return {
       title: type === 'bf-cem' ? 'Métricas de Agilidade — BAF & CEM' : 'Métricas de Agilidade — Locavia Principal',
       subtitle: type === 'bf-cem' 
@@ -828,7 +926,7 @@ const ConePresentationDeck: React.FC<{ type: 'bf-cem' | 'locavia' }> = ({ type }
         wip: metrics.wipCount,
         aFazer: metrics.totalItems - metrics.deliveredCount,
       },
-      throughputData: weeklyPerformance.slice(-10).map(d => ({
+      throughputData: filteredPerf.map(d => ({
         name: d.name.split(' - ')[0],
         throughput: d["Saídas"] || d["Vazão Total"] || 0,
         stories: d["História"] || 0,
@@ -838,7 +936,7 @@ const ConePresentationDeck: React.FC<{ type: 'bf-cem' | 'locavia' }> = ({ type }
         others: 0,
         leadTime: d["Lead Time (Méd)"] || null,
       })),
-      flowBalanceData: weeklyPerformance.slice(-10).map(d => ({
+      flowBalanceData: filteredPerf.map(d => ({
         name: d.name.split(' - ')[0],
         entradas: d["Entradas"] || 0,
         saidas: d["Saídas"] || 0,
@@ -847,24 +945,43 @@ const ConePresentationDeck: React.FC<{ type: 'bf-cem' | 'locavia' }> = ({ type }
       commentsSquadId: type,
       commentsReleaseId: 'ALL',
     };
-  }, [loading, weeklyPerformance, metrics, type]);
+  }, [loading, weeklyPerformance, metrics, type, selectedQuinzenaId]);
 
   if (loading || !normalizedData) {
     return <div className="flex h-screen items-center justify-center bg-[#090d16] text-[#f3f4f6]">Carregando dados da apresentação...</div>;
   }
 
-  return <DeckLayout data={normalizedData} />;
+  return (
+    <DeckLayout 
+      data={normalizedData} 
+      selectedQuinzenaId={selectedQuinzenaId}
+      setSelectedQuinzenaId={setSelectedQuinzenaId}
+    />
+  );
 };
 
 // Componente Exportado Principal (Switch de Rotas)
 export const PresentationDeck: React.FC = () => {
   const { smId } = useParams();
+  const [selectedQuinzenaId, setSelectedQuinzenaId] = useState<string>(() => getAutomaticActiveQuinzena());
 
   if (smId === 'bf-cem' || smId === 'locavia') {
-    return <ConePresentationDeck type={smId as 'bf-cem' | 'locavia'} />;
+    return (
+      <ConePresentationDeck 
+        type={smId as 'bf-cem' | 'locavia'} 
+        selectedQuinzenaId={selectedQuinzenaId}
+        setSelectedQuinzenaId={setSelectedQuinzenaId}
+      />
+    );
   }
 
-  return <SMPresentationDeckWrapper smId={smId || 'bf-cem'} />;
+  return (
+    <SMPresentationDeckWrapper 
+      smId={smId || 'bf-cem'} 
+      selectedQuinzenaId={selectedQuinzenaId}
+      setSelectedQuinzenaId={setSelectedQuinzenaId}
+    />
+  );
 };
 
 export default PresentationDeck;

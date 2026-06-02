@@ -45,7 +45,14 @@ function percentile(sorted: number[], p: number): number | null {
   return sorted[lo] + (sorted[hi] - sorted[lo]) * (idx - lo);
 }
 
-export function useSMDashboardData(smConfig: SMConfig, selectedTeamId: string, daysAgo: number = 60, selectedRelease: string = 'ALL') {
+export function useSMDashboardData(
+  smConfig: SMConfig, 
+  selectedTeamId: string, 
+  daysAgo: number = 60, 
+  selectedRelease: string = 'ALL',
+  customStartDate?: string,
+  customEndDate?: string
+) {
   const [rawData, setRawData] = useState<DashboardItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -101,31 +108,33 @@ export function useSMDashboardData(smConfig: SMConfig, selectedTeamId: string, d
       );
     });
 
-    const now = new Date();
-    const periodStart = subDays(now, daysAgo);
+    const periodStart = customStartDate ? new Date(customStartDate) : subDays(new Date(), daysAgo);
+    const periodEnd = customEndDate ? new Date(customEndDate) : new Date();
 
     // Filter to issues matching selected release
     const releaseFilteredItems = filteredItems.filter(item => {
       return selectedRelease === 'ALL' || item.Release === selectedRelease;
     });
 
-    // Filter to issues relevant to the period (created or updated or resolved in period)
+    // Filter to issues relevant to the period (created <= periodEnd and (not resolved or resolved >= periodStart))
     const activeItems = releaseFilteredItems.filter(item => {
       const created = parseDate(item.Created);
-      const updated = parseDate(item.UpdatedAt);
-      return created >= periodStart || updated >= periodStart;
+      const resolved = item.Resolved ? parseDate(item.Resolved) : null;
+      if (created > periodEnd) return false;
+      if (resolved && resolved < periodStart) return false;
+      return true;
     });
 
-    // Generate weekly buckets (from periodStart to now)
+    // Generate weekly buckets (from periodStart to periodEnd)
     const weeks: WeeklyConeMetrics[] = [];
     let currStart = startOfWeek(periodStart, { weekStartsOn: 1 });
     
-    // Calculate weeks up to the end of the current week
-    const periodEnd = endOfWeek(now, { weekStartsOn: 1 });
+    // Calculate weeks up to the end of the periodEnd week
+    const periodEndLimit = endOfWeek(periodEnd, { weekStartsOn: 1 });
 
     let previousAFazer = 0; // Transbordo
 
-    while (currStart <= periodEnd) {
+    while (currStart <= periodEndLimit) {
       const currEnd = endOfWeek(currStart, { weekStartsOn: 1 });
       const weekLabel = `${currStart.getDate().toString().padStart(2, '0')}/${(currStart.getMonth() + 1).toString().padStart(2, '0')}`;
       

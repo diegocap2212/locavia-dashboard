@@ -72,4 +72,30 @@ test.describe('Scrum Master View E2E', () => {
     const buttons = page.locator('button:has-text("Visão Geral"), button:has-text("Taos"), button:has-text("Gol")');
     await expect(buttons).toHaveCount(3); // Visão Geral + Taos + Gol (SFMktplace is separate)
   });
+
+  test('deve alternar entre filtros de quinzena e periodo customizado', async ({ page }) => {
+    // O seletor de quinzena deve estar visível
+    const quinzenaSelect = page.locator('select:has(option[value="CUSTOM"])');
+    await expect(quinzenaSelect).toBeVisible();
+
+    // Por padrão, a quinzena está ativa (não-CUSTOM), então o seletor de dias customizados deve estar oculto
+    const daysSelect = page.locator('select:has(option[value="30"])');
+    await expect(daysSelect).not.toBeVisible();
+
+    // Seleciona "Período Customizado (Dias)"
+    await quinzenaSelect.selectOption('CUSTOM');
+
+    // Agora o seletor de dias customizados deve ficar visível
+    await expect(daysSelect).toBeVisible();
+
+    // Seleciona uma quinzena novamente (ex: a primeira da lista no config, ou qualquer uma que não seja CUSTOM)
+    // Vamos pegar o valor do segundo option (o primeiro depois de CUSTOM)
+    const optionValue = await quinzenaSelect.locator('option').nth(1).getAttribute('value');
+    if (optionValue) {
+      await quinzenaSelect.selectOption(optionValue);
+      // E o seletor de dias customizados deve sumir novamente
+      await expect(daysSelect).not.toBeVisible();
+    }
+  });
 });
+

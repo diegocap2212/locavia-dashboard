@@ -6,6 +6,7 @@ import type { CommentsData } from '../types/comments';
 interface Props {
   squadId: string;
   releaseId: string;
+  quinzenaId: string;
   metricId: string;
   metricLabel: string;
   placeholderGap?: string;
@@ -15,6 +16,7 @@ interface Props {
 export const MetricCommentEditor: React.FC<Props> = ({
   squadId,
   releaseId,
+  quinzenaId,
   metricId,
   metricLabel,
   placeholderGap = "Identifique qual foi o gargalo neste período...",
@@ -29,18 +31,19 @@ export const MetricCommentEditor: React.FC<Props> = ({
   useEffect(() => {
     const data = getComments();
     setComments(data);
-    const comment = data[squadId]?.[releaseId]?.[metricId] || { gap: '', action: '' };
+    const comment = data[squadId]?.[releaseId]?.[quinzenaId]?.[metricId] || { gap: '', action: '' };
     setGap(comment.gap || '');
     setAction(comment.action || '');
-  }, [squadId, releaseId, metricId]);
+  }, [squadId, releaseId, quinzenaId, metricId]);
 
   const handleSave = () => {
     const updatedComments = { ...comments };
     
     if (!updatedComments[squadId]) updatedComments[squadId] = {};
     if (!updatedComments[squadId][releaseId]) updatedComments[squadId][releaseId] = {};
+    if (!updatedComments[squadId][releaseId][quinzenaId]) updatedComments[squadId][releaseId][quinzenaId] = {};
     
-    updatedComments[squadId][releaseId][metricId] = { gap, action };
+    updatedComments[squadId][releaseId][quinzenaId][metricId] = { gap, action };
     
     saveComments(updatedComments);
     setComments(updatedComments);

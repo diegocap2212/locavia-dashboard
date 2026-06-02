@@ -12,6 +12,7 @@ import { IssueTypeDonut } from '../components/IssueTypeDonut';
 import { FlowBalanceChart } from '../components/FlowBalanceChart';
 import { LeadTimeHistogram } from '../components/LeadCycleTimeHistogram';
 import { MetricCommentEditor } from '../components/MetricCommentEditor';
+import { getQuinzenas, getAutomaticActiveQuinzena, getQuinzenaById } from '../config/quinzenas';
 import { CheckCircle2, Clock, Activity, Layers, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { excelToJSDate } from '../hooks/useDashboardData';
@@ -25,8 +26,20 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
   const [selectedTeam, setSelectedTeam] = useState<string>('ALL');
   const [daysAgo, setDaysAgo] = useState<number>(60);
   const [selectedRelease, setSelectedRelease] = useState<string>('ALL');
+  const [selectedQuinzenaId, setSelectedQuinzenaId] = useState<string>(() => getAutomaticActiveQuinzena());
   
-  const { data, loading, error, availableReleases } = useSMDashboardData(smConfig, selectedTeam, daysAgo, selectedRelease);
+  const activeQuinzena = selectedQuinzenaId !== 'CUSTOM' ? getQuinzenaById(selectedQuinzenaId) : undefined;
+  const customStart = activeQuinzena?.startDate;
+  const customEnd = activeQuinzena?.endDate;
+  
+  const { data, loading, error, availableReleases } = useSMDashboardData(
+    smConfig, 
+    selectedTeam, 
+    daysAgo, 
+    selectedRelease, 
+    customStart, 
+    customEnd
+  );
 
   if (loading) {
     return (
@@ -116,19 +129,37 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
             </div>
           )}
 
-          {/* Days Filter */}
+          {/* Quinzena Filter */}
           <div className="flex bg-white rounded-lg p-1 border border-slate-200 shadow-sm shrink-0">
             <select 
               className="bg-transparent border-none text-sm font-medium text-slate-700 py-2 pl-3 pr-8 focus:ring-0 cursor-pointer w-full outline-none"
-              value={daysAgo}
-              onChange={(e) => setDaysAgo(Number(e.target.value))}
+              value={selectedQuinzenaId}
+              onChange={(e) => setSelectedQuinzenaId(e.target.value)}
             >
-              <option value={30}>Últimos 30 dias</option>
-              <option value={60}>Últimos 60 dias</option>
-              <option value={90}>Últimos 90 dias</option>
-              <option value={120}>Últimos 120 dias</option>
+              <option value="CUSTOM">Período Customizado (Dias)</option>
+              {getQuinzenas().map(q => (
+                <option key={q.id} value={q.id}>
+                  {q.label}
+                </option>
+              ))}
             </select>
           </div>
+
+          {/* Days Filter */}
+          {selectedQuinzenaId === 'CUSTOM' && (
+            <div className="flex bg-white rounded-lg p-1 border border-slate-200 shadow-sm shrink-0">
+              <select 
+                className="bg-transparent border-none text-sm font-medium text-slate-700 py-2 pl-3 pr-8 focus:ring-0 cursor-pointer w-full outline-none"
+                value={daysAgo}
+                onChange={(e) => setDaysAgo(Number(e.target.value))}
+              >
+                <option value={30}>Últimos 30 dias</option>
+                <option value={60}>Últimos 60 dias</option>
+                <option value={90}>Últimos 90 dias</option>
+                <option value={120}>Últimos 120 dias</option>
+              </select>
+            </div>
+          )}
         </div>
       </div>
 
@@ -191,6 +222,7 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
         <MetricCommentEditor 
           squadId={smConfig.id} 
           releaseId={selectedRelease} 
+          quinzenaId={selectedQuinzenaId}
           metricId="vazao" 
           metricLabel="Vazão Semanal" 
         />
@@ -243,12 +275,14 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
         <MetricCommentEditor 
           squadId={smConfig.id} 
           releaseId={selectedRelease} 
+          quinzenaId={selectedQuinzenaId}
           metricId="leadTime" 
           metricLabel="Lead Time" 
         />
         <MetricCommentEditor 
           squadId={smConfig.id} 
           releaseId={selectedRelease} 
+          quinzenaId={selectedQuinzenaId}
           metricId="flowBalance" 
           metricLabel="Balanço do Fluxo" 
         />
