@@ -125,11 +125,26 @@ export function useSMDashboardData(
       return true;
     });
 
-    // Generate weekly buckets (from periodStart to periodEnd)
+    // Helper to normalize issue types
+    const normalizeType = (t: string): string => {
+      const lower = t.toLowerCase();
+      if (['story', 'história', 'historia'].includes(lower)) return 'História';
+      if (['bug', 'defeito'].includes(lower)) return 'Bug';
+      if (['task', 'tarefa'].includes(lower)) return 'Tarefa';
+      if (lower === 'spike') return 'Spike';
+      return 'Outros';
+    };
+
+    // Calculate weekly metrics over complete history to compute correct backlog (transbordo)
     const weeks: WeeklyConeMetrics[] = [];
-    let currStart = startOfWeek(periodStart, { weekStartsOn: 1 });
     
-    // Calculate weeks up to the end of the periodEnd week
+    // Find the earliest created issue date in the dataset to start calculations
+    const earliestItemDate = releaseFilteredItems.reduce((acc, item) => {
+      const created = parseDate(item.Created);
+      return created.getTime() > 0 && created < acc ? created : acc;
+    }, new Date());
+    
+    let currStart = startOfWeek(earliestItemDate.getTime() > 0 ? earliestItemDate : new Date(2024, 11, 1), { weekStartsOn: 1 });
     const periodEndLimit = endOfWeek(periodEnd, { weekStartsOn: 1 });
 
     let previousAFazer = 0; // Transbordo
@@ -146,7 +161,7 @@ export function useSMDashboardData(
       let novos = 0;
       const weekLeadTimes: number[] = [];
 
-      activeItems.forEach(item => {
+      releaseFilteredItems.forEach(item => {
         const created = parseDate(item.Created);
         const resolved = (item.Resolved ? parseDate(item.Resolved) : null) || (item.StatusCategory === 'DONE' && item.UpdatedAt ? parseDate(item.UpdatedAt) : null);
         const commit = item.CommitmentDate ? parseDate(item.CommitmentDate) : null;
@@ -189,7 +204,7 @@ export function useSMDashboardData(
       });
 
       // Features Totais (acumulado de criados)
-      const featuresTotal = activeItems.filter(i => parseDate(i.Created) <= currEnd).length;
+      const featuresTotal = releaseFilteredItems.filter(i => parseDate(i.Created) <= currEnd).length;
 
       const aFazer = previousAFazer + planejados + naoPlanejados + furaFila - realizado - descartados;
       
@@ -214,41 +229,24 @@ export function useSMDashboardData(
       currStart = addDays(currStart, 7);
     }
 
-    // Global KPIs
-    const doneItems = activeItems.filter(i => i.StatusCategory === 'DONE' && i.LeadTime !== null && i.LeadTime !== undefined);
-    const sortedLeadTimes = doneItems.map(i => i.LeadTime as number).sort((a,b) => a-b);
-    
-    const throughput = doneItems.length;
-    const wip = activeItems.filter(i => i.StatusCategory === 'IN_PROGRESS').length;
-    const globalAFazer = weeks.length > 0 ? weeks[weeks.length-1].aFazer : 0;
-    
-    const leadTimeAvg = sortedLeadTimes.length ? sortedLeadTimes.reduce((a,b) => a+b, 0) / sortedLeadTimes.length : null;
-    
-    const leadTimeP85 = percentile(sortedLeadTimes, 0.85);
-    const leadTimeP15 = percentile(sortedLeadTimes, 0.15);
+    // Filter weekly buckets to selected period
+    const startOfWeekLimit = startOfWeek(periodStart, { weekStartsOn: 1 });
+    const endOfWeekLimit = endOfWeek(periodEnd, { weekStartsOn: 1 });
+    const filteredWeeks = weeks.filter(w => w.weekStart >= startOfWeekLimit && w.weekStart <= endOfWeekLimit);
 
-    // ── Weekly Flow Data (for new charts) ──
-    const normalizeType = (t: string): string => {
-      const lower = t.toLowerCase();
-      if (['story', 'história', 'historia'].includes(lower)) return 'História';
-      if (['bug', 'defeito'].includes(lower)) return 'Bug';
-      if (['task', 'tarefa'].includes(lower)) return 'Tarefa';
-      if (lower === 'spike') return 'Spike';
-      return 'Outros';
-    };
-
+    // Calculate weekly flow trend points over complete history
     const weeklyFlowData: WeeklyFlowDataPoint[] = weeks.map(w => {
       const wStart = w.weekStart;
       const wEnd = endOfWeek(wStart, { weekStartsOn: 1 });
 
       // Items resolved this week (DONE)
-      const resolvedThisWeek = activeItems.filter(item => {
+      const resolvedThisWeek = releaseFilteredItems.filter(item => {
         const resolved = (item.Resolved ? parseDate(item.Resolved) : null) || (item.StatusCategory === 'DONE' && item.UpdatedAt ? parseDate(item.UpdatedAt) : null);
         return item.StatusCategory === 'DONE' && resolved && isWithinInterval(resolved, { start: wStart, end: wEnd });
       });
 
       // Items created this week
-      const createdThisWeek = activeItems.filter(item => {
+      const createdThisWeek = releaseFilteredItems.filter(item => {
         const created = parseDate(item.Created);
         return isWithinInterval(created, { start: wStart, end: wEnd });
       });
@@ -275,14 +273,32 @@ export function useSMDashboardData(
       };
     });
 
+    // Filter weekly flow trend points to selected period
+    const filteredWeeklyFlowData = weeklyFlowData.filter(w => w.weekStart >= startOfWeekLimit && w.weekStart <= endOfWeekLimit);
+
+    // Global KPIs constrained to the selected period
+    const doneItems = releaseFilteredItems.filter(i => {
+      const resolved = i.Resolved ? parseDate(i.Resolved) : null;
+      return i.StatusCategory === 'DONE' && resolved && resolved >= periodStart && resolved <= periodEnd && i.LeadTime !== null && i.LeadTime !== undefined;
+    });
+    const sortedLeadTimes = doneItems.map(i => i.LeadTime as number).sort((a,b) => a-b);
+    
+    const throughput = doneItems.length;
+    const wip = activeItems.filter(i => i.StatusCategory === 'IN_PROGRESS').length;
+    const globalAFazer = filteredWeeks.length > 0 ? filteredWeeks[filteredWeeks.length-1].aFazer : 0;
+    
+    const leadTimeAvg = sortedLeadTimes.length ? sortedLeadTimes.reduce((a,b) => a+b, 0) / sortedLeadTimes.length : null;
+    
+    const leadTimeP85 = percentile(sortedLeadTimes, 0.85);
+    const leadTimeP15 = percentile(sortedLeadTimes, 0.15);
+
     // ── Issue Type Breakdown (Donut) ──
-    const allDone = activeItems.filter(i => i.StatusCategory === 'DONE');
     const issueTypeBreakdown: { name: string; value: number; color: string }[] = [];
     const typeColors: Record<string, string> = {
       'História': '#3B82F6', 'Bug': '#EF4444', 'Tarefa': '#10B981', 'Spike': '#8B5CF6', 'Outros': '#94A3B8'
     };
     const typeCounts: Record<string, number> = {};
-    allDone.forEach(i => {
+    doneItems.forEach(i => {
       const nType = normalizeType(i.Type);
       typeCounts[nType] = (typeCounts[nType] || 0) + 1;
     });
@@ -306,8 +322,8 @@ export function useSMDashboardData(
 
     return {
       items: activeItems,
-      weeks,
-      weeklyFlowData,
+      weeks: filteredWeeks,
+      weeklyFlowData: filteredWeeklyFlowData,
       issueTypeBreakdown,
       leadTimeHistogram,
       kpis: {
@@ -324,7 +340,7 @@ export function useSMDashboardData(
         active: activeItems.length
       }
     };
-  }, [rawData, smConfig, selectedTeamId, daysAgo, selectedRelease]);
+  }, [rawData, smConfig, selectedTeamId, daysAgo, selectedRelease, customStartDate, customEndDate]);
 
   return { data, loading, error, availableReleases };
 }

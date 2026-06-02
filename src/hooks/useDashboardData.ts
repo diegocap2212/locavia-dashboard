@@ -224,8 +224,8 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
     const teamsList = Array.from(new Set(coneItems.map(i => i.Team))).filter(t => t && t !== "").sort();
     const releasesList = Array.from(new Set(coneItems.map(i => i.Release))).filter(r => r && r !== "").sort();
 
-    // 2. Filter primary set
-    const filtered = coneItems.filter(item => {
+    // 2. Base Filter (squad/release/exclusions, but NOT date restricted for history accuracy)
+    const baseFiltered = coneItems.filter(item => {
       const teamMatch = selectedTeams.includes('TODOS') || selectedTeams.includes(item.Team);
       const releaseMatch = selectedReleases.includes('TODAS') || selectedReleases.includes(item.Release);
       if (!teamMatch || !releaseMatch) return false;
@@ -233,7 +233,11 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
       // Saneamento/Cone Filter: Match official CONE logic
       const excludedStatuses = coneType === 'locavia' ? LOCAVIA_EXCLUDED_STATUSES : BF_CEM_EXCLUDED_STATUSES;
       if (excludedStatuses.includes(item.Status)) return false;
+      return true;
+    });
 
+    // 2b. Date filtered subset for table views
+    const filtered = baseFiltered.filter(item => {
       const cDate = excelToJSDate(item.Created);
       const rDate = excelToJSDate(item.Resolved);
 
@@ -258,11 +262,11 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
     const dynamicHistory = timelineWeeks.map(weekKey => {
       const weekStart = new Date(weekKey);
       const weekEnd = new Date(weekStart.getTime() + 7 * 86400000);
-      const scopeAtWeek = filtered.filter(i => {
+      const scopeAtWeek = baseFiltered.filter(i => {
         const c = excelToJSDate(i.Created);
         return c && c < weekEnd;
       }).length;
-      const resolvedAtWeek = filtered.filter(i => {
+      const resolvedAtWeek = baseFiltered.filter(i => {
         const r = i.Resolved ? excelToJSDate(i.Resolved) : excelToJSDate(i.UpdatedAt);
         return i.StatusCategory === 'DONE' && r && r < weekEnd;
       }).length;
@@ -278,7 +282,10 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
         delivered: resolvedAtWeek,
         aFazer
       };
-    }).filter(d => (d["A Fazer (Real)"] !== null || d.fullDate >= getMon(new Date())) && d.fullDate >= new Date(2024, 11, 1)); // Filter to show from Dec 2024
+    }).filter(d => {
+      const isDateMatch = (!startDate || d.fullDate >= new Date(startDate)) && (!endDate || d.fullDate <= new Date(endDate));
+      return isDateMatch && (d["A Fazer (Real)"] !== null || d.fullDate >= getMon(new Date())) && d.fullDate >= new Date(2024, 11, 1);
+    });
 
     // 4. Projections & Velocity
     const chartData: ChartDataPoint[] = [...dynamicHistory];
@@ -443,10 +450,10 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
     
     const temporalMatrixData = { weeks: matrixWeeks, rows: matrixRows };
 
-    // 5. Weekly Performance (Throughput/LeadTime)
+    // 5. Weekly Performance (Throughput/LeadTime) — calculated on baseFiltered for history
     const weeklyStats: WeeklyPerformancePoint[] = [];
-    if (filtered.length > 0) {
-      const minDate = filtered.reduce((m, i) => {
+    if (baseFiltered.length > 0) {
+      const minDate = baseFiltered.reduce((m, i) => {
         const d = excelToJSDate(i.Created);
         return (d && d < m) ? d : m;
       }, new Date());
@@ -456,11 +463,11 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
         const wStart = new Date(curr);
         const wEnd = new Date(curr.getTime() + 7 * 86400000);
         
-        const resolved = filtered.filter(i => {
+        const resolved = baseFiltered.filter(i => {
            const r = i.Resolved ? excelToJSDate(i.Resolved) : excelToJSDate(i.UpdatedAt);
            return i.StatusCategory === 'DONE' && r && r >= wStart && r < wEnd;
         });
-        const inflow = filtered.filter(i => {
+        const inflow = baseFiltered.filter(i => {
            const c = excelToJSDate(i.Created);
            return c && c >= wStart && c < wEnd;
         }).length;
@@ -488,11 +495,19 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
       }
     }
 
+    // Filter weeklyStats to selected period
+    const filteredWeeklyStats = weeklyStats.filter(w => {
+      const wEnd = new Date(w.date.getTime() + 7 * 86400000);
+      const isStartOk = !startDate || wEnd >= new Date(startDate);
+      const isEndOk = !endDate || w.date <= new Date(endDate);
+      return isStartOk && isEndOk;
+    });
+
     // 6. Final Metrics
     const currentExclusions = coneType === 'locavia' ? LOCAVIA_EXCLUDED_STATUSES : BF_CEM_EXCLUDED_STATUSES;
     return { 
       chartData, 
-      weeklyPerformance: weeklyStats.slice(-18),
+      weeklyPerformance: filteredWeeklyStats.slice(-18),
       metrics: {
         totalItems: filtered.length,
         deliveredCount: filtered.filter(i => i.StatusCategory === 'DONE').length,
