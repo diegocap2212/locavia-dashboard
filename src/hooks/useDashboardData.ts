@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { fetchData, type JiraItem } from '../services/dataService';
 import rawDataFallback from '../data.json';
 import releaseConfig from '../config/release-config.json';
+import { computeCone, type ConeItem, type ConeParams } from '../cone/computeCone';
 
 export interface ChartDataPoint {
   name: string;
@@ -250,119 +251,151 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
       return true;
     });
 
-    // 3. Generate Timeline & Burndown
-    const now = new Date();
-    const futureLimit = new Date(now.getTime() + 7 * 86400000);
+    // 3. Determine the parameters for computeCone and construct chartData
+    let coneStartDate: Date;
+    let coneTargetDate: Date;
+    let requiredVelocity = 8;
+    let percentileWindow = 8;
 
-    const timelineWeeks = Array.from(new Set(coneItems.map(i => {
-      const d = excelToJSDate(i.Resolved) || excelToJSDate(i.Created);
-      return (d && d <= futureLimit) ? getMon(d).toISOString() : null;
-    }))).filter(Boolean).sort() as string[];
+    if (coneType === 'locavia') {
+      coneStartDate = new Date('2025-10-06T00:00:00Z');
+      coneTargetDate = new Date('2026-04-27T00:00:00Z');
+      
+      const teamVelocities: Record<string, number> = {
+        'Portal de Vendas Assistidas': 8,
+        'Faturamento': 8,
+        'Contratos / Multas / Ressarcimento / Manutenção': 8,
+        'Portal de Auto Atendimento': 8,
+        'Crédito e Proposta': 6,
+        'Pós Venda Salesforce': 5,
+        'Atendimento WhatsApp': 8,
+        'Relatórios de BI': 8
+      };
+      
+      const teamDeadlines: Record<string, string> = {
+        'Relatórios de BI': '2026-05-15T00:00:00Z'
+      };
 
-    const dynamicHistory = timelineWeeks.map(weekKey => {
-      const weekStart = new Date(weekKey);
+      if (selectedTeams.length === 1 && !selectedTeams.includes('TODOS')) {
+        const teamName = selectedTeams[0];
+        requiredVelocity = teamVelocities[teamName] ?? 8;
+        percentileWindow = 8;
+        if (teamDeadlines[teamName]) {
+          coneTargetDate = new Date(teamDeadlines[teamName]);
+        }
+      } else if (selectedTeams.includes('TODOS')) {
+        requiredVelocity = Object.values(teamVelocities).reduce((a, b) => a + b, 0); // 59
+      } else {
+        requiredVelocity = selectedTeams.reduce((acc, t) => acc + (teamVelocities[t] ?? 8), 0);
+      }
+    } else {
+      // bf-cem (gen2)
+      coneStartDate = new Date('2025-11-24T00:00:00Z');
+      coneTargetDate = new Date('2026-05-25T00:00:00Z');
+      requiredVelocity = 60;
+      percentileWindow = 10;
+
+      if (selectedTeams.length === 1 && !selectedTeams.includes('TODOS')) {
+        const teamName = selectedTeams[0];
+        if (teamName === 'Compras e Estoque') {
+          requiredVelocity = 29;
+          coneTargetDate = new Date('2026-05-15T00:00:00Z');
+        } else if (teamName === 'Mobilização') {
+          coneStartDate = new Date('2026-03-02T00:00:00Z');
+          requiredVelocity = 10;
+          coneTargetDate = new Date('2026-05-15T00:00:00Z');
+        } else if (teamName === 'Evoluções / Buy a Feature') {
+          coneStartDate = new Date('2026-03-02T00:00:00Z');
+          requiredVelocity = 6;
+          coneTargetDate = new Date('2026-05-15T00:00:00Z');
+        }
+      } else if (selectedReleases.includes('BAF')) {
+        coneStartDate = new Date('2025-11-24T00:00:00Z');
+        coneTargetDate = new Date('2026-06-30T00:00:00Z');
+        requiredVelocity = 6;
+      }
+    }
+
+    // Map rawItems to ConeItem[]
+    const typedConeItems: ConeItem[] = rawItems.map(item => {
+      const labels = (item.Labels || []) as string[];
+      const team = item.Team || null;
       
-      const totalScope = baseFiltered.length;
+      const jornadas: string[] = [];
+      if (labels.includes('COMPRAS') || (team && team.includes('Compras'))) jornadas.push('COMPRAS');
+      if (labels.includes('ESTOQUE') || (team && team.includes('Estoque'))) jornadas.push('ESTOQUE');
+      if (labels.includes('MOB') || (team && team.includes('Mobilização'))) jornadas.push('MOB');
+      if (labels.includes('LAKE-DOMINIO') || (team && team.includes('BI')) || (team && team.includes('Relatórios'))) jornadas.push('LAKE-DOMINIO');
+
+      const createdDate = excelToJSDate(item.Created) || new Date();
+      const resolvedDate = excelToJSDate(item.Resolved);
       
-      const resolvedBeforeStart = baseFiltered.filter(i => {
-        const r = i.Resolved ? excelToJSDate(i.Resolved) : excelToJSDate(i.UpdatedAt);
-        return i.StatusCategory === 'DONE' && r && r < weekStart;
-      }).length;
-      
-      const aFazer = Math.max(0, totalScope - resolvedBeforeStart);
-      const isPast = weekStart <= new Date();
+      const committedDate = item.CommitmentDate ? excelToJSDate(item.CommitmentDate as string) : null;
+      const startDateVal = item.StartDate ? excelToJSDate(item.StartDate as string) : null;
 
       return {
-        name: formatDate(weekStart),
-        "A Fazer (Real)": isPast ? aFazer : null,
-        fullDate: weekStart,
-        scope: totalScope,
-        delivered: resolvedBeforeStart,
-        aFazer
+        key: item.Key,
+        type: item.Type,
+        status: item.Status,
+        team: team,
+        jornadas: jornadas,
+        releases: item.Release ? [item.Release] : [],
+        created: createdDate,
+        committed: committedDate,
+        startDate: startDateVal,
+        resolved: resolvedDate,
+        flagged: labels.includes('IMPEDIDO') || labels.includes('Impediment') ? 'Impediment' : null
       };
-    }).filter(d => {
-      const isDateMatch = (!startDate || d.fullDate >= new Date(startDate)) && (!endDate || d.fullDate <= new Date(endDate));
-      return isDateMatch && (d["A Fazer (Real)"] !== null || d.fullDate >= getMon(new Date())) && d.fullDate >= new Date(2024, 11, 1);
     });
 
-    // 4. Projections & Velocity
-    const chartData: ChartDataPoint[] = [...dynamicHistory];
+    const params: ConeParams = {
+      generation: coneType === 'locavia' ? 'gen1' : 'gen2',
+      team: (selectedTeams.length === 1 && !selectedTeams.includes('TODOS')) ? selectedTeams[0] : undefined,
+      release: (selectedReleases.length === 1 && !selectedReleases.includes('TODAS')) ? selectedReleases[0] : undefined,
+      startDate: coneStartDate,
+      targetDate: coneTargetDate,
+      stepDays: 7,
+      requiredVelocity,
+      percentileWindow,
+      dataRef: new Date()
+    };
+
+    const coneResult = computeCone(typedConeItems, params);
     
-    // Pegar o deadline da release selecionada ou o maior entre elas (dentro do cone atual)
-    const selectedReleaseDeadlines = releaseConfig.releases
-      .filter(r => coneReleases.has(r.id) && (selectedReleases.includes('TODAS') || selectedReleases.includes(r.id)))
-      .map(r => new Date(r.deadline));
-    const RELEASE_DEADLINE = selectedReleaseDeadlines.length > 0
-      ? new Date(Math.max(...selectedReleaseDeadlines.map(d => d.getTime())))
-      : new Date(2026, 3, 27); // Fallback para 27/04/2026
-    
-    if (chartData.length > 0) {
-      const lastReal = dynamicHistory.filter(d => d["A Fazer (Real)"] !== null).pop();
-      const lastValue = lastReal?.aFazer || 0;
-      const lastDate = lastReal?.fullDate || new Date();
+    // Define labels for projections using computed velocities
+    const velBest = coneResult.velBest;
+    const velWorst = coneResult.velWorst;
+    const velTrend = coneResult.velTrend;
+    const reqVel = params.requiredVelocity;
+
+    const bLabel = `Melhor Caso (${velBest.toFixed(1)}/sem)`;
+    const wLabel = `Pior Caso (${velWorst.toFixed(1)}/sem)`;
+    const vLabel = `Tendência (${velTrend.toFixed(1)}/sem)`;
+    const reqLabel = `Velocidade Necessária (${reqVel.toFixed(1)}/sem)`;
+
+    const chartData: ChartDataPoint[] = coneResult.weeks.map(wk => {
+      const isPast = wk.concluido !== null;
       
-      // Velocidade: Percentil 85/50/15 das últimas 8 semanas (igual à planilha CONE)
-      // Planilha usa PERCENTILE(últimas 8 semanas de J=Realizado, 0.85/0.15), ROUND, mínimo 1
-      const weeklyDeliveries: number[] = [];
-      const excludedStatusesForVelocity = coneType === 'locavia' ? LOCAVIA_EXCLUDED_STATUSES : BF_CEM_EXCLUDED_STATUSES;
-      for (let w = 0; w < 8; w++) {
-        const wEnd = new Date(lastDate);
-        wEnd.setDate(wEnd.getDate() - w * 7);
-        const wStart = new Date(wEnd);
-        wStart.setDate(wStart.getDate() - 7);
-        const count = filtered.filter(i => {
-          const r = i.Resolved ? excelToJSDate(i.Resolved) : excelToJSDate(i.UpdatedAt);
-          return i.StatusCategory === 'DONE' && r && r >= wStart && r < wEnd
-            && !excludedStatusesForVelocity.includes(i.Status.toUpperCase());
-        }).length;
-        weeklyDeliveries.push(count);
-      }
-      const sortedWeeks = [...weeklyDeliveries].sort((a, b) => a - b);
-      const pct = (p: number) => {
-        const idx = (sortedWeeks.length - 1) * p;
-        const lo = Math.floor(idx), hi = Math.ceil(idx);
-        return sortedWeeks[lo] + (sortedWeeks[hi] - sortedWeeks[lo]) * (idx - lo);
+      const point: ChartDataPoint = {
+        name: formatDate(wk.week),
+        "A Fazer (Real)": isPast ? wk.melhor : null,
+        fullDate: wk.week,
+        scope: wk.planejados !== null ? (wk.planejados + (wk.transbordo || 0) + (wk.naoPlanejados || 0) + (wk.bugs || 0)) : undefined,
+        delivered: wk.concluido !== null ? wk.concluido : undefined,
+        aFazer: wk.melhor !== null ? wk.melhor : undefined,
+        [bLabel]: wk.melhor,
+        [wLabel]: wk.pior,
+        [vLabel]: wk.tendencia,
+        [reqLabel]: wk.necessaria
       };
-      const bestVelocity  = Math.max(1, Math.round(pct(0.85)));
-      const worstVelocity = Math.max(1, Math.round(pct(0.15)));
-      const velocity      = Math.max(1, Math.round(pct(0.50)));
-      
-      const vLabel = `Tendência (${velocity.toFixed(1)}/sem)`;
-      const bLabel = `Melhor Caso (${bestVelocity.toFixed(1)}/sem)`;
-      const wLabel = `Pior Caso (${worstVelocity.toFixed(1)}/sem)`;
 
-      const lastRealResolved = baseFiltered.filter(i => {
-        const r = i.Resolved ? excelToJSDate(i.Resolved) : excelToJSDate(i.UpdatedAt);
-        return i.StatusCategory === 'DONE' && r && r >= lastDate && r < new Date(lastDate.getTime() + 7 * 86400000);
-      }).length;
-
-      let currentBest = Math.max(0, lastValue - lastRealResolved);
-      let currentWorst = Math.max(0, lastValue - lastRealResolved);
-      let currentTrend = Math.max(0, lastValue - lastRealResolved);
-      
-      // Project until zero OR 20 weeks ahead
-      for (let i = 1; i <= 30; i++) {
-        currentBest = Math.max(0, currentBest - bestVelocity);
-        currentWorst = Math.max(0, currentWorst - worstVelocity);
-        currentTrend = Math.max(0, currentTrend - velocity);
-        
-        const nextDate = new Date(lastDate);
-        nextDate.setDate(nextDate.getDate() + (i * 7));
-        
-        chartData.push({
-          name: formatDate(nextDate),
-          "A Fazer (Real)": null,
-          [bLabel]: currentBest,
-          [wLabel]: currentWorst,
-          [vLabel]: currentTrend,
-          fullDate: nextDate
-        });
-        
-        // Stop if all scenarios reach zero AND we passed deadline
-        if (currentBest === 0 && currentWorst === 0 && currentTrend === 0 && nextDate > RELEASE_DEADLINE) break;
-      }
-      chartData.sort((a, b) => a.fullDate.getTime() - b.fullDate.getTime());
-    }
+      return point;
+    }).filter(d => {
+      // Filter based on selected date range
+      const isDateMatch = (!startDate || d.fullDate >= new Date(startDate)) && (!endDate || d.fullDate <= new Date(endDate));
+      // Show if date matches AND it either has real data or is after current week start
+      return isDateMatch && (d["A Fazer (Real)"] !== null || d.fullDate >= getMon(new Date())) && d.fullDate >= new Date(2024, 11, 1);
+    });
 
     // 5. Temporal Matrix Data (Heatmap)
     const minD = filtered.length > 0 ? filtered.reduce((m, i) => { const d = excelToJSDate(i.Created); return (d && d < m) ? d : m; }, new Date()) : new Date(2025, 0, 1);

@@ -427,6 +427,7 @@ const App: React.FC = () => {
               <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--warning)' }}></div> Tendência</span>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--success)' }}></div> Melhor Caso</span>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--danger)' }}></div> Pior Caso</span>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#a855f7' }}></div> V. Necessária</span>
             </div>
           </div>
           <div style={{ width: '100%', height: 380 }}>
@@ -457,11 +458,15 @@ const App: React.FC = () => {
                   if (key.startsWith('Tendência')) {
                     return <Area key={key} type="monotone" dataKey={key} stroke="var(--warning)" strokeWidth={2.5} strokeDasharray="3 3" fill="transparent" activeDot={{ r: 5 }} />;
                   }
+                  if (key.startsWith('Velocidade Necessária')) {
+                    return <Area key={key} type="monotone" dataKey={key} stroke="#a855f7" strokeWidth={2} strokeDasharray="5 5" fill="transparent" />;
+                  }
                   return null;
                 })}
               </AreaChart>
             </ResponsiveContainer>
           </div>
+
         </motion.div>
 
         <motion.div variants={itemVariants}>

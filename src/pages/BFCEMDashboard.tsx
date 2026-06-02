@@ -282,6 +282,7 @@ const BFCEMDashboard: React.FC = () => {
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--warning)' }} /> Tendência</span>
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--success)' }} /> Melhor Caso</span>
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--danger)' }} /> Pior Caso</span>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#a855f7' }} /> V. Necessária</span>
           </div>
         </div>
         <div style={{ width: '100%', height: 380 }}>
@@ -302,12 +303,14 @@ const BFCEMDashboard: React.FC = () => {
                 if (key.startsWith('Melhor Caso')) return <Area key={key} type="monotone" dataKey={key} stroke="var(--success)" strokeWidth={2} strokeDasharray="4 4" fill="transparent" />;
                 if (key.startsWith('Pior Caso')) return <Area key={key} type="monotone" dataKey={key} stroke="var(--danger)" strokeWidth={2} strokeDasharray="4 4" fill="transparent" />;
                 if (key.startsWith('Tendência')) return <Area key={key} type="monotone" dataKey={key} stroke="var(--warning)" strokeWidth={2.5} strokeDasharray="3 3" fill="transparent" activeDot={{ r: 5 }} />;
+                if (key.startsWith('Velocidade Necessária')) return <Area key={key} type="monotone" dataKey={key} stroke="#a855f7" strokeWidth={2} strokeDasharray="5 5" fill="transparent" />;
                 return null;
               })}
             </AreaChart>
           </ResponsiveContainer>
         </div>
       </motion.div>
+
 
       {/* Temporal Matrix */}
       <motion.div variants={itemVariants}>

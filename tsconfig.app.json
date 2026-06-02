@@ -24,5 +24,20 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": [
+    "src/cone/audit.ts",
+    "src/cone/compareData.ts",
+    "src/cone/extractGolden.ts",
+    "src/cone/parseExcelData.ts",
+    "src/cone/check*",
+    "src/cone/debug*",
+    "src/cone/find*",
+    "src/cone/print*",
+    "src/cone/read*",
+    "src/cone/scan*",
+    "src/cone/search*",
+    "src/cone/test*",
+    "src/cone/trace*"
+  ]
 }
