@@ -231,29 +231,39 @@ const SMDashboardWrapper = () => {
               <Download size={13} /> Exportar Análises
             </button>
           </div>
-          <div style={{ display: 'flex', gap: '0.5rem', background: 'white', borderRadius: '10px', padding: '4px', border: '1px solid var(--border-color)', flexWrap: 'wrap' }}>
-            <button onClick={() => handleTabChange('locavia')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 16px', borderRadius: '7px', border: 'none', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600, background: 'transparent', color: 'var(--text-muted)', transition: 'all 0.2s' }}>
-              <Users size={13} /> Geral
-            </button>
-            <button onClick={() => handleTabChange('bf-cem')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 16px', borderRadius: '7px', border: 'none', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600, background: 'transparent', color: 'var(--text-muted)', transition: 'all 0.2s' }}>
-              <ShoppingCart size={13} /> BF / CEM
-            </button>
-            <div style={{ width: '1px', background: 'var(--border-color)', margin: '4px 0' }}></div>
-            {SM_CONFIGS.map(c => (
-              <button 
-                key={c.id} 
-                onClick={() => handleTabChange(`sm-${c.id}` as ActiveView)} 
-                style={{ 
-                  display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 16px', borderRadius: '7px', border: 'none', cursor: 'pointer', 
-                  fontSize: '0.82rem', fontWeight: 600, 
-                  background: smId === c.id ? 'var(--primary)' : 'transparent', 
-                  color: smId === c.id ? 'white' : 'var(--text-muted)', 
-                  transition: 'all 0.2s' 
-                }}
-              >
-                <UserCircle size={13} /> {c.name}
-              </button>
-            ))}
+          <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{ fontSize: '0.62rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em', marginBottom: '4px' }}>Consolidado</span>
+              <div style={{ display: 'flex', gap: '0.25rem', background: 'white', borderRadius: '8px', padding: '3px', border: '1px solid var(--border-color)' }}>
+                <button onClick={() => handleTabChange('locavia')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '5px 12px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, background: 'transparent', color: 'var(--text-muted)', transition: 'all 0.15s' }}>
+                  <Users size={12} /> Principal
+                </button>
+                <button onClick={() => handleTabChange('bf-cem')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '5px 12px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, background: 'transparent', color: 'var(--text-muted)', transition: 'all 0.15s' }}>
+                  <ShoppingCart size={12} /> BF / CEM
+                </button>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{ fontSize: '0.62rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em', marginBottom: '4px' }}>Agilistas / SMs</span>
+              <div style={{ display: 'flex', gap: '0.25rem', background: 'white', borderRadius: '8px', padding: '3px', border: '1px solid var(--border-color)' }}>
+                {SM_CONFIGS.map(c => (
+                  <button 
+                    key={c.id} 
+                    onClick={() => handleTabChange(`sm-${c.id}` as ActiveView)} 
+                    style={{ 
+                      display: 'flex', alignItems: 'center', gap: '6px', padding: '5px 12px', borderRadius: '6px', border: 'none', cursor: 'pointer', 
+                      fontSize: '0.8rem', fontWeight: 600, 
+                      background: smId === c.id ? 'var(--primary)' : 'transparent', 
+                      color: smId === c.id ? 'white' : 'var(--text-muted)', 
+                      transition: 'all 0.15s' 
+                    }}
+                  >
+                    <UserCircle size={12} /> {c.name}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
         <SMDashboard smConfig={config} />
@@ -320,29 +330,39 @@ const App: React.FC = () => {
               <img src="/venice-logo.png" alt="Venice" style={{ height: '12px', objectFit: 'contain' }} />
             </div>
             {/* View Tabs */}
-            <div style={{ display: 'flex', gap: '0.5rem', background: 'var(--surface-color)', borderRadius: '10px', padding: '4px', border: '1px solid var(--border-color)', width: 'fit-content', flexWrap: 'wrap' }}>
-              <button
-                onClick={() => handleTabChange('locavia')}
-                style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 16px', borderRadius: '7px', border: 'none', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600, background: activeView === 'locavia' ? 'var(--primary)' : 'transparent', color: activeView === 'locavia' ? 'white' : 'var(--text-muted)', transition: 'all 0.2s' }}
-              >
-                <Users size={13} /> Geral
-              </button>
-              <button
-                onClick={() => handleTabChange('bf-cem')}
-                style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 16px', borderRadius: '7px', border: 'none', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600, background: activeView === 'bf-cem' ? 'var(--primary)' : 'transparent', color: activeView === 'bf-cem' ? 'white' : 'var(--text-muted)', transition: 'all 0.2s' }}
-              >
-                <ShoppingCart size={13} /> BF / CEM
-              </button>
-              <div style={{ width: '1px', background: 'var(--border-color)', margin: '4px 0' }}></div>
-              {SM_CONFIGS.map(c => (
-                <button
-                  key={c.id}
-                  onClick={() => handleTabChange(`sm-${c.id}` as ActiveView)}
-                  style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 16px', borderRadius: '7px', border: 'none', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600, background: activeView === `sm-${c.id}` ? 'var(--primary)' : 'transparent', color: activeView === `sm-${c.id}` ? 'white' : 'var(--text-muted)', transition: 'all 0.2s' }}
-                >
-                  <UserCircle size={13} /> {c.name}
-                </button>
-              ))}
+            <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <span style={{ fontSize: '0.62rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em', marginBottom: '4px' }}>Consolidado</span>
+                <div style={{ display: 'flex', gap: '0.25rem', background: 'var(--surface-color)', borderRadius: '8px', padding: '3px', border: '1px solid var(--border-color)' }}>
+                  <button
+                    onClick={() => handleTabChange('locavia')}
+                    style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '5px 12px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, background: activeView === 'locavia' ? 'var(--primary)' : 'transparent', color: activeView === 'locavia' ? 'white' : 'var(--text-muted)', transition: 'all 0.15s' }}
+                  >
+                    <Users size={12} /> Principal
+                  </button>
+                  <button
+                    onClick={() => handleTabChange('bf-cem')}
+                    style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '5px 12px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, background: activeView === 'bf-cem' ? 'var(--primary)' : 'transparent', color: activeView === 'bf-cem' ? 'white' : 'var(--text-muted)', transition: 'all 0.15s' }}
+                  >
+                    <ShoppingCart size={12} /> BF / CEM
+                  </button>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <span style={{ fontSize: '0.62rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em', marginBottom: '4px' }}>Agilistas / SMs</span>
+                <div style={{ display: 'flex', gap: '0.25rem', background: 'var(--surface-color)', borderRadius: '8px', padding: '3px', border: '1px solid var(--border-color)' }}>
+                  {SM_CONFIGS.map(c => (
+                    <button
+                      key={c.id}
+                      onClick={() => handleTabChange(`sm-${c.id}` as ActiveView)}
+                      style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '5px 12px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, background: activeView === `sm-${c.id}` ? 'var(--primary)' : 'transparent', color: activeView === `sm-${c.id}` ? 'white' : 'var(--text-muted)', transition: 'all 0.15s' }}
+                    >
+                      <UserCircle size={12} /> {c.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
           
@@ -355,20 +375,6 @@ const App: React.FC = () => {
                 onStartDateChange={setStartDate} onEndDateChange={setEndDate} 
               />
             </div>}
-            
-            <button 
-              onClick={() => navigate('/presentation/locavia')}
-              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--surface-color)', color: 'var(--text-main)', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', boxShadow: 'var(--shadow-sm)' }}
-            >
-              <span>📺</span> Apresentação
-            </button>
-            
-            <button 
-              onClick={() => exportComments(getComments())}
-              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--surface-color)', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', boxShadow: 'var(--shadow-sm)' }}
-            >
-              <Download size={14} /> Exportar Análises
-            </button>
             
             <div style={{ width: '1px', height: '40px', background: 'var(--border-color)' }}></div>
             

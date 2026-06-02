@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import type { SMConfig } from '../config/sm-config';
 import { useSMDashboardData } from '../hooks/useSMDashboardData';
 import { KPICard } from '../components/KPICard';
@@ -22,7 +21,6 @@ interface Props {
 }
 
 export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
-  const navigate = useNavigate();
   const [selectedTeam, setSelectedTeam] = useState<string>('ALL');
   const [daysAgo, setDaysAgo] = useState<number>(60);
   const [selectedRelease, setSelectedRelease] = useState<string>('ALL');
@@ -76,12 +74,6 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
               {smConfig.avatar}
             </span>
             Dashboard — {smConfig.name}
-            <button
-              onClick={() => navigate(`/presentation/${smConfig.id}`)}
-              className="ml-4 px-3 py-1.5 text-xs font-semibold text-blue-600 hover:text-white bg-blue-50 hover:bg-blue-600 border border-blue-200 hover:border-transparent rounded-lg flex items-center gap-1.5 transition-all shadow-sm shrink-0 cursor-pointer"
-            >
-              <span>📺</span> Apresentação
-            </button>
           </h1>
           <p className="text-sm text-slate-500 mt-1 flex items-center">
             {items.length} issues analisadas · Atualizado em {format(parsedSyncDate, 'dd/MM/yyyy HH:mm')}
