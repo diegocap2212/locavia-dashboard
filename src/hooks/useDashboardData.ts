@@ -261,25 +261,23 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
 
     const dynamicHistory = timelineWeeks.map(weekKey => {
       const weekStart = new Date(weekKey);
-      const weekEnd = new Date(weekStart.getTime() + 7 * 86400000);
-      const scopeAtWeek = baseFiltered.filter(i => {
-        const c = excelToJSDate(i.Created);
-        return c && c < weekEnd;
-      }).length;
-      const resolvedAtWeek = baseFiltered.filter(i => {
+      
+      const totalScope = baseFiltered.length;
+      
+      const resolvedBeforeStart = baseFiltered.filter(i => {
         const r = i.Resolved ? excelToJSDate(i.Resolved) : excelToJSDate(i.UpdatedAt);
-        return i.StatusCategory === 'DONE' && r && r < weekEnd;
+        return i.StatusCategory === 'DONE' && r && r < weekStart;
       }).length;
       
-      const aFazer = Math.max(0, scopeAtWeek - resolvedAtWeek);
+      const aFazer = Math.max(0, totalScope - resolvedBeforeStart);
       const isPast = weekStart <= new Date();
 
       return {
         name: formatDate(weekStart),
         "A Fazer (Real)": isPast ? aFazer : null,
         fullDate: weekStart,
-        scope: scopeAtWeek,
-        delivered: resolvedAtWeek,
+        scope: totalScope,
+        delivered: resolvedBeforeStart,
         aFazer
       };
     }).filter(d => {
@@ -333,7 +331,14 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
       const bLabel = `Melhor Caso (${bestVelocity.toFixed(1)}/sem)`;
       const wLabel = `Pior Caso (${worstVelocity.toFixed(1)}/sem)`;
 
-      let currentBest = lastValue, currentWorst = lastValue, currentTrend = lastValue;
+      const lastRealResolved = baseFiltered.filter(i => {
+        const r = i.Resolved ? excelToJSDate(i.Resolved) : excelToJSDate(i.UpdatedAt);
+        return i.StatusCategory === 'DONE' && r && r >= lastDate && r < new Date(lastDate.getTime() + 7 * 86400000);
+      }).length;
+
+      let currentBest = Math.max(0, lastValue - lastRealResolved);
+      let currentWorst = Math.max(0, lastValue - lastRealResolved);
+      let currentTrend = Math.max(0, lastValue - lastRealResolved);
       
       // Project until zero OR 20 weeks ahead
       for (let i = 1; i <= 30; i++) {

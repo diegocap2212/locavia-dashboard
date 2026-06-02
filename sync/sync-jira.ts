@@ -33,8 +33,13 @@ async function main() {
     '"CEM"', '"CEM-R1"', '"CEM-R2"'
   ];
 
+  const jornadas = [
+    '"COMPRAS"', '"ESTOQUE"', '"MOB"', '"LAKE-DOMINIO"'
+  ];
+
   const simpleJql = [
-    `( (cf[11330] in (${releases.join(',')}) AND project is not empty) OR (project in (RM, SFMKT) AND created >= -180d) )`,
+    'project is not empty',
+    `and (cf[11330] in (${releases.join(',')}) or cf[12386] in (${jornadas.join(',')}))`,
     'and type not in (Epic, subTaskIssueTypes())',
     'and cf[13065] is EMPTY',
     'and (cf[12683] not in ("TESTES-LOCAVIA") or cf[12683] is EMPTY)',

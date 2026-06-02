@@ -45,6 +45,11 @@ function percentile(sorted: number[], p: number): number | null {
   return sorted[lo] + (sorted[hi] - sorted[lo]) * (idx - lo);
 }
 
+const isSameDay = (d1: Date, d2: Date) => 
+  d1.getFullYear() === d2.getFullYear() && 
+  d1.getMonth() === d2.getMonth() && 
+  d1.getDate() === d2.getDate();
+
 export function useSMDashboardData(
   smConfig: SMConfig, 
   selectedTeamId: string, 
@@ -147,18 +152,26 @@ export function useSMDashboardData(
     let currStart = startOfWeek(earliestItemDate.getTime() > 0 ? earliestItemDate : new Date(2024, 11, 1), { weekStartsOn: 1 });
     const periodEndLimit = endOfWeek(periodEnd, { weekStartsOn: 1 });
 
-    let previousAFazer = 0; // Transbordo
+    const featuresTotal = releaseFilteredItems.length;
+
+    let previousAFazer = 0; // Transbordo carry-over
+    let prevDescartadosCommitted = 0;
+    let prevPlanejados = 0;
+    let prevNaoPlanejados = 0;
+    let prevFuraFila = 0;
+    let prevRealizado = 0;
 
     while (currStart <= periodEndLimit) {
       const currEnd = endOfWeek(currStart, { weekStartsOn: 1 });
       const weekLabel = `${currStart.getDate().toString().padStart(2, '0')}/${(currStart.getMonth() + 1).toString().padStart(2, '0')}`;
       
-      let planejados = 0;
-      let naoPlanejados = 0;
-      let furaFila = 0;
-      let realizado = 0;
-      let descartados = 0;
-      let novos = 0;
+      let planejadosCount = 0;
+      let descartadosCommittedCount = 0;
+      let naoPlanejadosCount = 0;
+      let bugsCount = 0;
+      let realizadoCount = 0;
+      let descartadosCount = 0;
+      let novosCount = 0;
       const weekLeadTimes: number[] = [];
 
       releaseFilteredItems.forEach(item => {
@@ -168,53 +181,83 @@ export function useSMDashboardData(
         
         const isCreatedInWeek = isWithinInterval(created, { start: currStart, end: currEnd });
         const isResolvedInWeek = resolved && isWithinInterval(resolved, { start: currStart, end: currEnd });
-        const isCommitInWeek = commit && isWithinInterval(commit, { start: currStart, end: currEnd });
+        const isBug = item.Type.toLowerCase() === 'bug';
 
-        // Realizado (DONE)
+        // Planejados (G)
+        if (commit) {
+          const isCommitOnFirstDay = isSameDay(commit, currStart);
+          if (isCommitOnFirstDay && !isBug) {
+            planejadosCount++;
+          }
+          
+          const isCommitInWeek = isWithinInterval(commit, { start: currStart, end: currEnd });
+          const isDescartadoInWeek = (item.Status === 'CANCELADO' || item.Status === 'DESCARTADO') && isResolvedInWeek;
+          if (isCommitInWeek && isDescartadoInWeek) {
+            descartadosCommittedCount++;
+          }
+        }
+
+        // Não Planejados (H)
+        if (commit && !isBug) {
+          const isCommitInWeek = isWithinInterval(commit, { start: currStart, end: currEnd });
+          const isCommitOnFirstDay = isSameDay(commit, currStart);
+          if (isCommitInWeek && !isCommitOnFirstDay) {
+            naoPlanejadosCount++;
+          }
+        }
+
+        // Bugs (I)
+        if (commit && isBug) {
+          const isCommitInWeek = isWithinInterval(commit, { start: currStart, end: currEnd });
+          if (isCommitInWeek) {
+            bugsCount++;
+          }
+        }
+
+        // Realizado (J)
         if (item.StatusCategory === 'DONE' && isResolvedInWeek) {
-          realizado++;
+          realizadoCount++;
           if (item.LeadTime !== null && item.LeadTime !== undefined) weekLeadTimes.push(item.LeadTime);
         }
 
-        // Descartados
+        // Descartados (K)
         if ((item.Status === 'CANCELADO' || item.Status === 'DESCARTADO') && isResolvedInWeek) {
-          descartados++;
+          descartadosCount++;
         }
 
-        // Planejados
-        if (isCommitInWeek) {
-          planejados++;
-        }
-
-        // Fura fila / Bugs
-        const isBugOrUrgent = item.Type.toLowerCase() === 'bug' || item.FuraFila?.length > 0;
-        if (isCreatedInWeek && isBugOrUrgent) {
-          furaFila++;
-        }
-
-        // Não Planejados
-        if (isCreatedInWeek && !isCommitInWeek && !isBugOrUrgent) {
-          naoPlanejados++;
-        }
-
-        // Novos (Criado na semana, não é bug)
-        if (isCreatedInWeek && item.Type.toLowerCase() !== 'bug') {
-          novos++;
+        // Novos
+        if (isCreatedInWeek && !isBug) {
+          novosCount++;
         }
       });
 
-      // Features Totais (acumulado de criados)
-      const featuresTotal = releaseFilteredItems.filter(i => parseDate(i.Created) <= currEnd).length;
+      const descartados = descartadosCount;
+      const realizado = Math.max(0, realizadoCount - descartados);
+      const planejados = planejadosCount - descartadosCommittedCount;
+      const naoPlanejados = naoPlanejadosCount;
+      const furaFila = bugsCount;
+      const novos = novosCount;
 
-      const aFazer = previousAFazer + planejados + naoPlanejados + furaFila - realizado - descartados;
-      
+      let transbordo = 0;
+      if (weeks.length > 0) {
+        transbordo = Math.max(0, prevPlanejados + previousAFazer + prevNaoPlanejados + prevFuraFila - prevRealizado) - prevDescartadosCommitted;
+        transbordo = Math.max(0, transbordo);
+      }
+
+      // Static Burndown: totalFeatures minus resolved before current week start
+      const resolvedBeforeStart = releaseFilteredItems.filter(i => {
+        const resolved = (i.Resolved ? parseDate(i.Resolved) : null) || (i.StatusCategory === 'DONE' && i.UpdatedAt ? parseDate(i.UpdatedAt) : null);
+        return i.StatusCategory === 'DONE' && resolved && resolved < currStart;
+      }).length;
+
+      const aFazer = Math.max(0, featuresTotal - resolvedBeforeStart);
       const leadTimeMed = weekLeadTimes.length ? weekLeadTimes.reduce((a,b) => a+b, 0) / weekLeadTimes.length : null;
 
       weeks.push({
         weekStart: currStart,
         weekLabel,
         featuresTotal,
-        transbordo: previousAFazer,
+        transbordo,
         planejados,
         naoPlanejados,
         furaFila,
@@ -225,7 +268,13 @@ export function useSMDashboardData(
         leadTimeMed
       });
 
-      previousAFazer = Math.max(0, aFazer); // Prevent negative backlog
+      previousAFazer = transbordo;
+      prevPlanejados = planejados;
+      prevNaoPlanejados = naoPlanejados;
+      prevFuraFila = furaFila;
+      prevRealizado = realizado;
+      prevDescartadosCommitted = descartadosCommittedCount;
+
       currStart = addDays(currStart, 7);
     }
 
