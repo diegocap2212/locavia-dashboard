@@ -1,6 +1,34 @@
 {
   "items": [
     {
+      "key": "SFMKT-146",
+      "summary": "Integração de leads - Whatsapp x Marketing Cloud",
+      "type": "História",
+      "status": "EM DESENVOLVIMENTO",
+      "statusCategory": "IN_PROGRESS",
+      "assignee": "Izaque Bernardo",
+      "created": "2026-06-03T12:30:17.257-0300",
+      "resolved": null,
+      "sprint": "SFMKT-SP Sprint 16",
+      "sprintId": 20724,
+      "sprintState": "active",
+      "storyPoints": null,
+      "priority": "Medium",
+      "labels": [],
+      "leadTimeDays": null,
+      "cycleTimeDays": null,
+      "timeInTodoDays": 0,
+      "dq": {
+        "missingResolutionDate": false,
+        "missingAssignee": false,
+        "noStatusTransitions": false,
+        "noSprint": false,
+        "staleTodo": false,
+        "suspiciouslyLongLead": false,
+        "doneWithoutCycleData": false
+      }
+    },
+    {
       "key": "SFMKT-145",
       "summary": "Monitoramento dos disparos de campanhas no Marketing Cloud",
       "type": "Subtarefa",
@@ -2473,7 +2501,7 @@
       }
     }
   ],
-  "synced_at": "2026-06-03T15:23:33.995Z",
+  "synced_at": "2026-06-03T19:40:14.814Z",
   "project": "SFMKT",
-  "total_fetched": 88
+  "total_fetched": 89
 }
