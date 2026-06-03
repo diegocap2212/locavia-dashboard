@@ -1892,14 +1892,12 @@
     "Team": "Compras e Estoque",
     "Created": "2026-05-28T10:09:07.177-0300",
     "Resolved": null,
-    "UpdatedAt": "2026-06-01T15:54:01.002-0300",
-    "Release": "CEM-R1",
+    "UpdatedAt": "2026-06-02T20:47:14.455-0300",
+    "Release": "CEM-R2",
     "StoryPoints": null,
     "Priority": "Medium",
     "Assignee": null,
-    "Labels": [
-      "NOGO-CEM-R1"
-    ],
+    "Labels": [],
     "CommitmentDate": null,
     "StartDate": null,
     "FuraFila": [],
