@@ -1,13 +1,69 @@
 {
   "items": [
     {
-      "key": "SFMKT-139",
-      "summary": "[Migração SalesCloud] Deploy da Estrutura AssineCar PF",
+      "key": "SFMKT-145",
+      "summary": "Monitoramento dos disparos de campanhas no Marketing Cloud",
+      "type": "Subtarefa",
+      "status": "EM DESENVOLVIMENTO",
+      "statusCategory": "IN_PROGRESS",
+      "assignee": "Josivan Santos de Freitas",
+      "created": "2026-06-03T10:00:01.982-0300",
+      "resolved": null,
+      "sprint": "SFMKT-SP Sprint 16",
+      "sprintId": 20724,
+      "sprintState": "active",
+      "storyPoints": null,
+      "priority": "Medium",
+      "labels": [],
+      "leadTimeDays": null,
+      "cycleTimeDays": null,
+      "timeInTodoDays": 0,
+      "dq": {
+        "missingResolutionDate": false,
+        "missingAssignee": false,
+        "noStatusTransitions": false,
+        "noSprint": false,
+        "staleTodo": false,
+        "suspiciouslyLongLead": false,
+        "doneWithoutCycleData": false
+      }
+    },
+    {
+      "key": "SFMKT-144",
+      "summary": "Aquecimento de IP ",
+      "type": "Subtarefa",
+      "status": "EM DESENVOLVIMENTO",
+      "statusCategory": "IN_PROGRESS",
+      "assignee": "Josivan Santos de Freitas",
+      "created": "2026-06-03T09:58:26.335-0300",
+      "resolved": null,
+      "sprint": "SFMKT-SP Sprint 16",
+      "sprintId": 20724,
+      "sprintState": "active",
+      "storyPoints": null,
+      "priority": "Medium",
+      "labels": [],
+      "leadTimeDays": null,
+      "cycleTimeDays": null,
+      "timeInTodoDays": 0,
+      "dq": {
+        "missingResolutionDate": false,
+        "missingAssignee": false,
+        "noStatusTransitions": false,
+        "noSprint": false,
+        "staleTodo": false,
+        "suspiciouslyLongLead": false,
+        "doneWithoutCycleData": false
+      }
+    },
+    {
+      "key": "SFMKT-143",
+      "summary": "Monitoramento dos disparos e dinâmica do aquecimento LM AssineCar",
       "type": "História",
       "status": "EM DESENVOLVIMENTO",
       "statusCategory": "IN_PROGRESS",
-      "assignee": "Izaque Bernardo",
-      "created": "2026-06-02T09:27:34.021-0300",
+      "assignee": "Josivan Santos de Freitas",
+      "created": "2026-06-03T09:54:01.037-0300",
       "resolved": null,
       "sprint": "SFMKT-SP Sprint 16",
       "sprintId": 20724,
@@ -19,6 +75,96 @@
       ],
       "leadTimeDays": null,
       "cycleTimeDays": null,
+      "timeInTodoDays": 0,
+      "dq": {
+        "missingResolutionDate": false,
+        "missingAssignee": false,
+        "noStatusTransitions": false,
+        "noSprint": false,
+        "staleTodo": false,
+        "suspiciouslyLongLead": false,
+        "doneWithoutCycleData": false
+      }
+    },
+    {
+      "key": "SFMKT-142",
+      "summary": "Disparos de aquecimento de LM AssineCar do Marketing Cloud",
+      "type": "História",
+      "status": "EM DESENVOLVIMENTO",
+      "statusCategory": "IN_PROGRESS",
+      "assignee": "Josivan Santos de Freitas",
+      "created": "2026-06-03T09:43:39.545-0300",
+      "resolved": null,
+      "sprint": "SFMKT-SP Sprint 16",
+      "sprintId": 20724,
+      "sprintState": "active",
+      "storyPoints": null,
+      "priority": "Medium",
+      "labels": [
+        "EVOLUÇÃO"
+      ],
+      "leadTimeDays": null,
+      "cycleTimeDays": null,
+      "timeInTodoDays": 0,
+      "dq": {
+        "missingResolutionDate": false,
+        "missingAssignee": false,
+        "noStatusTransitions": false,
+        "noSprint": false,
+        "staleTodo": false,
+        "suspiciouslyLongLead": false,
+        "doneWithoutCycleData": false
+      }
+    },
+    {
+      "key": "SFMKT-141",
+      "summary": "[Migração SalesCloud] Gerar HTML para captura de Leads via Web-to-Lead — AssineCar PF",
+      "type": "História",
+      "status": "Aguardando QA",
+      "statusCategory": "IN_PROGRESS",
+      "assignee": "Izaque Bernardo",
+      "created": "2026-06-03T09:17:02.905-0300",
+      "resolved": null,
+      "sprint": "SFMKT-SP Sprint 16",
+      "sprintId": 20724,
+      "sprintState": "active",
+      "storyPoints": null,
+      "priority": "Medium",
+      "labels": [
+        "EVOLUÇÃO"
+      ],
+      "leadTimeDays": null,
+      "cycleTimeDays": null,
+      "timeInTodoDays": 0,
+      "dq": {
+        "missingResolutionDate": false,
+        "missingAssignee": false,
+        "noStatusTransitions": false,
+        "noSprint": false,
+        "staleTodo": false,
+        "suspiciouslyLongLead": false,
+        "doneWithoutCycleData": false
+      }
+    },
+    {
+      "key": "SFMKT-139",
+      "summary": "[Migração SalesCloud] Deploy da Estrutura AssineCar PF",
+      "type": "História",
+      "status": "DESENV CONCLUIDO",
+      "statusCategory": "DONE",
+      "assignee": "Izaque Bernardo",
+      "created": "2026-06-02T09:27:34.021-0300",
+      "resolved": "2026-06-03T09:04:32.546-0300",
+      "sprint": "SFMKT-SP Sprint 16",
+      "sprintId": 20724,
+      "sprintState": "active",
+      "storyPoints": null,
+      "priority": "Medium",
+      "labels": [
+        "EVOLUÇÃO"
+      ],
+      "leadTimeDays": 1,
+      "cycleTimeDays": 1,
       "timeInTodoDays": 0,
       "dq": {
         "missingResolutionDate": false,
@@ -174,7 +320,7 @@
       "key": "SFMKT-132",
       "summary": "Implementar integração nativa entre Sales Cloud e Marketing Cloud (Marketing Cloud Connect)",
       "type": "História",
-      "status": "EM DESENVOLVIMENTO",
+      "status": "Aguardando QA",
       "statusCategory": "IN_PROGRESS",
       "assignee": "Izaque Bernardo",
       "created": "2026-05-26T10:13:01.821-0300",
@@ -650,8 +796,8 @@
       "key": "SFMKT-110",
       "summary": "[Migração Marketing Cloud] Dashboard de Volume de Leads Gerados",
       "type": "História",
-      "status": "SPRINT BACKLOG",
-      "statusCategory": "TODO",
+      "status": "EM DESENVOLVIMENTO",
+      "statusCategory": "IN_PROGRESS",
       "assignee": "Izaque Bernardo",
       "created": "2026-05-13T09:21:14.111-0300",
       "resolved": null,
@@ -663,7 +809,7 @@
       "labels": [],
       "leadTimeDays": null,
       "cycleTimeDays": null,
-      "timeInTodoDays": null,
+      "timeInTodoDays": 21,
       "dq": {
         "missingResolutionDate": false,
         "missingAssignee": false,
@@ -2327,7 +2473,7 @@
       }
     }
   ],
-  "synced_at": "2026-06-03T10:29:03.851Z",
+  "synced_at": "2026-06-03T15:23:33.995Z",
   "project": "SFMKT",
-  "total_fetched": 83
+  "total_fetched": 88
 }
