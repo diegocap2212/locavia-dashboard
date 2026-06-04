@@ -9745,7 +9745,7 @@
       "missingAssignee": false,
       "noStatusTransitions": false,
       "noSprint": false,
-      "staleTodo": false,
+      "staleTodo": true,
       "suspiciouslyLongLead": false
     },
     "Source": "api"
@@ -10700,7 +10700,7 @@
       "missingAssignee": false,
       "noStatusTransitions": false,
       "noSprint": false,
-      "staleTodo": false,
+      "staleTodo": true,
       "suspiciouslyLongLead": false
     },
     "Source": "api"
@@ -15849,7 +15849,7 @@
       "missingAssignee": true,
       "noStatusTransitions": false,
       "noSprint": false,
-      "staleTodo": false,
+      "staleTodo": true,
       "suspiciouslyLongLead": false
     },
     "Source": "api"
