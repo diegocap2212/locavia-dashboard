@@ -2501,37 +2501,9 @@
         "suspiciouslyLongLead": true,
         "doneWithoutCycleData": false
       }
-    },
-    {
-      "key": "SFMKT-6",
-      "summary": "Estruturação Base de Dados no Marketing Cloud ",
-      "type": "História",
-      "status": "DESCARTADO",
-      "statusCategory": "DONE",
-      "assignee": "Beatriz Barguil",
-      "created": "2026-02-06T15:53:56.249-0300",
-      "resolved": "2026-02-23T13:20:15.424-0300",
-      "sprint": "SFMKT-SP Sprint 2",
-      "sprintId": 15156,
-      "sprintState": "closed",
-      "storyPoints": null,
-      "priority": "Medium",
-      "labels": [],
-      "leadTimeDays": 17,
-      "cycleTimeDays": 3,
-      "timeInTodoDays": 14,
-      "dq": {
-        "missingResolutionDate": false,
-        "missingAssignee": false,
-        "noStatusTransitions": false,
-        "noSprint": false,
-        "staleTodo": false,
-        "suspiciouslyLongLead": false,
-        "doneWithoutCycleData": false
-      }
     }
   ],
-  "synced_at": "2026-06-06T17:59:01.632Z",
+  "synced_at": "2026-06-06T19:16:56.363Z",
   "project": "SFMKT",
-  "total_fetched": 90
+  "total_fetched": 89
 }
