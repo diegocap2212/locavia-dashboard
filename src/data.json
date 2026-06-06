@@ -8,11 +8,11 @@
     "Team": "Mobilização",
     "Created": "2026-06-06T15:23:15.227-0300",
     "Resolved": null,
-    "UpdatedAt": "2026-06-06T15:24:45.036-0300",
+    "UpdatedAt": "2026-06-06T19:34:28.473-0300",
     "Release": "CEM-R1",
     "StoryPoints": null,
     "Priority": "Medium",
-    "Assignee": "VALDECI JEFERSON PEREIRA ROCHA",
+    "Assignee": "Bruno Vinicius Isaac Costa",
     "Labels": [
       "MOB"
     ],
@@ -164,11 +164,11 @@
     "Team": "Mobilização",
     "Created": "2026-06-06T11:40:10.261-0300",
     "Resolved": null,
-    "UpdatedAt": "2026-06-06T11:45:58.217-0300",
+    "UpdatedAt": "2026-06-06T19:34:34.474-0300",
     "Release": "CEM-R1",
     "StoryPoints": null,
     "Priority": "Medium",
-    "Assignee": null,
+    "Assignee": "Bruno Vinicius Isaac Costa",
     "Labels": [
       "MOB"
     ],
@@ -187,7 +187,7 @@
     "IsPlanned": true,
     "DataQuality": {
       "missingResolutionDate": false,
-      "missingAssignee": true,
+      "missingAssignee": false,
       "noStatusTransitions": false,
       "noSprint": false,
       "staleTodo": false,
