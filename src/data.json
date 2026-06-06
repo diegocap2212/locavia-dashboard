@@ -1,6 +1,86 @@
 [
   {
     "Type": "Bug",
+    "Key": "RM-4566",
+    "Summary": "Ao finalizar implantação de veículo na etapa \"Ag. Conclusão\", veículo não avança para \"Implantação Concluída\"",
+    "Status": "SPRINT BACKLOG",
+    "StatusCategory": "TODO",
+    "Team": "Mobilização",
+    "Created": "2026-06-06T14:38:31.453-0300",
+    "Resolved": null,
+    "UpdatedAt": "2026-06-06T14:39:19.833-0300",
+    "Release": "CEM-R1",
+    "StoryPoints": null,
+    "Priority": "Medium",
+    "Assignee": "VALDECI JEFERSON PEREIRA ROCHA",
+    "Labels": [
+      "MOB"
+    ],
+    "CommitmentDate": "2026-06-06",
+    "StartDate": null,
+    "FuraFila": [],
+    "NaturezaDemanda": [
+      "EVOLUÇÃO"
+    ],
+    "CycleTime": null,
+    "TimeInTodo": null,
+    "LeadTime": null,
+    "LeadTimeP85": null,
+    "LeadTimeP15": null,
+    "TimeInStatus": {},
+    "IsPlanned": true,
+    "DataQuality": {
+      "missingResolutionDate": false,
+      "missingAssignee": false,
+      "noStatusTransitions": false,
+      "noSprint": false,
+      "staleTodo": false,
+      "suspiciouslyLongLead": false
+    },
+    "Source": "api"
+  },
+  {
+    "Type": "História",
+    "Key": "RM-4565",
+    "Summary": "COMRAS | Reenvio de Requisição para o SAP",
+    "Status": "1. BACKLOG",
+    "StatusCategory": "TODO",
+    "Team": "Compras e Estoque",
+    "Created": "2026-06-06T14:26:32.270-0300",
+    "Resolved": null,
+    "UpdatedAt": "2026-06-06T14:26:32.623-0300",
+    "Release": "CEM-R1",
+    "StoryPoints": null,
+    "Priority": "Highest",
+    "Assignee": null,
+    "Labels": [
+      "EVOLUÇÃO"
+    ],
+    "CommitmentDate": null,
+    "StartDate": null,
+    "FuraFila": [],
+    "NaturezaDemanda": [
+      "EVOLUÇÃO"
+    ],
+    "CycleTime": null,
+    "TimeInTodo": null,
+    "LeadTime": null,
+    "LeadTimeP85": null,
+    "LeadTimeP15": null,
+    "TimeInStatus": {},
+    "IsPlanned": false,
+    "DataQuality": {
+      "missingResolutionDate": false,
+      "missingAssignee": true,
+      "noStatusTransitions": false,
+      "noSprint": false,
+      "staleTodo": false,
+      "suspiciouslyLongLead": false
+    },
+    "Source": "api"
+  },
+  {
+    "Type": "Bug",
     "Key": "RM-4564",
     "Summary": "API de arquivos retorna 404 e não retorna as informações no histórico de importações",
     "Status": "1. BACKLOG",
@@ -84,10 +164,10 @@
     "Team": "Compras e Estoque",
     "Created": "2026-06-06T11:14:14.420-0300",
     "Resolved": null,
-    "UpdatedAt": "2026-06-06T11:23:42.636-0300",
+    "UpdatedAt": "2026-06-06T14:26:58.907-0300",
     "Release": "OUTROS",
     "StoryPoints": null,
-    "Priority": "Medium",
+    "Priority": "Highest",
     "Assignee": null,
     "Labels": [],
     "CommitmentDate": null,
