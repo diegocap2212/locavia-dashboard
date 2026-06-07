@@ -12912,7 +12912,7 @@
       "missingAssignee": true,
       "noStatusTransitions": false,
       "noSprint": false,
-      "staleTodo": false,
+      "staleTodo": true,
       "suspiciouslyLongLead": false
     },
     "Source": "api"
