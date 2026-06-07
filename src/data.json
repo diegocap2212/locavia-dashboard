@@ -48,11 +48,11 @@
     "Team": "Mobilização",
     "Created": "2026-06-06T14:38:31.453-0300",
     "Resolved": null,
-    "UpdatedAt": "2026-06-06T14:39:19.833-0300",
+    "UpdatedAt": "2026-06-07T11:54:58.915-0300",
     "Release": "CEM-R1",
     "StoryPoints": null,
     "Priority": "Medium",
-    "Assignee": "VALDECI JEFERSON PEREIRA ROCHA",
+    "Assignee": "William scheffer da rosa",
     "Labels": [
       "MOB"
     ],
@@ -3212,12 +3212,12 @@
     "Type": "História",
     "Key": "RM-4292",
     "Summary": "Permitir desvinculação manual de veículos do pedido de compra",
-    "Status": "QA EM PROGRESSO",
+    "Status": "DESENV CONCLUIDO",
     "StatusCategory": "DONE",
     "Team": "Compras e Estoque",
     "Created": "2026-05-27T19:25:16.754-0300",
     "Resolved": "2026-06-02T01:23:03.609Z",
-    "UpdatedAt": "2026-06-03T17:57:16.861-0300",
+    "UpdatedAt": "2026-06-07T11:51:12.320-0300",
     "Release": "CEM-R1",
     "StoryPoints": null,
     "Priority": "Medium",
@@ -3252,12 +3252,12 @@
     "Type": "História",
     "Key": "RM-4291",
     "Summary": "Permitir vinculação manual em lote de veículos ao pedido de compra",
-    "Status": "QA EM PROGRESSO",
+    "Status": "DESENV CONCLUIDO",
     "StatusCategory": "DONE",
     "Team": "Compras e Estoque",
     "Created": "2026-05-27T19:23:02.575-0300",
     "Resolved": "2026-06-02T01:23:32.937Z",
-    "UpdatedAt": "2026-06-03T17:57:14.659-0300",
+    "UpdatedAt": "2026-06-07T11:42:29.069-0300",
     "Release": "CEM-R1",
     "StoryPoints": null,
     "Priority": "Medium",
@@ -9045,7 +9045,7 @@
       "missingAssignee": true,
       "noStatusTransitions": false,
       "noSprint": false,
-      "staleTodo": false,
+      "staleTodo": true,
       "suspiciouslyLongLead": false
     },
     "Source": "api"
@@ -9161,7 +9161,7 @@
       "missingAssignee": true,
       "noStatusTransitions": false,
       "noSprint": false,
-      "staleTodo": false,
+      "staleTodo": true,
       "suspiciouslyLongLead": false
     },
     "Source": "api"
@@ -9199,7 +9199,7 @@
       "missingAssignee": true,
       "noStatusTransitions": false,
       "noSprint": false,
-      "staleTodo": false,
+      "staleTodo": true,
       "suspiciouslyLongLead": false
     },
     "Source": "api"
@@ -9237,7 +9237,7 @@
       "missingAssignee": true,
       "noStatusTransitions": false,
       "noSprint": false,
-      "staleTodo": false,
+      "staleTodo": true,
       "suspiciouslyLongLead": false
     },
     "Source": "api"
@@ -9275,7 +9275,7 @@
       "missingAssignee": true,
       "noStatusTransitions": false,
       "noSprint": false,
-      "staleTodo": false,
+      "staleTodo": true,
       "suspiciouslyLongLead": false
     },
     "Source": "api"
@@ -9389,7 +9389,7 @@
       "missingAssignee": true,
       "noStatusTransitions": false,
       "noSprint": false,
-      "staleTodo": false,
+      "staleTodo": true,
       "suspiciouslyLongLead": false
     },
     "Source": "api"
@@ -9503,7 +9503,7 @@
       "missingAssignee": false,
       "noStatusTransitions": false,
       "noSprint": false,
-      "staleTodo": false,
+      "staleTodo": true,
       "suspiciouslyLongLead": false
     },
     "Source": "api"
@@ -9729,7 +9729,7 @@
       "missingAssignee": true,
       "noStatusTransitions": false,
       "noSprint": false,
-      "staleTodo": false,
+      "staleTodo": true,
       "suspiciouslyLongLead": false
     },
     "Source": "api"
@@ -9767,7 +9767,7 @@
       "missingAssignee": true,
       "noStatusTransitions": false,
       "noSprint": false,
-      "staleTodo": false,
+      "staleTodo": true,
       "suspiciouslyLongLead": false
     },
     "Source": "api"
@@ -9805,7 +9805,7 @@
       "missingAssignee": true,
       "noStatusTransitions": false,
       "noSprint": false,
-      "staleTodo": false,
+      "staleTodo": true,
       "suspiciouslyLongLead": false
     },
     "Source": "api"
@@ -9845,7 +9845,7 @@
       "missingAssignee": true,
       "noStatusTransitions": false,
       "noSprint": false,
-      "staleTodo": false,
+      "staleTodo": true,
       "suspiciouslyLongLead": false
     },
     "Source": "api"
