@@ -1,6 +1,62 @@
 {
   "items": [
     {
+      "key": "SFMKT-149",
+      "summary": "Integração Zenvia com Salesforce",
+      "type": "Spike",
+      "status": "1. Backlog",
+      "statusCategory": "TODO",
+      "assignee": "Izaque Bernardo",
+      "created": "2026-06-07T14:30:10.162-0300",
+      "resolved": null,
+      "sprint": "SFMKT-SP Sprint 17",
+      "sprintId": 20925,
+      "sprintState": "future",
+      "storyPoints": null,
+      "priority": "Medium",
+      "labels": [],
+      "leadTimeDays": null,
+      "cycleTimeDays": null,
+      "timeInTodoDays": null,
+      "dq": {
+        "missingResolutionDate": false,
+        "missingAssignee": false,
+        "noStatusTransitions": false,
+        "noSprint": false,
+        "staleTodo": false,
+        "suspiciouslyLongLead": false,
+        "doneWithoutCycleData": false
+      }
+    },
+    {
+      "key": "SFMKT-148",
+      "summary": "Integração META x Salesforce",
+      "type": "História",
+      "status": "PRONTO PRA DESENVOLVER",
+      "statusCategory": "TODO",
+      "assignee": "Izaque Bernardo",
+      "created": "2026-06-07T14:22:58.016-0300",
+      "resolved": null,
+      "sprint": "SFMKT-SP Sprint 17",
+      "sprintId": 20925,
+      "sprintState": "future",
+      "storyPoints": null,
+      "priority": "Medium",
+      "labels": [],
+      "leadTimeDays": null,
+      "cycleTimeDays": null,
+      "timeInTodoDays": null,
+      "dq": {
+        "missingResolutionDate": false,
+        "missingAssignee": false,
+        "noStatusTransitions": false,
+        "noSprint": false,
+        "staleTodo": false,
+        "suspiciouslyLongLead": false,
+        "doneWithoutCycleData": false
+      }
+    },
+    {
       "key": "SFMKT-147",
       "summary": "CLONE - Disparos de aquecimento de LM AssineCar do Marketing Cloud",
       "type": "História",
@@ -2503,7 +2559,7 @@
       }
     }
   ],
-  "synced_at": "2026-06-07T17:02:10.624Z",
+  "synced_at": "2026-06-07T19:02:36.451Z",
   "project": "SFMKT",
-  "total_fetched": 89
+  "total_fetched": 91
 }
