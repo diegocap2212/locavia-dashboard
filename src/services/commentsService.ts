@@ -1,24 +1,30 @@
 import defaultComments from '../config/comments.json';
 import type { CommentsData } from '../types/comments';
 
-const LOCAL_STORAGE_KEY = 'locavia_dashboard_comments';
-
-export function getComments(): CommentsData {
+export async function getComments(): Promise<CommentsData> {
   try {
-    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-    const local = stored ? JSON.parse(stored) : {};
-    return { ...defaultComments, ...local };
+    const response = await fetch('/api/comments');
+    if (response.ok) {
+      const data = await response.json();
+      return { ...defaultComments, ...data };
+    }
   } catch (e) {
-    console.error('Failed to parse stored comments, using default config:', e);
-    return defaultComments as CommentsData;
+    console.error('Failed to fetch comments from backend, using default config:', e);
   }
+  return defaultComments as CommentsData;
 }
 
-export function saveComments(comments: CommentsData) {
+export async function saveComments(comments: CommentsData): Promise<void> {
   try {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(comments));
+    await fetch('/api/comments', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(comments),
+    });
   } catch (e) {
-    console.error('Failed to save comments in localStorage:', e);
+    console.error('Failed to save comments to backend:', e);
   }
 }
 

@@ -92,7 +92,11 @@ const DeckLayout: React.FC<DeckLayoutProps> = ({ data, selectedQuinzenaId, setSe
 
   // Carregar comentários
   useEffect(() => {
-    setComments(getComments());
+    let isMounted = true;
+    getComments().then(fetchedComments => {
+      if (isMounted) setComments(fetchedComments);
+    });
+    return () => { isMounted = false; };
   }, [data, selectedQuinzenaId]);
 
   const squadComments = comments[data.commentsSquadId]?.[data.commentsReleaseId]?.[selectedQuinzenaId] || {};

@@ -29,14 +29,18 @@ export const MetricCommentEditor: React.FC<Props> = ({
 
   // Load comments on mount and when targets change
   useEffect(() => {
-    const data = getComments();
-    setComments(data);
-    const comment = data[squadId]?.[releaseId]?.[quinzenaId]?.[metricId] || { gap: '', action: '' };
-    setGap(comment.gap || '');
-    setAction(comment.action || '');
+    let isMounted = true;
+    getComments().then(data => {
+      if (!isMounted) return;
+      setComments(data);
+      const comment = data[squadId]?.[releaseId]?.[quinzenaId]?.[metricId] || { gap: '', action: '' };
+      setGap(comment.gap || '');
+      setAction(comment.action || '');
+    });
+    return () => { isMounted = false; };
   }, [squadId, releaseId, quinzenaId, metricId]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const updatedComments = { ...comments };
     
     if (!updatedComments[squadId]) updatedComments[squadId] = {};
@@ -45,9 +49,9 @@ export const MetricCommentEditor: React.FC<Props> = ({
     
     updatedComments[squadId][releaseId][quinzenaId][metricId] = { gap, action };
     
-    saveComments(updatedComments);
+    setIsEditing(false); // Optimistic UI
+    await saveComments(updatedComments);
     setComments(updatedComments);
-    setIsEditing(false);
   };
 
   return (

@@ -145,7 +145,7 @@ const BFCEMDashboard: React.FC = () => {
             <span>📺</span> Apresentação
           </button>
           <button
-            onClick={() => exportComments(getComments())}
+            onClick={async () => exportComments(await getComments())}
             style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--surface-color)', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', transition: 'all 0.2s', boxShadow: 'var(--shadow-sm)' }}
           >
             <Download size={13} /> Exportar Análises
