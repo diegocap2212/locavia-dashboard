@@ -910,7 +910,7 @@
       "key": "SFMKT-110",
       "summary": "[Migração Marketing Cloud] Dashboard de Volume de Leads Gerados",
       "type": "História",
-      "status": "EM DESENVOLVIMENTO",
+      "status": "AGUARDANDO CODE REVIEW",
       "statusCategory": "IN_PROGRESS",
       "assignee": "Izaque Bernardo",
       "created": "2026-05-13T09:21:14.111-0300",
@@ -2559,7 +2559,7 @@
       }
     }
   ],
-  "synced_at": "2026-06-09T09:30:52.130Z",
+  "synced_at": "2026-06-09T15:50:47.654Z",
   "project": "SFMKT",
   "total_fetched": 91
 }
