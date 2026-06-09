@@ -87,7 +87,16 @@ const excelToJSDate = (dateStr: string | null) => {
   if (s === "" || s.toLowerCase() === "null") return null;
 
   // Handle ISO format/Hyphenated (YYYY-MM-DD)
-  if (s.includes('-')) return new Date(s);
+  if (s.includes('-')) {
+    // Fix Safari invalid date issues:
+    // 1. Convert "YYYY-MM-DD HH:MM:SS" to "YYYY-MM-DDTHH:MM:SS"
+    let safeStr = s.replace(' ', 'T');
+    // 2. Fix timezone offsets without colons (e.g. "-0300" -> "-03:00")
+    safeStr = safeStr.replace(/([+-]\d{2})(\d{2})$/, '$1:$2');
+    const d = new Date(safeStr);
+    if (!isNaN(d.getTime())) return d;
+    return new Date(s); // fallback
+  }
   
   if (s.includes('/')) {
     const [datePart, timePart] = s.split(' ');
