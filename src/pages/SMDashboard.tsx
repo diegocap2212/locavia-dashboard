@@ -15,6 +15,7 @@ import { getQuinzenas, getAutomaticActiveQuinzena, getQuinzenaById } from '../co
 import { CheckCircle2, Clock, Activity, Layers, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { excelToJSDate } from '../hooks/useDashboardData';
+import { DateRangeFilter } from '../components/DateRangeFilter';
 
 interface Props {
   smConfig: SMConfig;
@@ -22,18 +23,19 @@ interface Props {
 
 export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
   const [selectedTeam, setSelectedTeam] = useState<string>('ALL');
-  const [daysAgo, setDaysAgo] = useState<number>(60);
+  const [customStartDateStr, setCustomStartDateStr] = useState<string>('');
+  const [customEndDateStr, setCustomEndDateStr] = useState<string>('');
   const [selectedRelease, setSelectedRelease] = useState<string>('ALL');
   const [selectedQuinzenaId, setSelectedQuinzenaId] = useState<string>(() => getAutomaticActiveQuinzena());
   
   const activeQuinzena = selectedQuinzenaId !== 'CUSTOM' ? getQuinzenaById(selectedQuinzenaId) : undefined;
-  const customStart = activeQuinzena?.startDate;
-  const customEnd = activeQuinzena?.endDate;
+  const customStart = selectedQuinzenaId === 'CUSTOM' ? customStartDateStr : activeQuinzena?.startDate;
+  const customEnd = selectedQuinzenaId === 'CUSTOM' ? customEndDateStr : activeQuinzena?.endDate;
   
   const { data, loading, error, availableReleases } = useSMDashboardData(
     smConfig, 
     selectedTeam, 
-    daysAgo, 
+    60, // Default fallback
     selectedRelease, 
     customStart, 
     customEnd
@@ -140,16 +142,12 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
           {/* Days Filter */}
           {selectedQuinzenaId === 'CUSTOM' && (
             <div className="flex bg-white rounded-lg p-1 border border-slate-200 shadow-sm shrink-0">
-              <select 
-                className="bg-transparent border-none text-sm font-medium text-slate-700 py-2 pl-3 pr-8 focus:ring-0 cursor-pointer w-full outline-none"
-                value={daysAgo}
-                onChange={(e) => setDaysAgo(Number(e.target.value))}
-              >
-                <option value={30}>Últimos 30 dias</option>
-                <option value={60}>Últimos 60 dias</option>
-                <option value={90}>Últimos 90 dias</option>
-                <option value={120}>Últimos 120 dias</option>
-              </select>
+              <DateRangeFilter
+                startDate={customStartDateStr}
+                endDate={customEndDateStr}
+                onStartDateChange={setCustomStartDateStr}
+                onEndDateChange={setCustomEndDateStr}
+              />
             </div>
           )}
         </div>
