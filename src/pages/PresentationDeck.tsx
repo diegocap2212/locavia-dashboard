@@ -137,8 +137,8 @@ const DeckLayout: React.FC<DeckLayoutProps> = ({ data, selectedQuinzenaId, setSe
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [data, navigate]);
 
-  const handleExport = () => {
-    exportComments(getComments());
+  const handleExport = async () => {
+    exportComments(await getComments());
   };
 
   const handlePrint = () => {
