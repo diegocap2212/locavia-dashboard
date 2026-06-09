@@ -19,12 +19,12 @@ export const SM_CONFIGS: SMConfig[] = [
     name: 'Gabriela',
     avatar: 'GA',
     teams: [
-      { carCode: 'TAOS', displayName: 'Taos', teamFieldValues: ['TAOS', 'Crédito e Proposta'], 
+      { carCode: 'TAOS', displayName: 'Taos', teamFieldValues: ['TAOS'], 
         keyPrefixes: ['TAOS'], coneTab: 'TAOS O4R2' },
-      { carCode: 'GOL', displayName: 'Gol', teamFieldValues: ['GOL', 'Portal de Vendas Assistidas'], 
+      { carCode: 'GOL', displayName: 'Gol', teamFieldValues: ['GOL'], 
         keyPrefixes: ['GOL', 'LI'], coneTab: 'GOL O4R2' },
       { carCode: 'SALESFORCE', displayName: 'SFMktplace', 
-        teamFieldValues: ['FUSCA', 'SALES_FORCE', 'SALES FORCE', 'Pós Venda Salesforce'], 
+        teamFieldValues: ['FUSCA', 'SALES_FORCE', 'SALES FORCE'], 
         keyPrefixes: ['APV', 'SFMKT'], coneTab: 'FUSCA O4R2' },
     ]
   },
@@ -33,11 +33,11 @@ export const SM_CONFIGS: SMConfig[] = [
     name: 'Rafael',
     avatar: 'RA',
     teams: [
-      { carCode: 'OPTIMUS', displayName: 'Optimus', teamFieldValues: ['OPTIMUS', 'Contratos / Multas / Ressarcimento / Manutenção'], 
+      { carCode: 'OPTIMUS', displayName: 'Optimus', teamFieldValues: ['OPTIMUS'], 
         keyPrefixes: ['CTO'], coneTab: 'OPTIMUS O4R2' },
-      { carCode: 'NIVUS', displayName: 'Nivus', teamFieldValues: ['NIVUS', 'Portal de Auto Atendimento'], 
+      { carCode: 'NIVUS', displayName: 'Nivus', teamFieldValues: ['NIVUS'], 
         keyPrefixes: ['VAA'], coneTab: 'NIVUS O4R2' },
-      { carCode: 'JETTA', displayName: 'Jetta', teamFieldValues: ['JETTA', 'Mobilização'], 
+      { carCode: 'JETTA', displayName: 'Jetta', teamFieldValues: ['JETTA'], 
         keyPrefixes: ['JETTA', 'JVE'] },
     ]
   },
@@ -46,9 +46,9 @@ export const SM_CONFIGS: SMConfig[] = [
     name: 'Ed',
     avatar: 'ED',
     teams: [
-      { carCode: 'SCANIA', displayName: 'Scania', teamFieldValues: ['SCANIA', 'SCANIA S 650', 'Compras e Estoque'], 
+      { carCode: 'SCANIA', displayName: 'Scania', teamFieldValues: ['SCANIA', 'SCANIA S 650'], 
         keyPrefixes: ['SCANIA'] },
-      { carCode: 'PARATI', displayName: 'Parati', teamFieldValues: ['PARATI', 'Evoluções / Buy a Feature'], 
+      { carCode: 'PARATI', displayName: 'Parati', teamFieldValues: ['PARATI'], 
         keyPrefixes: ['PARATI'] },
     ]
   }

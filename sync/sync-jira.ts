@@ -21,25 +21,17 @@ async function main() {
 
   const client = new JiraClient(baseUrl, email, token);
   
-  // JQL espelhando a estrutura da planilha CONE:
-  // - cf[11330] = "Release[Labels]"
-  // - cf[12386] = "Jornada[Labels]" (4 jornadas BF/CEM que a planilha usa)
-  // - cf[13065] = "Automação[Select List (cascading)]" — excluídos (EMPTY)
-  // - cf[12683] = "Natureza da Demanda[Labels]" — excluídos TESTES-LOCAVIA
-
-  const releases = [
-    '"O4R1"', '"O4R2"', '"O4R3"',
-    '"BAF"', '"BAF-QW"',
-    '"CEM"', '"CEM-R1"', '"CEM-R2"'
-  ];
-
-  const jornadas = [
-    '"COMPRAS"', '"ESTOQUE"', '"MOB"', '"LAKE-DOMINIO"'
+  // JQL filtrando pelas labels e campos de time, ao invés de limitar por Release
+  const teamsToFetch = [
+    '"OPTIMUS"', '"NIVUS"', '"TAOS"', '"GOL"', '"FUSCA"', '"JETTA"', '"SCANIA"', '"PARATI"',
+    '"WHATSAPP"', '"SEMINOVOS"', '"TERA"', '"PLATAFORMA"', '"PRICING"', '"SANTANA"', '"AMAROK"', 
+    '"TIGUAN"', '"UP"', '"CONTRATOS"', '"MANUTENÇÃO"', '"MULTAS"', '"RESSARCIMENTO"', '"SALES_FORCE"',
+    '"D.LAKE DOMINIO"', '"DATA LAKE ESTRUTURANTE"', '"COMPRAS"', '"ESTOQUE"', '"MOB"', '"LAKE-DOMINIO"'
   ];
 
   const simpleJql = [
     'project is not empty',
-    `and (cf[11330] in (${releases.join(',')}) or cf[12386] in (${jornadas.join(',')}))`,
+    `and (labels in (${teamsToFetch.join(',')}) or cf[11795] in (${teamsToFetch.join(',')}) or cf[12386] in (${teamsToFetch.join(',')}))`,
     'and type not in (Epic, subTaskIssueTypes())',
     'and cf[13065] is EMPTY',
     'and (cf[12683] not in ("TESTES-LOCAVIA") or cf[12683] is EMPTY)',
