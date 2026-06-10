@@ -7,7 +7,7 @@ export interface QuinzenaConfig {
 }
 
 export const QUINZENAS: QuinzenaConfig[] = [
-  { id: '2026-01-08', label: 'Quinzena 08/01 (11/12 a 07/01)', startDate: '2026-12-11', endDate: '2026-01-07', presentationDate: new Date('2026-01-08T00:00:00') },
+  { id: '2026-01-08', label: 'Quinzena 08/01 (11/12 a 07/01)', startDate: '2025-12-11', endDate: '2026-01-07', presentationDate: new Date('2026-01-08T00:00:00') },
   { id: '2026-01-22', label: 'Quinzena 22/01 (25/12 a 21/01)', startDate: '2025-12-25', endDate: '2026-01-21', presentationDate: new Date('2026-01-22T00:00:00') },
   { id: '2026-02-05', label: 'Quinzena 05/02 (08/01 a 04/02)', startDate: '2026-01-08', endDate: '2026-02-04', presentationDate: new Date('2026-02-05T00:00:00') },
   { id: '2026-02-19', label: 'Quinzena 19/02 (22/01 a 18/02)', startDate: '2026-01-22', endDate: '2026-02-18', presentationDate: new Date('2026-02-19T00:00:00') },

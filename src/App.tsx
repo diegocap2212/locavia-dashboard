@@ -428,7 +428,7 @@ const App: React.FC = () => {
                         </span>
                       </td>
                       <td style={{ color: 'var(--text-muted)', fontWeight: 500 }}>
-                        {item.Created ? formatDate(excelToJSDate(item.Created)!) : '-'}
+                        {(() => { const d = excelToJSDate(item.Created); return d ? formatDate(d) : '-'; })()}
                       </td>
                     </tr>
                   );

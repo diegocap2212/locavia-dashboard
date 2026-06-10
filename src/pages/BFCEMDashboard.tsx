@@ -37,7 +37,8 @@ const BFCEMDashboard: React.FC = () => {
     selectedTeams, setSelectedTeams,
     selectedReleases, setSelectedReleases,
     startDate, setStartDate, endDate, setEndDate,
-    temporalMatrixData
+    temporalMatrixData,
+    loading
   } = useDashboardData('bf-cem');
 
   const releaseBadgeColor: Record<string, string> = {
@@ -66,6 +67,17 @@ const BFCEMDashboard: React.FC = () => {
     else if (view === 'bf-cem') navigate('/cone-bf-cem');
     else navigate(`/sm/${view.replace('sm-', '')}`);
   };
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-slate-50">
+        <div className="flex flex-col items-center">
+          <div className="h-12 w-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4" />
+          <p className="text-slate-600 font-medium">Carregando métricas...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <motion.main className="dashboard-content" variants={containerVariants} initial="hidden" animate="show">
@@ -353,7 +365,7 @@ const BFCEMDashboard: React.FC = () => {
                     <td style={{ maxWidth: '300px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: 500 }}>{item.Summary as string}</td>
                     <td><span className={`badge ${isDone ? 'badge-success' : 'badge-warning'}`}>{item.Status}</span></td>
                     <td><span style={{ padding: '2px 8px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 700, background: badgeColor + '22', color: badgeColor, border: `1px solid ${badgeColor}44` }}>{item.Release}</span></td>
-                    <td style={{ color: 'var(--text-muted)', fontWeight: 500 }}>{item.Created ? formatDate(excelToJSDate(item.Created)!) : '-'}</td>
+                    <td style={{ color: 'var(--text-muted)', fontWeight: 500 }}>{(() => { const d = excelToJSDate(item.Created); return d ? formatDate(d) : '-'; })()}</td>
                   </tr>
                 );
               })}

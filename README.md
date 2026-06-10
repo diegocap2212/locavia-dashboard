@@ -1,30 +1,122 @@
-# React + TypeScript + Vite
+# Locavia Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Dashboard de métricas Agile para as equipes de software automotivo da Locavia. Visualiza dados de throughput, lead time, burndown CONE e análises qualitativas por time e quinzena.
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## 🚀 Como Rodar o Dashboard Localmente
-
-1. Execute o comando: `npm install` (apenas na primeira vez)
-2. Execute o comando: `npm run dev`
-3. Acesse o link gerado: [http://localhost:5173](http://localhost:5173)
+**Stack:** Vite + React 19 + TypeScript (strict) + Recharts + TailwindCSS  
+**Backend:** Vercel Serverless Functions + Upstash Redis  
+**Deploy:** Vercel (CI/CD automático via push na `main`)
 
 ---
 
-## 📈 Regras de Sincronização (Paridade CONE)
+## Rotas
+
+| Rota | Conteúdo |
+|------|----------|
+| `/` | Dashboard principal — Locavia (cone geral, KPIs, matriz temporal) |
+| `/cone-bf-cem` | Dashboard BF/CEM — compras e customer experience |
+| `/sm/gabriela` | Dashboard individual — SM Gabriela (TAOS, GOL, SFMktplace) |
+| `/sm/rafael` | Dashboard individual — SM Rafael (OPTIMUS, NIVUS, JETTA) |
+| `/sm/ed` | Dashboard individual — SM Ed (SCANIA, PARATI) |
+| `/presentation/:smId` | Deck executivo de apresentação |
+
+---
+
+## Como Rodar Localmente
+
+```bash
+# 1. Instalar dependências
+npm install
+
+# 2. Configurar variáveis de ambiente
+cp .env.example .env
+# Preencha VITE_CLOUD_DATA_URL e KV_REST_API_URL/KV_REST_API_TOKEN
+
+# 3. Subir servidor de desenvolvimento
+npm run dev
+# → http://localhost:5173
+
+# 4. (Opcional) Sincronizar dados do Jira/Salesforce
+npm run sync:jira
+npm run sync:sfmkt
+```
+
+---
+
+## Variáveis de Ambiente
+
+| Variável | Descrição |
+|---|---|
+| `VITE_CLOUD_DATA_URL` | URL do Google Sheets (gviz/tq) com os dados de issues |
+| `KV_REST_API_URL` | Endpoint Upstash Redis (para persistência de análises) |
+| `KV_REST_API_TOKEN` | Token Upstash Redis |
+| `JIRA_API_TOKEN` | Token Jira Cloud (usado apenas nos scripts de sync) |
+| `JIRA_USER_EMAIL` | E-mail do usuário Jira (scripts de sync) |
+| `JIRA_BASE_URL` | URL da instância Jira (scripts de sync) |
+
+As variáveis `KV_*` são configuradas automaticamente ao linkar um Vercel KV Store no painel da Vercel.
+
+---
+
+## Build e Deploy
+
+```bash
+# Build local (TypeScript + Vite)
+npm run build
+# Gera dist/
+
+# Deploy automático
+git push origin main
+# → Vercel detecta o push e faz o deploy
+```
+
+O pipeline de build completo (`npm run build`) executa:
+1. `npm run sync:sfmkt` — sincroniza dados do Salesforce Marketplace
+2. `tsc -b` — verificação TypeScript strict (zero warnings tolerados)
+3. `vite build` — bundle otimizado
+
+---
+
+## Arquitetura
+
+```
+src/
+├── App.tsx                    # Roteamento principal (React Router v7)
+├── pages/
+│   ├── BFCEMDashboard.tsx    # Dashboard BF/CEM (lazy-loaded)
+│   ├── SMDashboard.tsx       # Dashboard por Scrum Master
+│   └── PresentationDeck.tsx  # Deck executivo
+├── hooks/
+│   ├── useDashboardData.ts   # Hook principal: dados + filtros + cone (~600 linhas)
+│   └── useSMDashboardData.ts # Hook por SM: métricas filtradas por time
+├── components/               # Gráficos e UI reutilizáveis (Recharts)
+├── services/
+│   ├── dataService.ts        # Fetch Google Sheets com fallback para data.json
+│   └── commentsService.ts    # CRUD de análises qualitativas via /api/comments
+├── config/
+│   ├── sm-config.ts          # Configuração dos SMs e seus times
+│   ├── quinzenas.ts          # Calendário de quinzenas (períodos de apresentação)
+│   └── release-config.json   # Mapeamento de releases
+└── types/                    # Interfaces TypeScript (Jira, Comments, etc.)
+
+api/
+└── comments.ts               # Vercel serverless: GET/POST análises no Redis
+```
+
+**Persistência de análises:** Cada análise qualitativa é salva no Redis com a chave:
+`comments[teamId][releaseId][quinzenaId][metricId]`
+
+---
+
+## Regras de Sincronização (Paridade CONE)
 
 Para garantir que o Dashboard reflita exatamente os números da planilha mestre **TI-LM CONE**, o script de sincronização segue estas regras:
 
-### 1. Critérios de Inclusão (Filtro Positivo)
+### Critérios de Inclusão (Filtro Positivo)
 O sistema busca itens que atendam a **PELO MENOS UM** destes critérios:
 - **Release**: Deve estar em uma das versões mapeadas (ex: `O4R1`, `O4R2`, `CEM`, `Release 01`).
 - **Jornada**: Se não houver release, o item deve pertencer a uma das 30+ jornadas oficiais (ex: `FATURAMENTO`, `LOGÍSTICA`, `VENDAS_AUTO-ATENDIMENTO`) dentro dos projetos core (`VAA`, `RM`, `LKD`, etc).
 
-### 2. Filtro de Saneamento (Filtro Negativo)
+### Filtro de Saneamento (Filtro Negativo)
 Mesmo que atenda aos critérios acima, o item é **DESCARTADO** se o status for:
 - `1. BACKLOG` ou `BACKLOG`
 - `EM REFINAMENTO`, `REFINANDO` ou `A REFINAR`
@@ -36,7 +128,8 @@ Mesmo que atenda aos critérios acima, o item é **DESCARTADO** se o status for:
 
 ---
 
-## ⚠️ Governança e Melhores Práticas
+## Governança e Boas Práticas
 
-- Sempre consulte o [Guia de Preenchimento](file:///C:/Users/Usuario/.gemini/antigravity/brain/ddbd9bff-355f-4901-8dc0-887c99a22c0d/guia_jira.md) para garantir que o time não gere ruídos.
 - Verifique o card **Qualidade dos Dados** no Dashboard para identificar itens "Done" sem data de resolução.
+- Análises qualitativas devem ser registradas **por time** — ao selecionar um time específico no filtro do dashboard SM, a análise ficará vinculada àquele time (não ao SM como um todo).
+- Quinzenas com datas de início e fim corretas garantem que os filtros de período funcionem. Qualquer nova quinzena deve ser adicionada em `src/config/quinzenas.ts` seguindo o padrão `YYYY-MM-DD`.

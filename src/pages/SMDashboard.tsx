@@ -209,12 +209,12 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
       </div>
 
       <div className="mb-8">
-        <MetricCommentEditor 
-          squadId={smConfig.id} 
-          releaseId={selectedRelease} 
+        <MetricCommentEditor
+          squadId={selectedTeam}
+          releaseId={selectedRelease}
           quinzenaId={selectedQuinzenaId}
-          metricId="vazao" 
-          metricLabel="Vazão Semanal" 
+          metricId="vazao"
+          metricLabel="Vazão Semanal"
         />
       </div>
 
@@ -262,19 +262,19 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
-        <MetricCommentEditor 
-          squadId={smConfig.id} 
-          releaseId={selectedRelease} 
+        <MetricCommentEditor
+          squadId={selectedTeam}
+          releaseId={selectedRelease}
           quinzenaId={selectedQuinzenaId}
-          metricId="leadTime" 
-          metricLabel="Lead Time" 
+          metricId="leadTime"
+          metricLabel="Lead Time"
         />
-        <MetricCommentEditor 
-          squadId={smConfig.id} 
-          releaseId={selectedRelease} 
+        <MetricCommentEditor
+          squadId={selectedTeam}
+          releaseId={selectedRelease}
           quinzenaId={selectedQuinzenaId}
-          metricId="flowBalance" 
-          metricLabel="Balanço do Fluxo" 
+          metricId="flowBalance"
+          metricLabel="Balanço do Fluxo"
         />
       </div>
 
