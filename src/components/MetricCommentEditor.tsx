@@ -43,7 +43,13 @@ export const MetricCommentEditor: React.FC<Props> = ({
   }, [squadId, releaseId, quinzenaId, metricId]);
 
   const handleSave = async () => {
-    const updatedComments = { ...comments };
+    setIsSaving(true);
+    setSaveError(false);
+
+    // Re-fetch antes de salvar para evitar race condition quando múltiplos
+    // MetricCommentEditors estão na mesma página e cada um tem seu próprio estado.
+    const latestComments = await getComments();
+    const updatedComments = { ...latestComments };
 
     if (!updatedComments[squadId]) updatedComments[squadId] = {};
     if (!updatedComments[squadId][releaseId]) updatedComments[squadId][releaseId] = {};
@@ -51,8 +57,6 @@ export const MetricCommentEditor: React.FC<Props> = ({
 
     updatedComments[squadId][releaseId][quinzenaId][metricId] = { gap, action };
 
-    setIsSaving(true);
-    setSaveError(false);
     const ok = await saveComments(updatedComments);
     setIsSaving(false);
     if (ok) {

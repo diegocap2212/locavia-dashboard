@@ -20,4 +20,12 @@ function copyFolderPlugin() {
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), copyFolderPlugin()],
+  server: {
+    proxy: {
+      '/api': {
+        target: process.env.VITE_API_URL || 'http://localhost:3000',
+        changeOrigin: true,
+      },
+    },
+  },
 })

@@ -35,7 +35,11 @@ cp .env.example .env
 npm run dev
 # → http://localhost:5173
 
-# 4. (Opcional) Sincronizar dados do Jira/Salesforce
+# 4. (Opcional) Para testar a API de comments localmente, configure no .env:
+# VITE_API_URL="https://locavia-dashboard.vercel.app"
+# Isso faz o Vite proxiar /api/* para a URL deployada do Vercel.
+
+# 5. (Opcional) Sincronizar dados do Jira/Salesforce
 npm run sync:jira
 npm run sync:sfmkt
 ```
@@ -79,27 +83,43 @@ O pipeline de build completo (`npm run build`) executa:
 ## Arquitetura
 
 ```
-src/
-├── App.tsx                    # Roteamento principal (React Router v7)
-├── pages/
-│   ├── BFCEMDashboard.tsx    # Dashboard BF/CEM (lazy-loaded)
-│   ├── SMDashboard.tsx       # Dashboard por Scrum Master
-│   └── PresentationDeck.tsx  # Deck executivo
-├── hooks/
-│   ├── useDashboardData.ts   # Hook principal: dados + filtros + cone (~600 linhas)
-│   └── useSMDashboardData.ts # Hook por SM: métricas filtradas por time
-├── components/               # Gráficos e UI reutilizáveis (Recharts)
-├── services/
-│   ├── dataService.ts        # Fetch Google Sheets com fallback para data.json
-│   └── commentsService.ts    # CRUD de análises qualitativas via /api/comments
-├── config/
-│   ├── sm-config.ts          # Configuração dos SMs e seus times
-│   ├── quinzenas.ts          # Calendário de quinzenas (períodos de apresentação)
-│   └── release-config.json   # Mapeamento de releases
-└── types/                    # Interfaces TypeScript (Jira, Comments, etc.)
-
-api/
-└── comments.ts               # Vercel serverless: GET/POST análises no Redis
+locavia-dashboard/
+├── src/                       # Código da SPA (tudo que vai pro browser)
+│   ├── App.tsx                # Roteamento principal (React Router v7)
+│   ├── pages/
+│   │   ├── BFCEMDashboard.tsx # Dashboard BF/CEM (lazy-loaded)
+│   │   ├── SMDashboard.tsx    # Dashboard por Scrum Master
+│   │   └── PresentationDeck.tsx
+│   ├── hooks/
+│   │   ├── useDashboardData.ts   # Hook principal: dados + filtros + cone
+│   │   └── useSMDashboardData.ts # Hook por SM
+│   ├── components/            # Gráficos e UI reutilizáveis (Recharts)
+│   ├── services/
+│   │   ├── dataService.ts     # Fetch Google Sheets com fallback para data.json
+│   │   └── commentsService.ts # CRUD de análises via /api/comments
+│   ├── config/                # Configurações de SM, quinzenas, releases
+│   ├── types/                 # Interfaces TypeScript
+│   └── cone/                  # Algoritmo de cálculo CONE (computeCone.ts)
+│
+├── api/
+│   └── comments.ts            # Vercel serverless: GET/POST análises no Redis
+│
+├── sync/                      # Scripts de sincronização (Jira + Salesforce)
+│   ├── sync-jira.ts
+│   └── sfmkt-sync.ts
+│
+├── scripts/                   # Scripts de build e verificação de dados
+│   ├── update-data.ts
+│   ├── verify-data.ts
+│   └── process-local-csv.ts
+│
+├── tools/                     # Utilitários de desenvolvimento (não vão pro browser)
+│   ├── scratch/               # Scripts ad-hoc de análise e investigação
+│   ├── debug/                 # Helpers de debug e comparação de dados
+│   ├── debug-render.cjs       # Helper de renderização para debug
+│   └── find-fields.ts         # Descoberta de campos Jira
+│
+└── tests/                     # Playwright E2E tests
 ```
 
 **Persistência de análises:** Cada análise qualitativa é salva no Redis com a chave:
