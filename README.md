@@ -148,6 +148,45 @@ Mesmo que atenda aos critérios acima, o item é **DESCARTADO** se o status for:
 
 ---
 
+## Testes E2E (Playwright)
+
+Os testes verificam: persistência de análises, isolamento entre times, mudança de quinzena e feedback visual dos botões.
+
+### Pré-requisitos
+
+```bash
+# Obter credenciais do Redis (necessário uma vez)
+vercel env pull .env.local
+```
+
+O `.env.local` já deve conter (adicionado automaticamente):
+```
+VITE_API_URL=http://localhost:3001
+```
+
+### Rodar os testes
+
+```bash
+# Em um terminal: inicia o servidor API local (porta 3001, lê Redis via .env.local)
+npm run api:local
+
+# Em outro terminal: inicia o Vite dev (porta 5173, proxy → 3001)
+npm run dev
+
+# Em outro terminal: roda os testes
+npx playwright test tests/comments-e2e.spec.ts --config=playwright.local.config.ts
+```
+
+Ou deixe o Playwright subir tudo automaticamente (mais lento na primeira vez):
+```bash
+npx playwright test tests/comments-e2e.spec.ts --config=playwright.local.config.ts
+```
+
+> **Nota:** O `playwright.vercel.config.ts` aponta para a URL de produção mas o Vercel tem
+> Security Checkpoint que bloqueia browsers automatizados. Use sempre o `playwright.local.config.ts`.
+
+---
+
 ## Governança e Boas Práticas
 
 - Verifique o card **Qualidade dos Dados** no Dashboard para identificar itens "Done" sem data de resolução.
