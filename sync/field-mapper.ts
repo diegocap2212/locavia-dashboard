@@ -1,4 +1,5 @@
 import { JiraApiIssue, DashboardItem } from '../src/types/jira';
+import { extractStoryPoints } from './story-points';
 
 const teamMapping: Record<string, string> = {
   'WHATSAPP': 'WHATSAPP',
@@ -201,7 +202,7 @@ export function mapJiraIssueToDashboardItem(issue: JiraApiIssue): DashboardItem 
     Resolved: issue.fields.resolutiondate || null,
     UpdatedAt: issue.fields.updated || issue.fields.created,
     Release: finalRelease,
-    StoryPoints: null,
+    StoryPoints: extractStoryPoints(issue.fields),
     Priority: issue.fields.priority?.name || 'Medium',
     Assignee: issue.fields.assignee?.displayName || null,
     Labels: issue.fields.labels || [],

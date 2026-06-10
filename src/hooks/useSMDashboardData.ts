@@ -25,6 +25,8 @@ export interface WeeklyConeMetrics {
   novos: number;
   aFazer: number;
   leadTimeMed: number | null;
+  pointsCommitted: number;
+  pointsDelivered: number;
 }
 
 export interface WeeklyFlowDataPoint {
@@ -172,6 +174,8 @@ export function useSMDashboardData(
       let realizadoCount = 0;
       let descartadosCount = 0;
       let novosCount = 0;
+      let weekPointsCommitted = 0;
+      let weekPointsDelivered = 0;
       const weekLeadTimes: number[] = [];
 
       releaseFilteredItems.forEach(item => {
@@ -214,10 +218,21 @@ export function useSMDashboardData(
           }
         }
 
+        // Pontos comprometidos: qualquer item com CommitmentDate na semana
+        // (espelha "Entrada (Total)" = planejados + não planejados + fura-fila).
+        if (commit && isWithinInterval(commit, { start: currStart, end: currEnd })) {
+          weekPointsCommitted += item.StoryPoints || 0;
+        }
+
         // Realizado (J)
         if (item.StatusCategory === 'DONE' && isResolvedInWeek) {
           realizadoCount++;
           if (item.LeadTime !== null && item.LeadTime !== undefined) weekLeadTimes.push(item.LeadTime);
+        }
+
+        // Pontos entregues: itens DONE resolvidos na semana, exceto cancelados/descartados (espelha "Realizadas").
+        if (item.StatusCategory === 'DONE' && isResolvedInWeek && item.Status !== 'CANCELADO' && item.Status !== 'DESCARTADO') {
+          weekPointsDelivered += item.StoryPoints || 0;
         }
 
         // Descartados (K)
@@ -265,7 +280,9 @@ export function useSMDashboardData(
         descartados,
         novos,
         aFazer,
-        leadTimeMed
+        leadTimeMed,
+        pointsCommitted: weekPointsCommitted,
+        pointsDelivered: weekPointsDelivered
       });
 
       previousAFazer = transbordo;
@@ -369,6 +386,18 @@ export function useSMDashboardData(
       count: sortedLeadTimes.filter(v => v >= b.min && v <= b.max).length
     }));
 
+    // ── Pontos (Story Points) no período ──
+    // Totais derivados das semanas filtradas para bater 1:1 com os gráficos.
+    const pointsDeliveredTotal = filteredWeeks.reduce((acc, w) => acc + w.pointsDelivered, 0);
+    const pointsCommittedTotal = filteredWeeks.reduce((acc, w) => acc + w.pointsCommitted, 0);
+    // Cobertura de estimativa: % dos itens entregues no período que têm StoryPoints preenchido.
+    const deliveredInPeriod = releaseFilteredItems.filter(i => {
+      const resolved = (i.Resolved ? parseDate(i.Resolved) : null) || (i.StatusCategory === 'DONE' && i.UpdatedAt ? parseDate(i.UpdatedAt) : null);
+      return i.StatusCategory === 'DONE' && resolved && resolved >= periodStart && resolved <= periodEnd && i.Status !== 'CANCELADO' && i.Status !== 'DESCARTADO';
+    });
+    const deliveredWithPoints = deliveredInPeriod.filter(i => i.StoryPoints !== null && i.StoryPoints !== undefined).length;
+    const pointsCoverage = deliveredInPeriod.length > 0 ? Math.round((deliveredWithPoints / deliveredInPeriod.length) * 100) : 0;
+
     return {
       items: activeItems,
       weeks: filteredWeeks,
@@ -381,7 +410,10 @@ export function useSMDashboardData(
         leadTimeP85: leadTimeP85 ? Math.round(leadTimeP85) : null,
         leadTimeP15: leadTimeP15 ? Math.round(leadTimeP15) : null,
         wip,
-        aFazer: globalAFazer
+        aFazer: globalAFazer,
+        pointsDelivered: pointsDeliveredTotal,
+        pointsCommitted: pointsCommittedTotal,
+        pointsCoverage
       },
       debug: {
         raw: rawData.length,

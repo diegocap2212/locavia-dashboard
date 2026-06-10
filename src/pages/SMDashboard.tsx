@@ -11,8 +11,10 @@ import { IssueTypeDonut } from '../components/IssueTypeDonut';
 import { FlowBalanceChart } from '../components/FlowBalanceChart';
 import { LeadTimeHistogram } from '../components/LeadCycleTimeHistogram';
 import { MetricCommentEditor } from '../components/MetricCommentEditor';
+import { PointsVelocityChart } from '../components/PointsVelocityChart';
+import { PointsCommittedVsDeliveredChart } from '../components/PointsCommittedVsDeliveredChart';
 import { getQuinzenas, getAutomaticActiveQuinzena, getQuinzenaById } from '../config/quinzenas';
-import { CheckCircle2, Clock, Activity, Layers, Loader2 } from 'lucide-react';
+import { CheckCircle2, Clock, Activity, Layers, Loader2, TrendingUp, Target, Gauge, Percent } from 'lucide-react';
 import { format } from 'date-fns';
 import { DateRangeFilter } from '../components/DateRangeFilter';
 import dataMeta from '../data-meta.json';
@@ -229,6 +231,78 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
             <PlannedVsDeliveredChart data={weeks} />
           </div>
         </div>
+      </div>
+
+      {/* ── SEÇÃO: Pontos das User Stories ── */}
+      <div className="mb-4">
+        <h2 className="text-xl font-bold text-slate-800 flex items-center">
+          <span className="text-violet-500 mr-2">◆</span> Pontos das User Stories
+        </h2>
+        <p className="text-sm text-slate-500 mt-1">Velocidade e aderência ao compromisso, em story points</p>
+      </div>
+
+      {/* KPIs de Pontos */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+        <KPICard
+          title="Pontos Entregues"
+          value={kpis.pointsDelivered}
+          subtext="no período"
+          icon={TrendingUp}
+          iconColorClass="text-violet-500 bg-violet-50"
+        />
+        <KPICard
+          title="Comprometidos"
+          value={kpis.pointsCommitted}
+          subtext="pontos no período"
+          icon={Target}
+          iconColorClass="text-slate-500 bg-slate-100"
+        />
+        <KPICard
+          title="Aderência"
+          value={kpis.pointsCommitted > 0 ? `${Math.round((kpis.pointsDelivered / kpis.pointsCommitted) * 100)}%` : '—'}
+          subtext="entregue / comprometido"
+          icon={Gauge}
+          iconColorClass="text-blue-500 bg-blue-50"
+        />
+        <KPICard
+          title="Cobertura"
+          value={`${kpis.pointsCoverage}%`}
+          subtext={kpis.pointsCoverage < 50 ? '⚠️ poucas USs com ponto' : 'USs com estimativa'}
+          icon={Percent}
+          iconColorClass={kpis.pointsCoverage < 50 ? 'text-amber-500 bg-amber-50' : 'text-emerald-500 bg-emerald-50'}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col h-[450px]">
+          <h2 className="text-lg font-bold text-slate-800 mb-1 flex items-center">
+            <span className="text-violet-500 mr-2">⚡</span> Velocidade (Pontos Entregues por Semana)
+          </h2>
+          <p className="text-sm text-slate-500 mb-4">Story points concluídos a cada semana</p>
+          <div className="flex-1 min-h-0">
+            <PointsVelocityChart data={weeks} />
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col h-[450px]">
+          <h2 className="text-lg font-bold text-slate-800 mb-1 flex items-center">
+            <span className="text-blue-500 mr-2">★</span> Comprometido vs Entregue (Pontos)
+          </h2>
+          <p className="text-sm text-slate-500 mb-4">Pontos comprometidos vs efetivamente entregues por semana</p>
+          <div className="flex-1 min-h-0">
+            <PointsCommittedVsDeliveredChart data={weeks} />
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-8">
+        <MetricCommentEditor
+          squadId={selectedTeam}
+          releaseId={selectedRelease}
+          quinzenaId={selectedQuinzenaId}
+          metricId="pontos"
+          metricLabel="Pontos das User Stories"
+        />
       </div>
 
       {/* ── ROW 3: Flow Balance + Scatter + Histogram ── */}

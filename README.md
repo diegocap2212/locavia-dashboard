@@ -108,6 +108,7 @@ locavia-dashboard/
 │
 ├── sync/                      # Scripts de sincronização (Jira + Salesforce)
 │   ├── sync-jira.ts
+│   ├── story-points.ts        # Fonte única de extração de story points (compartilhado)
 │   └── sfmkt-sync.ts
 │
 ├── scripts/                   # Scripts de build e verificação de dados
@@ -159,6 +160,10 @@ Mesmo que atenda aos critérios acima, o item é **DESCARTADO** se o status for:
 
 > [!IMPORTANT]
 > Estas regras garantem uma paridade de ~100% com a aba "BASE CONE" da planilha SharePoint, filtrando ruídos e itens que ainda não entraram em ciclo de entrega.
+
+### Story Points das User Stories
+
+O sync puxa os story points do Jira via [`sync/story-points.ts`](sync/story-points.ts) (campos `customfield_10026` = "Story Points" clássico e `customfield_10016` = "Story point estimate" team-managed) e popula `StoryPoints` em cada item do `data.json`. O dashboard de SM usa isso para a seção **"Pontos das User Stories"** (Velocidade e Comprometido vs Entregue), agregada em [`useSMDashboardData.ts`](src/hooks/useSMDashboardData.ts). A seção exibe a **cobertura de estimativa** (% de USs entregues com ponto) como indicador de confiança no dado.
 
 ### Indicador de frescura dos dados (`syncedAt`)
 

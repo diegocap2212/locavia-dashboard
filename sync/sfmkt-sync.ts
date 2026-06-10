@@ -2,6 +2,7 @@ import 'dotenv/config';
 import fs from 'fs/promises';
 import path from 'path';
 import { JiraClient } from './jira-client.js';
+import { extractStoryPoints } from './story-points.js';
 import type { SFMKTItem, SFMKTDashboardData, DataQualityFlags } from '../src/types/sfmkt.js';
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -21,11 +22,6 @@ const IN_PROGRESS_STATUSES = [
 const DONE_STATUS_CATEGORIES = ['done'];
 
 const SPRINT_CUSTOM_FIELD = 'customfield_10020'; // standard Jira sprint field
-const STORY_POINTS_FIELDS = [
-  'customfield_10016', // story_points (next-gen)
-  'customfield_10028', // story points (classic)
-  'story_points',
-];
 
 // Issue types to exclude (sub-tasks only — by name, not by function)
 const EXCLUDED_TYPES = ['sub-task', 'subtask', 'sub task', 'epic'];
@@ -61,16 +57,6 @@ function extractSprintInfo(sprintField: any): {
     startDate: s.startDate || null,
     endDate: s.endDate || null,
   };
-}
-
-function extractStoryPoints(fields: Record<string, any>): number | null {
-  for (const f of STORY_POINTS_FIELDS) {
-    if (fields[f] !== undefined && fields[f] !== null) {
-      const val = Number(fields[f]);
-      if (!isNaN(val)) return val;
-    }
-  }
-  return null;
 }
 
 function computeCycleAndTodo(

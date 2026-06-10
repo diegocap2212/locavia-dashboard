@@ -34,6 +34,7 @@ O que conta como mudança estrutural:
 - `GET /api/comments` reconstrói a árvore aninhada que o frontend espera; mudanças na API devem preservar esse formato de leitura.
 - Datas em `src/config/quinzenas.ts` devem usar formato `YYYY-MM-DD` com ano correto.
 - O header "Sincronizado em…" do `SMDashboard.tsx` lê `src/data-meta.json` (`syncedAt`, gravado por `sync/sync-jira.ts`). Não voltar a derivar a data de `items[0].UpdatedAt` — aquilo era o "updated" de uma issue arbitrária, não a hora do sync. O `data-meta.json` precisa existir no repo (import estático) e ser commitado pelo workflow horário.
+- Story points: a extração vive **só** em `sync/story-points.ts` (`extractStoryPoints` + `STORY_POINTS_FIELDS`); `field-mapper.ts` e `sfmkt-sync.ts` importam de lá — não duplicar. Neste Jira os campos são `customfield_10026` ("Story Points") e `customfield_10016` ("Story point estimate"), e ambos precisam estar no array `fields` de `jira-client.ts` senão não vêm na resposta. `StoryPoints` pode ser `null` (US sem estimativa) — tratar como 0 nas somas e expor a cobertura.
 
 ## Testes
 
