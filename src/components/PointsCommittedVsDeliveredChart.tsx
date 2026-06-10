@@ -11,7 +11,7 @@ interface TooltipProps {
   payload?: readonly {
     payload?: { 'Comprometido': number; 'Entregue': number; 'Saldo': number };
   }[];
-  label?: string;
+  label?: string | number;
 }
 
 const renderTooltip = ({ active, payload, label }: TooltipProps) => {

@@ -22,7 +22,7 @@ O que conta como mudança estrutural:
 
 ## Stack e Restrições
 
-- **TypeScript strict** (`noUnusedLocals: true`, `noUnusedParameters: true`) — zero erros tolerados. Sempre rodar `tsc --noEmit` antes de commitar.
+- **TypeScript strict** (`noUnusedLocals: true`, `noUnusedParameters: true`) — zero erros tolerados. Rodar **`tsc -b`** antes de commitar — **não** `tsc --noEmit`: o root `tsconfig.json` tem `files: []`, então `tsc --noEmit` é no-op (checa zero arquivos e passa falsamente). Só `tsc -b` type-checa o `src/` via project references — é exatamente o que o Vercel roda no build.
 - **Vercel build command** em `vercel.json`: `tsc -b && vite build` (não usa `npm run build` para evitar o `sync:sfmkt` que requer credenciais externas).
 - **`vite.config.ts`** usa `loadEnv()` para ler `VITE_API_URL` do `.env.local` — necessário para o proxy funcionar no dev local.
 

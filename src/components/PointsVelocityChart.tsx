@@ -8,17 +8,17 @@ interface Props {
 
 interface TooltipProps {
   active?: boolean;
-  payload?: Array<{ value: number }>;
-  label?: string;
+  payload?: readonly { value?: number | string }[];
+  label?: string | number;
 }
 
-const renderTooltip = ({ active, payload, label }: TooltipProps) => {
+const PointsTooltip = ({ active, payload, label }: TooltipProps) => {
   if (!active || !payload?.length) return null;
   return (
     <div className="bg-white p-3 rounded-xl shadow-lg border border-slate-200 min-w-[160px]">
       <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-1">Semana {label}</p>
       <p className="text-sm text-slate-700">
-        Pontos entregues: <span className="font-bold text-violet-600">{payload[0].value}</span>
+        Pontos entregues: <span className="font-bold text-violet-600">{payload[0].value ?? 0}</span>
       </p>
     </div>
   );
@@ -48,7 +48,7 @@ export const PointsVelocityChart: React.FC<Props> = ({ data }) => {
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
           <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94A3B8', fontSize: 11 }} dy={8} />
           <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94A3B8', fontSize: 11 }} />
-          <Tooltip content={renderTooltip} cursor={{ fill: '#F1F5F9' }} />
+          <Tooltip content={<PointsTooltip />} cursor={{ fill: '#F1F5F9' }} />
           <Bar dataKey="Pontos Entregues" fill="url(#barGradViolet)" radius={[4, 4, 0, 0]} maxBarSize={48} />
         </BarChart>
       </ResponsiveContainer>
