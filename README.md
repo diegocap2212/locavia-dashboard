@@ -99,7 +99,9 @@ locavia-dashboard/
 │   │   └── commentsService.ts # CRUD de análises via /api/comments
 │   ├── config/                # Configurações de SM, quinzenas, releases
 │   ├── types/                 # Interfaces TypeScript
-│   └── cone/                  # Algoritmo de cálculo CONE (computeCone.ts)
+│   ├── cone/                  # Algoritmo de cálculo CONE (computeCone.ts)
+│   ├── data.json              # Dados sincronizados do Jira (gerado pelo sync)
+│   └── data-meta.json         # { syncedAt } — hora real da última sincronização
 │
 ├── api/
 │   └── comments.ts            # Vercel serverless: GET/POST análises no Redis
@@ -129,7 +131,7 @@ locavia-dashboard/
 (`locavia_dashboard_comments_v2`), onde cada campo é um comentário isolado:
 
 - **Campo:** `encodeURIComponent(squadId):encodeURIComponent(releaseId):encodeURIComponent(quinzenaId):encodeURIComponent(metricId)`
-- **Valor:** `{ gap, action }`
+- **Valor:** `{ gap, action, updatedAt }` — `updatedAt` é um timestamp ISO gerado **no servidor** a cada save (`POST /api/comments`) e exibido como "Última edição em…" no card. É opcional na leitura, então análises antigas sem o campo continuam válidas.
 
 Cada save faz `HSET` apenas no seu próprio campo — escrita **atômica e isolada**, sem
 read-modify-write do blob inteiro. Isso elimina a condição de corrida entre múltiplos
@@ -157,6 +159,12 @@ Mesmo que atenda aos critérios acima, o item é **DESCARTADO** se o status for:
 
 > [!IMPORTANT]
 > Estas regras garantem uma paridade de ~100% com a aba "BASE CONE" da planilha SharePoint, filtrando ruídos e itens que ainda não entraram em ciclo de entrega.
+
+### Indicador de frescura dos dados (`syncedAt`)
+
+A cada execução, `sync/sync-jira.ts` grava `src/data-meta.json` com o timestamp real da sincronização (`{ syncedAt }`). O header dos dashboards de SM lê esse valor e exibe **"Sincronizado em DD/MM/AAAA HH:mm"** — antes a data era inferida do `UpdatedAt` de uma issue arbitrária, o que não refletia a frescura real.
+
+Como o `syncedAt` muda a cada run, o workflow horário (`git add … src/data-meta.json`) **commita toda hora**, garantindo um redeploy no Vercel e funcionando como _heartbeat_: se a data no header parar de avançar enquanto o git mostra novos commits "automated hourly sync", o Vercel não está redeployando (verifique um eventual "Ignored Build Step" no painel do projeto).
 
 ---
 

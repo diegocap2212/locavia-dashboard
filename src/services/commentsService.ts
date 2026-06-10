@@ -23,7 +23,7 @@ export async function saveComment(
   quinzenaId: string,
   metricId: string,
   comment: MetricComment
-): Promise<boolean> {
+): Promise<{ ok: boolean; updatedAt?: string }> {
   try {
     const response = await fetch('/api/comments', {
       method: 'POST',
@@ -35,12 +35,13 @@ export async function saveComment(
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
       console.error('Failed to save comment:', err);
-      return false;
+      return { ok: false };
     }
-    return true;
+    const data = await response.json().catch(() => ({}));
+    return { ok: true, updatedAt: data.updatedAt };
   } catch (e) {
     console.error('Failed to save comment to backend:', e);
-    return false;
+    return { ok: false };
   }
 }
 

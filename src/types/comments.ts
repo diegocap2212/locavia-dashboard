@@ -1,6 +1,7 @@
 export interface MetricComment {
   gap: string;
   action: string;
+  updatedAt?: string; // ISO timestamp da última edição (gerado no servidor)
 }
 
 export interface QuinzenaComments {

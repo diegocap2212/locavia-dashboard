@@ -77,9 +77,10 @@ const server = http.createServer(async (req, res) => {
         return;
       }
       const field = encodeField(squadId, releaseId, quinzenaId, metricId);
-      await redis.hset(HASH_KEY, { [field]: { gap: gap || '', action: action || '' } });
+      const updatedAt = new Date().toISOString();
+      await redis.hset(HASH_KEY, { [field]: { gap: gap || '', action: action || '', updatedAt } });
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ success: true }));
+      res.end(JSON.stringify({ success: true, updatedAt }));
       return;
     }
 

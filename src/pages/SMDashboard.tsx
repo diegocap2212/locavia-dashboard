@@ -14,8 +14,8 @@ import { MetricCommentEditor } from '../components/MetricCommentEditor';
 import { getQuinzenas, getAutomaticActiveQuinzena, getQuinzenaById } from '../config/quinzenas';
 import { CheckCircle2, Clock, Activity, Layers, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
-import { excelToJSDate } from '../hooks/useDashboardData';
 import { DateRangeFilter } from '../components/DateRangeFilter';
+import dataMeta from '../data-meta.json';
 
 interface Props {
   smConfig: SMConfig;
@@ -63,8 +63,9 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
   }
 
   const { items, kpis, weeks, weeklyFlowData, issueTypeBreakdown, leadTimeHistogram } = data;
-  const lastSyncDate = items.length > 0 ? items[0].UpdatedAt : new Date().toISOString();
-  const parsedSyncDate = excelToJSDate(lastSyncDate) || new Date();
+  // Hora real da última sincronização com o Jira, gravada por sync/sync-jira.ts em src/data-meta.json.
+  // (Antes mostrávamos items[0].UpdatedAt — o "updated" de uma issue qualquer — que não refletia a frescura dos dados.)
+  const syncedAt = new Date((dataMeta as { syncedAt: string }).syncedAt);
 
   return (
     <div className="min-h-screen bg-slate-50 p-6 md:p-8 font-sans">
@@ -78,7 +79,7 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
             Dashboard — {smConfig.name}
           </h1>
           <p className="text-sm text-slate-500 mt-1 flex items-center">
-            {items.length} issues analisadas · Atualizado em {format(parsedSyncDate, 'dd/MM/yyyy HH:mm')}
+            {items.length} issues analisadas · Sincronizado em {format(syncedAt, 'dd/MM/yyyy HH:mm')}
           </p>
         </div>
         

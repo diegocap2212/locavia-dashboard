@@ -63,7 +63,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add src/data.json sfmkt_data.json
+          git add src/data.json sfmkt_data.json src/data-meta.json
           
           # Check if there are changes before committing
           if git diff --quiet && git diff --staged --quiet; then

@@ -65,10 +65,12 @@ export default async function handler(req: any, res: any) {
       }
 
       const field = encodeField(squadId, releaseId, quinzenaId, metricId);
+      // Timestamp da edição gerado no servidor (fonte autoritativa, evita relógio do cliente).
+      const updatedAt = new Date().toISOString();
       // Escrita atômica e isolada: só este campo é tocado. Sem clobber entre editores.
-      await redis.hset(HASH_KEY, { [field]: { gap: gap || '', action: action || '' } });
+      await redis.hset(HASH_KEY, { [field]: { gap: gap || '', action: action || '', updatedAt } });
 
-      return res.status(200).json({ success: true, message: 'Comment saved successfully' });
+      return res.status(200).json({ success: true, message: 'Comment saved successfully', updatedAt });
     }
 
     res.status(405).json({ error: 'Method not allowed' });

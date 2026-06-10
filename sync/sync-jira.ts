@@ -56,7 +56,14 @@ async function main() {
     // Save to data.json
     const outputPath = path.resolve(process.cwd(), 'src/data.json');
     await fs.writeFile(outputPath, JSON.stringify(dashboardItems, null, 2), 'utf-8');
-    
+
+    // Grava o timestamp real desta sincronização. O header dos dashboards de SM
+    // lê este valor (em vez de inferir a "frescura" a partir de uma issue qualquer),
+    // e ele também serve de heartbeat: se travar em produção enquanto o git mostra
+    // novos commits de sync, é sinal de que o Vercel não está redeployando.
+    const metaPath = path.resolve(process.cwd(), 'src/data-meta.json');
+    await fs.writeFile(metaPath, JSON.stringify({ syncedAt: new Date().toISOString() }, null, 2), 'utf-8');
+
     console.log(`✅ Sucesso! ${dashboardItems.length} itens salvos em src/data.json`);
     
   } catch (error) {

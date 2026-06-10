@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Edit3, Save, AlertCircle, CheckCircle } from 'lucide-react';
+import { Edit3, Save, AlertCircle, CheckCircle, CalendarClock } from 'lucide-react';
+import { format } from 'date-fns';
 import { getComments, saveComment } from '../services/commentsService';
+import { getQuinzenaById } from '../config/quinzenas';
 
 interface Props {
   squadId: string;
@@ -26,6 +28,9 @@ export const MetricCommentEditor: React.FC<Props> = ({
   const [saveError, setSaveError] = useState(false);
   const [gap, setGap] = useState('');
   const [action, setAction] = useState('');
+  const [updatedAt, setUpdatedAt] = useState<string | undefined>(undefined);
+
+  const quinzenaLabel = getQuinzenaById(quinzenaId)?.label;
 
   // Load comments on mount and when targets change
   useEffect(() => {
@@ -33,12 +38,14 @@ export const MetricCommentEditor: React.FC<Props> = ({
     // Reset imediato para evitar mostrar análise do target anterior enquanto carrega
     setGap('');
     setAction('');
+    setUpdatedAt(undefined);
     setIsEditing(false);
     getComments().then(data => {
       if (!isMounted) return;
       const comment = data[squadId]?.[releaseId]?.[quinzenaId]?.[metricId] || { gap: '', action: '' };
       setGap(comment.gap || '');
       setAction(comment.action || '');
+      setUpdatedAt(comment.updatedAt);
     });
     return () => { isMounted = false; };
   }, [squadId, releaseId, quinzenaId, metricId]);
@@ -50,10 +57,11 @@ export const MetricCommentEditor: React.FC<Props> = ({
     // Escrita atômica e isolada: o backend faz HSET apenas neste campo.
     // Não há mais read-modify-write do blob inteiro, então editores
     // concorrentes na mesma página não se sobrescrevem.
-    const ok = await saveComment(squadId, releaseId, quinzenaId, metricId, { gap, action });
+    const res = await saveComment(squadId, releaseId, quinzenaId, metricId, { gap, action });
 
     setIsSaving(false);
-    if (ok) {
+    if (res.ok) {
+      setUpdatedAt(res.updatedAt);
       setIsEditing(false);
     } else {
       setSaveError(true);
@@ -62,10 +70,17 @@ export const MetricCommentEditor: React.FC<Props> = ({
 
   return (
     <div className="premium-card" style={{ padding: '1.25rem', marginTop: '1rem', border: '1px solid var(--border-color)', background: 'var(--surface-color)' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-        <h4 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-main)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-          Análise Qualitativa — {metricLabel}
-        </h4>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+          <h4 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-main)', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>
+            Análise Qualitativa — {metricLabel}
+          </h4>
+          {quinzenaLabel && (
+            <span style={{ fontSize: '0.72rem', fontWeight: 500, color: 'var(--text-muted)' }}>
+              {quinzenaLabel}
+            </span>
+          )}
+        </div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
           <button
             onClick={() => isEditing ? handleSave() : setIsEditing(true)}
@@ -174,6 +189,11 @@ export const MetricCommentEditor: React.FC<Props> = ({
               {action || <span style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>Nenhum plano de ação registrado pelo Scrum Master para esta métrica.</span>}
             </p>
           </div>
+          {updatedAt && (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+              <CalendarClock size={11} /> Última edição em {format(new Date(updatedAt), 'dd/MM/yyyy HH:mm')}
+            </span>
+          )}
         </div>
       )}
     </div>
