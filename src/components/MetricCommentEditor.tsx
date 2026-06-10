@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Edit3, Save, AlertCircle, CheckCircle } from 'lucide-react';
-import { getComments, saveComments } from '../services/commentsService';
+import { getComments, saveComment } from '../services/commentsService';
 
 interface Props {
   squadId: string;
@@ -47,18 +47,11 @@ export const MetricCommentEditor: React.FC<Props> = ({
     setIsSaving(true);
     setSaveError(false);
 
-    // Re-fetch antes de salvar para evitar race condition quando múltiplos
-    // MetricCommentEditors estão na mesma página e cada um tem seu próprio estado.
-    const latestComments = await getComments();
-    const updatedComments = { ...latestComments };
+    // Escrita atômica e isolada: o backend faz HSET apenas neste campo.
+    // Não há mais read-modify-write do blob inteiro, então editores
+    // concorrentes na mesma página não se sobrescrevem.
+    const ok = await saveComment(squadId, releaseId, quinzenaId, metricId, { gap, action });
 
-    if (!updatedComments[squadId]) updatedComments[squadId] = {};
-    if (!updatedComments[squadId][releaseId]) updatedComments[squadId][releaseId] = {};
-    if (!updatedComments[squadId][releaseId][quinzenaId]) updatedComments[squadId][releaseId][quinzenaId] = {};
-
-    updatedComments[squadId][releaseId][quinzenaId][metricId] = { gap, action };
-
-    const ok = await saveComments(updatedComments);
     setIsSaving(false);
     if (ok) {
       setIsEditing(false);

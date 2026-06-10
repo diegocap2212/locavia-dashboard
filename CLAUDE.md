@@ -29,8 +29,9 @@ O que conta como mudança estrutural:
 ## Invariantes críticas
 
 - `MetricCommentEditor` deve sempre receber `squadId={selectedTeam}` (não `smConfig.id`) em `SMDashboard.tsx` — senão análises replicam entre times.
-- Análises no Redis são indexadas por `[teamId][releaseId][quinzenaId][metricId]` — nunca salvar sob o ID do SM.
-- `handleSave` em `MetricCommentEditor` faz fresh-fetch antes de escrever para evitar race condition entre múltiplos editores na mesma página.
+- Análises no Redis ficam num **Hash** (`locavia_dashboard_comments_v2`), campo `encodeURIComponent(squadId):...(releaseId):...(quinzenaId):...(metricId)` → `{ gap, action }`. Nunca salvar sob o ID do SM como squadId.
+- `saveComment` envia **um único comentário**; o backend faz `HSET` só naquele campo (escrita atômica/isolada). Não voltar para o padrão de salvar o blob inteiro — isso reintroduz a condição de corrida entre editores.
+- `GET /api/comments` reconstrói a árvore aninhada que o frontend espera; mudanças na API devem preservar esse formato de leitura.
 - Datas em `src/config/quinzenas.ts` devem usar formato `YYYY-MM-DD` com ano correto.
 
 ## Testes

@@ -117,13 +117,25 @@ locavia-dashboard/
 │   ├── scratch/               # Scripts ad-hoc de análise e investigação
 │   ├── debug/                 # Helpers de debug e comparação de dados
 │   ├── debug-render.cjs       # Helper de renderização para debug
-│   └── find-fields.ts         # Descoberta de campos Jira
+│   ├── find-fields.ts         # Descoberta de campos Jira
+│   ├── local-api-server.ts    # API de comments local (porta 3001) p/ testes E2E
+│   ├── migrate-comments-to-hash.ts # Migração blob -> Redis Hash (one-shot)
+│   └── inspect-redis.ts       # Inspeciona/limpa o conteúdo do Redis
 │
 └── tests/                     # Playwright E2E tests
 ```
 
-**Persistência de análises:** Cada análise qualitativa é salva no Redis com a chave:
-`comments[teamId][releaseId][quinzenaId][metricId]`
+**Persistência de análises:** Cada análise qualitativa é salva no Redis como um **Hash**
+(`locavia_dashboard_comments_v2`), onde cada campo é um comentário isolado:
+
+- **Campo:** `encodeURIComponent(squadId):encodeURIComponent(releaseId):encodeURIComponent(quinzenaId):encodeURIComponent(metricId)`
+- **Valor:** `{ gap, action }`
+
+Cada save faz `HSET` apenas no seu próprio campo — escrita **atômica e isolada**, sem
+read-modify-write do blob inteiro. Isso elimina a condição de corrida entre múltiplos
+editores na mesma página e o risco de um save sobrescrever os dados de outro time.
+O `GET /api/comments` reconstrói a árvore aninhada (`[squadId][releaseId][quinzenaId][metricId]`)
+que o frontend consome. O blob legado `locavia_dashboard_comments` é mantido como backup.
 
 ---
 

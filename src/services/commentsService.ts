@@ -1,36 +1,45 @@
-import defaultComments from '../config/comments.json';
-import type { CommentsData } from '../types/comments';
+import type { CommentsData, MetricComment } from '../types/comments';
 
 export async function getComments(): Promise<CommentsData> {
   try {
     const response = await fetch('/api/comments');
     if (response.ok) {
-      const data = await response.json();
-      return { ...defaultComments, ...data };
+      return await response.json();
     }
   } catch (e) {
-    console.error('Failed to fetch comments from backend, using default config:', e);
+    console.error('Failed to fetch comments from backend:', e);
   }
-  return defaultComments as CommentsData;
+  return {};
 }
 
-export async function saveComments(comments: CommentsData): Promise<boolean> {
+/**
+ * Salva UM comentário de forma atômica e isolada.
+ * O backend faz HSET apenas no campo correspondente — não há read-modify-write
+ * do blob inteiro, então editores concorrentes não se sobrescrevem.
+ */
+export async function saveComment(
+  squadId: string,
+  releaseId: string,
+  quinzenaId: string,
+  metricId: string,
+  comment: MetricComment
+): Promise<boolean> {
   try {
     const response = await fetch('/api/comments', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(comments),
+      body: JSON.stringify({ squadId, releaseId, quinzenaId, metricId, ...comment }),
     });
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
-      console.error('Failed to save comments:', err);
+      console.error('Failed to save comment:', err);
       return false;
     }
     return true;
   } catch (e) {
-    console.error('Failed to save comments to backend:', e);
+    console.error('Failed to save comment to backend:', e);
     return false;
   }
 }
