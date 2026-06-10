@@ -32,6 +32,10 @@ export const MetricCommentEditor: React.FC<Props> = ({
   // Load comments on mount and when targets change
   useEffect(() => {
     let isMounted = true;
+    // Reset imediato para evitar mostrar análise do target anterior enquanto carrega
+    setGap('');
+    setAction('');
+    setIsEditing(false);
     getComments().then(data => {
       if (!isMounted) return;
       setComments(data);
