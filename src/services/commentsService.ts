@@ -14,17 +14,24 @@ export async function getComments(): Promise<CommentsData> {
   return defaultComments as CommentsData;
 }
 
-export async function saveComments(comments: CommentsData): Promise<void> {
+export async function saveComments(comments: CommentsData): Promise<boolean> {
   try {
-    await fetch('/api/comments', {
+    const response = await fetch('/api/comments', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(comments),
     });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      console.error('Failed to save comments:', err);
+      return false;
+    }
+    return true;
   } catch (e) {
     console.error('Failed to save comments to backend:', e);
+    return false;
   }
 }
 

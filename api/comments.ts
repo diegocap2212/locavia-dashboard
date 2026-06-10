@@ -37,7 +37,9 @@ export default async function handler(req: any, res: any) {
       }
 
       // Salva no Redis (substitui o valor atual)
-      await redis.set(REDIS_KEY, JSON.stringify(body));
+      // Passa o objeto diretamente — o cliente @upstash/redis serializa internamente.
+      // JSON.stringify aqui causaria double-encoding: GET retornaria string em vez de objeto.
+      await redis.set(REDIS_KEY, body);
       
       return res.status(200).json({ success: true, message: 'Comments saved successfully' });
     }

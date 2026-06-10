@@ -23,6 +23,8 @@ export const MetricCommentEditor: React.FC<Props> = ({
   placeholderAction = "Proponha a solução ágil e planos de ação do time..."
 }) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState(false);
   const [comments, setComments] = useState<CommentsData>({});
   const [gap, setGap] = useState('');
   const [action, setAction] = useState('');
@@ -42,16 +44,23 @@ export const MetricCommentEditor: React.FC<Props> = ({
 
   const handleSave = async () => {
     const updatedComments = { ...comments };
-    
+
     if (!updatedComments[squadId]) updatedComments[squadId] = {};
     if (!updatedComments[squadId][releaseId]) updatedComments[squadId][releaseId] = {};
     if (!updatedComments[squadId][releaseId][quinzenaId]) updatedComments[squadId][releaseId][quinzenaId] = {};
-    
+
     updatedComments[squadId][releaseId][quinzenaId][metricId] = { gap, action };
-    
-    setIsEditing(false); // Optimistic UI
-    await saveComments(updatedComments);
-    setComments(updatedComments);
+
+    setIsSaving(true);
+    setSaveError(false);
+    const ok = await saveComments(updatedComments);
+    setIsSaving(false);
+    if (ok) {
+      setIsEditing(false);
+      setComments(updatedComments);
+    } else {
+      setSaveError(true);
+    }
   };
 
   return (
@@ -60,34 +69,45 @@ export const MetricCommentEditor: React.FC<Props> = ({
         <h4 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-main)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
           Análise Qualitativa — {metricLabel}
         </h4>
-        <button
-          onClick={() => isEditing ? handleSave() : setIsEditing(true)}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            fontSize: '0.75rem',
-            fontWeight: 600,
-            padding: '4px 10px',
-            borderRadius: '6px',
-            border: 'none',
-            background: isEditing ? 'var(--success-light)' : 'var(--bg-color)',
-            color: isEditing ? 'var(--success)' : 'var(--text-muted)',
-            cursor: 'pointer',
-            transition: 'all 0.2s',
-            boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
-          }}
-        >
-          {isEditing ? (
-            <>
-              <Save size={12} /> Salvar Análise
-            </>
-          ) : (
-            <>
-              <Edit3 size={12} /> Registrar Diagnóstico
-            </>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+          <button
+            onClick={() => isEditing ? handleSave() : setIsEditing(true)}
+            disabled={isSaving}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              padding: '4px 10px',
+              borderRadius: '6px',
+              border: 'none',
+              background: isEditing ? 'var(--success-light)' : 'var(--bg-color)',
+              color: isEditing ? 'var(--success)' : 'var(--text-muted)',
+              cursor: isSaving ? 'not-allowed' : 'pointer',
+              opacity: isSaving ? 0.6 : 1,
+              transition: 'all 0.2s',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+            }}
+          >
+            {isSaving ? (
+              <>Salvando...</>
+            ) : isEditing ? (
+              <>
+                <Save size={12} /> Salvar Análise
+              </>
+            ) : (
+              <>
+                <Edit3 size={12} /> Registrar Diagnóstico
+              </>
+            )}
+          </button>
+          {saveError && (
+            <span style={{ fontSize: '0.7rem', color: '#ef4444' }}>
+              Erro ao salvar. Verifique a conexão e tente novamente.
+            </span>
           )}
-        </button>
+        </div>
       </div>
 
       {isEditing ? (
