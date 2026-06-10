@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Edit3, Save, AlertCircle, CheckCircle } from 'lucide-react';
 import { getComments, saveComments } from '../services/commentsService';
-import type { CommentsData } from '../types/comments';
 
 interface Props {
   squadId: string;
@@ -25,7 +24,6 @@ export const MetricCommentEditor: React.FC<Props> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState(false);
-  const [comments, setComments] = useState<CommentsData>({});
   const [gap, setGap] = useState('');
   const [action, setAction] = useState('');
 
@@ -38,7 +36,6 @@ export const MetricCommentEditor: React.FC<Props> = ({
     setIsEditing(false);
     getComments().then(data => {
       if (!isMounted) return;
-      setComments(data);
       const comment = data[squadId]?.[releaseId]?.[quinzenaId]?.[metricId] || { gap: '', action: '' };
       setGap(comment.gap || '');
       setAction(comment.action || '');
@@ -65,7 +62,6 @@ export const MetricCommentEditor: React.FC<Props> = ({
     setIsSaving(false);
     if (ok) {
       setIsEditing(false);
-      setComments(updatedComments);
     } else {
       setSaveError(true);
     }
