@@ -17,7 +17,8 @@
     "update-data": "tsx scripts/update-data.ts",
     "test": "playwright test",
     "verify-all": "npm run verify-data && npm test",
-    "cone:audit": "tsx scripts/cone-audit.ts"
+    "cone:audit": "tsx scripts/cone-audit.ts",
+    "api:local": "tsx tools/local-api-server.ts"
   },
   "dependencies": {
     "@upstash/redis": "^1.38.0",
