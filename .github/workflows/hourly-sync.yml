@@ -4,6 +4,8 @@ on:
   schedule:
     - cron: '0 * * * *' # Every hour
   workflow_dispatch: # Allows manual trigger
+  push:
+    branches: [main] # TEMPORÁRIO: forçar sync no push (será revertido)
 
 jobs:
   sync:
