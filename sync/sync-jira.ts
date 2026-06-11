@@ -29,14 +29,14 @@ async function main() {
     '"D.LAKE DOMINIO"', '"DATA LAKE ESTRUTURANTE"', '"COMPRAS"', '"ESTOQUE"', '"MOB"', '"LAKE-DOMINIO"'
   ];
 
-  const simpleJql = [
-    'project is not empty',
-    `and (labels in (${teamsToFetch.join(',')}) or cf[11795] in (${teamsToFetch.join(',')}) or cf[12386] in (${teamsToFetch.join(',')}))`,
-    'and type not in (Epic, subTaskIssueTypes())',
-    'and cf[13065] is EMPTY',
-    'and (cf[12683] not in ("TESTES-LOCAVIA") or cf[12683] is EMPTY)',
-    'ORDER BY created DESC'
-  ].join(' ');
+  // Filtro dos times LM (labels/campos de time) + saneamentos específicos da LM.
+  const teamClause = `(labels in (${teamsToFetch.join(',')}) or cf[11795] in (${teamsToFetch.join(',')}) or cf[12386] in (${teamsToFetch.join(',')}))`;
+  const commonExclusions = `type not in (Epic, subTaskIssueTypes()) and cf[13065] is EMPTY and (cf[12683] not in ("TESTES-LOCAVIA") or cf[12683] is EMPTY)`;
+  const lmFilter = `${teamClause} and ${commonExclusions}`;
+  // SFMKT (Salesforce Marketplace) é projeto próprio: traz tudo do projeto, só excluindo épicos/subtarefas.
+  // Não aplicar cf[13065]/cf[12683] (filtros específicos dos projetos LM) para não descartar issues do SFMKT.
+  const sfmktFilter = `project = SFMKT and type not in (Epic, subTaskIssueTypes())`;
+  const simpleJql = `(${lmFilter}) OR (${sfmktFilter}) ORDER BY created DESC`;
 
   console.log(`Iniciando sincronização Jira... JQL: ${simpleJql}`);
 

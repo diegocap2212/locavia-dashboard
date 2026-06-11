@@ -161,6 +161,10 @@ Mesmo que atenda aos critérios acima, o item é **DESCARTADO** se o status for:
 > [!IMPORTANT]
 > Estas regras garantem uma paridade de ~100% com a aba "BASE CONE" da planilha SharePoint, filtrando ruídos e itens que ainda não entraram em ciclo de entrega.
 
+### SFMKT (Salesforce Marketplace)
+
+A aba **"SFMktplace"** da Gabi vem do **sync principal** (`src/data.json`), como qualquer outro time: o JQL do [`sync-jira.ts`](sync/sync-jira.ts) inclui `OR (project = SFMKT ...)` e o [`field-mapper.ts`](sync/field-mapper.ts) marca `Team='SFMKT'` para keys `SFMKT-*`. A team `SALESFORCE` em [`sm-config.ts`](src/config/sm-config.ts) casa **só** SFMKT (antes incluía `APV`/`FUSCA`, do pós-venda, o que poluía a aba com bugs que não eram do SFMKT). O sync dedicado (`sfmkt-sync.ts` → `sfmkt_data.json`) segue existindo para métricas de sprint/cycle.
+
 ### Story Points das User Stories
 
 O sync puxa os story points do Jira via [`sync/story-points.ts`](sync/story-points.ts) (campos `customfield_10026` = "Story Points" clássico e `customfield_10016` = "Story point estimate" team-managed) e popula `StoryPoints` em cada item do `data.json`. O dashboard de SM usa isso para a seção **"Pontos das User Stories"** (Velocidade e Comprometido vs Entregue), agregada em [`useSMDashboardData.ts`](src/hooks/useSMDashboardData.ts). A seção exibe a **cobertura de estimativa** (% de USs entregues com ponto) como indicador de confiança no dado.

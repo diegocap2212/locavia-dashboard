@@ -24,7 +24,7 @@ const DONE_STATUS_CATEGORIES = ['done'];
 const SPRINT_CUSTOM_FIELD = 'customfield_10020'; // standard Jira sprint field
 
 // Issue types to exclude (sub-tasks only — by name, not by function)
-const EXCLUDED_TYPES = ['sub-task', 'subtask', 'sub task', 'epic'];
+const EXCLUDED_TYPES = ['sub-task', 'subtask', 'sub task', 'subtarefa', 'epic', 'épico', 'epico'];
 
 // ────────────────────────────────────────────────────────────────────────────
 // Helpers

@@ -23,9 +23,9 @@ export const SM_CONFIGS: SMConfig[] = [
         keyPrefixes: ['TAOS'], coneTab: 'TAOS O4R2' },
       { carCode: 'GOL', displayName: 'Gol', teamFieldValues: ['GOL'], 
         keyPrefixes: ['GOL', 'LI'], coneTab: 'GOL O4R2' },
-      { carCode: 'SALESFORCE', displayName: 'SFMktplace', 
-        teamFieldValues: ['FUSCA', 'SALES_FORCE', 'SALES FORCE'], 
-        keyPrefixes: ['APV', 'SFMKT'], coneTab: 'FUSCA O4R2' },
+      { carCode: 'SALESFORCE', displayName: 'SFMktplace',
+        teamFieldValues: ['SFMKT'],
+        keyPrefixes: ['SFMKT'], coneTab: 'FUSCA O4R2' },
     ]
   },
   {

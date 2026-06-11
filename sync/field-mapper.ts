@@ -126,6 +126,12 @@ export function mapJiraIssueToDashboardItem(issue: JiraApiIssue): DashboardItem 
     finalTeam = rawTeam;
   }
 
+  // SFMKT (Salesforce Marketplace) é projeto dedicado: fixa o time pelo prefixo da key,
+  // independentemente dos campos de time (que não usam os valores dos squads LM).
+  if (prefix === 'SFMKT') {
+    finalTeam = 'SFMKT';
+  }
+
   // 2. Release Cleaning (Priority: O4R Pattern)
   const releaseFieldValues = (issue.fields.customfield_11330 || []) as string[];
   const fixVersions = (issue.fields.fixVersions || []).map((v: any) => v.name);
