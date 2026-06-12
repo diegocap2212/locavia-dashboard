@@ -1,6 +1,62 @@
 {
   "items": [
     {
+      "key": "SFMKT-155",
+      "summary": "Monitoramento SAP  ",
+      "type": "História",
+      "status": "1. Backlog",
+      "statusCategory": "TODO",
+      "assignee": "André Cacciatori",
+      "created": "2026-06-12T09:33:28.282-0300",
+      "resolved": null,
+      "sprint": null,
+      "sprintId": null,
+      "sprintState": null,
+      "storyPoints": 3,
+      "priority": "Medium",
+      "labels": [],
+      "leadTimeDays": null,
+      "cycleTimeDays": null,
+      "timeInTodoDays": null,
+      "dq": {
+        "missingResolutionDate": false,
+        "missingAssignee": false,
+        "noStatusTransitions": false,
+        "noSprint": true,
+        "staleTodo": false,
+        "suspiciouslyLongLead": false,
+        "doneWithoutCycleData": false
+      }
+    },
+    {
+      "key": "SFMKT-151",
+      "summary": "[Migração SalesCloud] Configuração do Funil de Oportunidades - Processo de Renovação",
+      "type": "História",
+      "status": "1. Backlog",
+      "statusCategory": "TODO",
+      "assignee": "Izaque Bernardo",
+      "created": "2026-06-12T07:49:17.693-0300",
+      "resolved": null,
+      "sprint": null,
+      "sprintId": null,
+      "sprintState": null,
+      "storyPoints": 5,
+      "priority": "Medium",
+      "labels": [],
+      "leadTimeDays": null,
+      "cycleTimeDays": null,
+      "timeInTodoDays": null,
+      "dq": {
+        "missingResolutionDate": false,
+        "missingAssignee": false,
+        "noStatusTransitions": false,
+        "noSprint": true,
+        "staleTodo": false,
+        "suspiciouslyLongLead": false,
+        "doneWithoutCycleData": false
+      }
+    },
+    {
       "key": "SFMKT-149",
       "summary": "Integração Zenvia com Salesforce",
       "type": "Spike",
@@ -1019,7 +1075,7 @@
       }
     }
   ],
-  "synced_at": "2026-06-12T09:52:59.440Z",
+  "synced_at": "2026-06-12T12:47:48.295Z",
   "project": "SFMKT",
-  "total_fetched": 36
+  "total_fetched": 38
 }
