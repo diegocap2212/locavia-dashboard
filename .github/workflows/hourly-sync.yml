@@ -2,7 +2,9 @@ name: Hourly Data Sync
 
 on:
   schedule:
-    - cron: '0 * * * *' # Every hour
+    # A cada 30 min. Crons agendados do GitHub são best-effort (atrasam/pulam sob carga),
+    # então rodamos com folga; o header do painel ainda alerta se os dados ficarem velhos.
+    - cron: '*/30 * * * *'
   workflow_dispatch: # Allows manual trigger
 
 jobs:

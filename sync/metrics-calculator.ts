@@ -1,59 +1,34 @@
 import { DashboardItem, JiraApiIssue } from '../src/types/jira';
-
-const IN_PROGRESS = [
-  'in progress', 'em andamento', 'em desenvolvimento', 'developing', 
-  'em execução', 'doing', 'em progresso', 'em refinamento',
-  'code review em progresso'
-];
-  
-const DONE_STATUSES = [
-  'concluido', 'concluído', 'done', 'resolvido', 'finalizado', 
-  'entregue', 'fechado', 'desenv concluido', 'desenv concluído',
-  'teste concluido', 'entrega finalizada', 'aguardando qa', 'qa em progresso',
-  'em teste', 'aguardando teste', 'aguardando deploy qa', 'aguardando deploy prod',
-  'aguardando homolog', 'homolog em progresso'
-];
+import { DEV_STARTED_STATUS_NAMES } from './status-classification';
 
 export function calculateMetrics(item: DashboardItem, rawIssue: JiraApiIssue): DashboardItem {
   // 1. Calculate IsPlanned
   item.IsPlanned = !!item.CommitmentDate;
-  
-  // 2. Cycle Time & Time In Todo from Changelog
+
+  // 2. Time In Todo a partir do changelog.
+  // IMPORTANTE: a data de conclusão (item.Resolved) NÃO vem daqui — ela é o `resolutiondate`
+  // definido no field-mapper, que é exatamente o `resolved` que o time usa no JQL
+  // (`resolved >= startOfWeek()`). Derivar a conclusão da primeira transição para um status
+  // "done" jogava a entrega para a semana em que a issue entrou em QA/deploy, e não na conclusão.
   if (rawIssue.changelog && rawIssue.changelog.histories) {
     let firstInProgressDate: Date | null = null;
-    let finalDoneDate: Date | null = null;
-    
+
     // Sort histories chronological
-    const histories = rawIssue.changelog.histories.sort((a, b) => 
+    const histories = rawIssue.changelog.histories.sort((a, b) =>
       new Date(a.created).getTime() - new Date(b.created).getTime()
     );
-    
+
     for (const history of histories) {
       for (const historyItem of history.items) {
         if (historyItem.field === 'status') {
           const toString = (historyItem.toString || '').toLowerCase();
-          const isDone = DONE_STATUSES.some(s => toString === s || toString.includes(s));
-          
-          if (isDone) {
-            if (!finalDoneDate) {
-              finalDoneDate = new Date(history.created);
-            }
-          } else {
-            finalDoneDate = null;
-            if (!firstInProgressDate && IN_PROGRESS.some(s => toString.includes(s))) {
-              firstInProgressDate = new Date(history.created);
-            }
+          if (!firstInProgressDate && DEV_STARTED_STATUS_NAMES.some(s => toString.includes(s))) {
+            firstInProgressDate = new Date(history.created);
           }
         }
       }
     }
-    
-    if (finalDoneDate) {
-      item.Resolved = finalDoneDate.toISOString();
-    } else if (!finalDoneDate && item.StatusCategory === 'DONE') {
-      finalDoneDate = item.Resolved ? new Date(item.Resolved) : new Date(item.UpdatedAt);
-    }
-    
+
     if (firstInProgressDate && item.Created) {
        const createdDate = new Date(item.Created);
        if (firstInProgressDate > createdDate) {
@@ -64,6 +39,7 @@ export function calculateMetrics(item: DashboardItem, rawIssue: JiraApiIssue): D
     }
   }
 
+  // Fallback: item concluído sem resolutiondate (raro; outros projetos sem resolução no workflow).
   if (item.StatusCategory === 'DONE' && !item.Resolved) {
     item.Resolved = item.UpdatedAt;
   }

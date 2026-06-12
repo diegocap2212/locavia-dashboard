@@ -1,0 +1,265 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1720" height="2160" viewBox="0 0 1720 2160" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#42526E"/>
+    </marker>
+    <marker id="arrowAmber" markerWidth="12" markerHeight="12" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#B25A00"/>
+    </marker>
+    <style>
+      .lane    { font-size:13px; fill:#5E6C84; font-weight:700; letter-spacing:1px; }
+      .title   { font-size:15px; font-weight:700; }
+      .sub     { font-size:12px; fill:#42526E; }
+      .mono    { font-family:"Cascadia Code", Consolas, "Courier New", monospace; font-size:11.5px; fill:#172B4D; }
+      .monos   { font-family:"Cascadia Code", Consolas, "Courier New", monospace; font-size:11px; fill:#42526E; }
+      .tag     { font-size:11px; fill:#fff; font-weight:700; }
+      .lbl     { font-size:11.5px; fill:#42526E; font-style:italic; }
+      .step    { font-size:12px; fill:#172B4D; }
+      .h       { font-size:12.5px; font-weight:700; fill:#172B4D; }
+    </style>
+  </defs>
+
+  <rect width="1720" height="2160" fill="#FFFFFF"/>
+  <text x="40" y="44" font-size="26" font-weight="700" fill="#091E42">locavia-dashboard — Fluxo de sincronização com o Jira</text>
+  <text x="40" y="68" class="sub">Da fonte (Jira Grupo LM) até o dashboard no Vercel. Pipeline executado pelo GitHub Actions a cada 30 min.</text>
+
+  <!-- ===================== LANE LABELS (left rail) ===================== -->
+  <line x1="36" y1="92" x2="36" y2="2120" stroke="#DFE1E6" stroke-width="2"/>
+  <text x="18" y="250"  class="lane" transform="rotate(-90 18 250)">FONTE</text>
+  <text x="18" y="470"  class="lane" transform="rotate(-90 18 470)">ORQUESTRAÇÃO</text>
+  <text x="18" y="780"  class="lane" transform="rotate(-90 18 780)">EXTRAÇÃO (JQL)</text>
+  <text x="18" y="1180" class="lane" transform="rotate(-90 18 1180)">TRANSFORMAÇÃO</text>
+  <text x="18" y="1500" class="lane" transform="rotate(-90 18 1500)">ARTEFATOS</text>
+  <text x="18" y="1690" class="lane" transform="rotate(-90 18 1690)">DEPLOY</text>
+  <text x="18" y="1960" class="lane" transform="rotate(-90 18 1960)">FRONTEND</text>
+
+  <!-- ===================== 1. JIRA SOURCE ===================== -->
+  <g>
+    <path d="M470 110 a150 18 0 0 0 300 0 v64 a150 18 0 0 1 -300 0 z" fill="#E9F2FF" stroke="#0052CC" stroke-width="2"/>
+    <ellipse cx="620" cy="110" rx="150" ry="18" fill="#DEEBFF" stroke="#0052CC" stroke-width="2"/>
+    <text x="620" y="150" text-anchor="middle" class="title" fill="#0747A6">Jira Cloud — Grupo LM</text>
+    <text x="620" y="170" text-anchor="middle" class="monos">grupolm.atlassian.net</text>
+  </g>
+  <!-- source detail -->
+  <rect x="830" y="98" width="560" height="92" rx="8" fill="#FAFBFC" stroke="#C1C7D0"/>
+  <text x="846" y="120" class="h">Projetos (itens-pai; subtarefas excluídas)</text>
+  <text x="846" y="142" class="mono">VAA (Nivus), RM, LKD, SFMKT, + dezenas de jornadas LM</text>
+  <text x="846" y="162" class="h">Autenticação</text>
+  <text x="846" y="182" class="mono">Basic Auth = base64(JIRA_USER_EMAIL : JIRA_API_TOKEN)</text>
+
+  <line x1="620" y1="192" x2="620" y2="232" stroke="#42526E" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="632" y="218" class="lbl">REST /rest/api/3</text>
+
+  <!-- ===================== 2. GITHUB ACTIONS ===================== -->
+  <rect x="300" y="234" width="640" height="186" rx="10" fill="#F4F5F7" stroke="#344563" stroke-width="2"/>
+  <rect x="300" y="234" width="640" height="28" rx="10" fill="#344563"/>
+  <text x="316" y="253" class="tag">GitHub Actions · .github/workflows/hourly-sync.yml</text>
+  <text x="316" y="284" class="step">▸ <tspan class="mono">on: schedule cron '*/30 * * * *'</tspan>  +  <tspan class="mono">workflow_dispatch</tspan> (manual)</text>
+  <text x="316" y="306" class="step">▸ checkout · setup-node@22 · <tspan class="mono">npm ci</tspan></text>
+  <text x="316" y="328" class="step">▸ Pre-sync health check — exige os 3 secrets JIRA_*</text>
+  <text x="316" y="350" class="step">▸ <tspan class="mono">npm run sync:jira</tspan>  →  <tspan class="mono">npm run sync:sfmkt</tspan></text>
+  <text x="316" y="372" class="step">▸ guarda de tamanho: aborta se data.json &lt; 10KB (não zera o painel)</text>
+  <text x="316" y="394" class="step">▸ <tspan class="mono">git commit "[skip ci]"</tspan> + <tspan class="mono">push origin main</tspan> (só se houve mudança)</text>
+
+  <rect x="980" y="244" width="410" height="100" rx="8" fill="#FFFFFF" stroke="#C1C7D0"/>
+  <text x="996" y="266" class="h">Secrets (GitHub) / .env.local (local, gitignored)</text>
+  <text x="996" y="288" class="mono">JIRA_BASE_URL = https://grupolm.atlassian.net</text>
+  <text x="996" y="308" class="mono">JIRA_USER_EMAIL = ext.diego.caporusso@lm...br</text>
+  <text x="996" y="328" class="mono">JIRA_API_TOKEN = ATATT3x... (Atlassian token)</text>
+  <line x1="980" y1="294" x2="940" y2="294" stroke="#42526E" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <line x1="620" y1="420" x2="620" y2="460" stroke="#42526E" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="632" y="446" class="lbl">sync/sync-jira.ts monta o JQL e chama o client</text>
+
+  <!-- ===================== 3. EXTRACTION / jira-client ===================== -->
+  <rect x="300" y="462" width="640" height="150" rx="10" fill="#EAE6FF" stroke="#5243AA" stroke-width="2"/>
+  <rect x="300" y="462" width="640" height="28" rx="10" fill="#5243AA"/>
+  <text x="316" y="481" class="tag">sync/jira-client.ts · searchIssues()</text>
+  <text x="316" y="512" class="step"><tspan class="mono">POST /rest/api/3/search/jql</tspan>  ·  body: { jql, fields, maxResults:100 }</text>
+  <text x="316" y="534" class="step"><tspan class="mono">expand: 'changelog'</tspan> (histórico de status p/ TimeInTodo)</text>
+  <text x="316" y="556" class="step">Paginação por <tspan class="mono">nextPageToken</tspan> em lotes de 100 (teto 30.000)</text>
+  <text x="316" y="578" class="step">Auth header em todo request · erro lança e aborta o sync</text>
+  <text x="316" y="600" class="step">Saída: ~4.717 issues brutas (JiraApiIssue[])</text>
+
+  <!-- JQL panel -->
+  <rect x="980" y="462" width="700" height="150" rx="8" fill="#FFF7E6" stroke="#FF8B00" stroke-width="1.5"/>
+  <text x="996" y="483" class="h" fill="#B25A00">JQL (sync-jira.ts) — filtro positivo + saneamento</text>
+  <text x="996" y="505" class="mono">( labels in (OPTIMUS,NIVUS,TAOS,GOL,FUSCA,...30 times)</text>
+  <text x="996" y="523" class="mono">  or cf[11795] in (...times) or cf[12386] in (...times) )</text>
+  <text x="996" y="541" class="mono">and type not in (Epic, subTaskIssueTypes())   ← exclui subtarefas</text>
+  <text x="996" y="559" class="mono">and cf[13065] is EMPTY                          ← exclui Automação</text>
+  <text x="996" y="577" class="mono">and (cf[12683] not in ("TESTES-LOCAVIA") or cf[12683] is EMPTY)</text>
+  <text x="996" y="595" class="mono">OR (project = SFMKT and type not in (Epic, subTask...))</text>
+
+  <!-- fields panel -->
+  <rect x="980" y="624" width="700" height="86" rx="8" fill="#FAFBFC" stroke="#C1C7D0"/>
+  <text x="996" y="645" class="h">fields[] puxados (jira-client.ts)</text>
+  <text x="996" y="666" class="mono">summary, status(+statusCategory), issuetype, created, updated,</text>
+  <text x="996" y="684" class="mono">resolutiondate, assignee, priority, labels, fixVersions,</text>
+  <text x="996" y="702" class="mono">cf11795/12386(time), cf10102(committed), cf10015(start), cf10026/10016(SP)</text>
+
+  <line x1="620" y1="612" x2="620" y2="662" stroke="#42526E" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="632" y="642" class="lbl">issues.map(issue =&gt; calculateMetrics(mapJiraIssueToDashboardItem(issue), issue))</text>
+
+  <!-- ===================== 4. TRANSFORM PIPELINE ===================== -->
+  <!-- field-mapper -->
+  <rect x="120" y="664" width="360" height="250" rx="10" fill="#DEEBFF" stroke="#0747A6" stroke-width="2"/>
+  <rect x="120" y="664" width="360" height="28" rx="10" fill="#0747A6"/>
+  <text x="136" y="683" class="tag">sync/field-mapper.ts</text>
+  <text x="136" y="712" class="step">JiraApiIssue → DashboardItem:</text>
+  <text x="136" y="734" class="mono">Type, Key, Summary, Priority, Labels</text>
+  <text x="136" y="754" class="mono">Team  ← teamMapping (cf11795/12386/key)</text>
+  <text x="136" y="774" class="mono">Release ← regra O4R2/O4R1/CEM/backups</text>
+  <text x="136" y="794" class="mono">Status = name.toUpperCase()</text>
+  <text x="136" y="814" class="mono">CommitmentDate = cf10102</text>
+  <text x="136" y="834" class="mono">StartDate = cf10015</text>
+  <text x="136" y="858" class="h" fill="#0747A6">Resolved = issue.resolutiondate</text>
+  <text x="136" y="878" class="lbl">(= o 'resolved' do JQL de vazão dos times)</text>
+  <text x="136" y="900" class="mono">StatusCategory = classifyStatus(...)</text>
+
+  <!-- status-classification -->
+  <rect x="520" y="664" width="420" height="250" rx="10" fill="#FFF7E6" stroke="#FF8B00" stroke-width="2"/>
+  <rect x="520" y="664" width="420" height="28" rx="10" fill="#FF8B00"/>
+  <text x="536" y="683" class="tag">sync/status-classification.ts  (fonte única)</text>
+  <text x="536" y="712" class="h" fill="#B25A00">classifyStatus(status, jiraCategory, hasResolution)</text>
+  <text x="536" y="736" class="step">DONE  ⟺ tem resolution/resolutiondate</text>
+  <text x="536" y="754" class="step">          OU statusCategory = "Itens concluídos"</text>
+  <text x="536" y="776" class="step">IN_PROGRESS ⟺ "Em andamento"</text>
+  <text x="536" y="794" class="step">TODO ⟺ "Itens Pendentes"</text>
+  <rect x="536" y="808" width="388" height="92" rx="6" fill="#FFFFFF" stroke="#FF8B00"/>
+  <text x="548" y="828" class="h" fill="#B25A00">Regras que corrigiram a vazão:</text>
+  <text x="548" y="848" class="step">• QA/deploy/homolog NÃO são DONE (são "Em andamento")</text>
+  <text x="548" y="866" class="step">• DESCARTADO/CANCELADO nunca contam como entrega</text>
+  <text x="548" y="884" class="step">• conclusão = resolutiondate, não a entrada em QA</text>
+
+  <!-- story-points small -->
+  <rect x="120" y="930" width="360" height="64" rx="8" fill="#E3FCEF" stroke="#00875A"/>
+  <text x="136" y="951" class="h" fill="#006644">sync/story-points.ts (fonte única)</text>
+  <text x="136" y="972" class="mono">StoryPoints = cf10026 ?? cf10016  (pode ser null)</text>
+
+  <!-- metrics-calculator -->
+  <rect x="520" y="930" width="420" height="120" rx="10" fill="#EAE6FF" stroke="#5243AA" stroke-width="2"/>
+  <rect x="520" y="930" width="420" height="28" rx="10" fill="#5243AA"/>
+  <text x="536" y="949" class="tag">sync/metrics-calculator.ts (pós-processo)</text>
+  <text x="536" y="978" class="step">TimeInTodo ← changelog (1ª ida p/ desenvolvimento)</text>
+  <text x="536" y="998" class="step">LeadTime = Created → Resolved</text>
+  <text x="536" y="1018" class="step">DataQuality flags (missingResolutionDate, etc.)</text>
+  <text x="536" y="1040" class="lbl">NÃO deriva a conclusão do changelog (era o bug)</text>
+
+  <!-- arrows within transform -->
+  <line x1="480" y1="789" x2="520" y2="789" stroke="#B25A00" stroke-width="2" marker-end="url(#arrowAmber)"/>
+  <line x1="300" y1="914" x2="300" y2="930" stroke="#42526E" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="730" y1="914" x2="730" y2="930" stroke="#42526E" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <line x1="530" y1="1050" x2="530" y2="1092" stroke="#42526E" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="544" y="1078" class="lbl">JSON.stringify → grava arquivos</text>
+
+  <!-- ===================== 5. ARTIFACTS ===================== -->
+  <rect x="120" y="1094" width="300" height="110" rx="10" fill="#E3FCEF" stroke="#00875A" stroke-width="2"/>
+  <rect x="120" y="1094" width="300" height="28" rx="10" fill="#00875A"/>
+  <text x="136" y="1113" class="tag">src/data.json</text>
+  <text x="136" y="1142" class="step">~4.717 itens (DashboardItem[])</text>
+  <text x="136" y="1164" class="step">import estático no bundle Vite</text>
+  <text x="136" y="1186" class="lbl">fonte de TODOS os dashboards de SM</text>
+
+  <rect x="440" y="1094" width="300" height="110" rx="10" fill="#E3FCEF" stroke="#00875A" stroke-width="2"/>
+  <rect x="440" y="1094" width="300" height="28" rx="10" fill="#00875A"/>
+  <text x="456" y="1113" class="tag">src/data-meta.json</text>
+  <text x="456" y="1142" class="step"><tspan class="mono">{ syncedAt: ISO }</tspan></text>
+  <text x="456" y="1164" class="step">hora real do sync (heartbeat)</text>
+  <text x="456" y="1186" class="lbl">header + badge de defasagem (&gt;2h)</text>
+
+  <rect x="760" y="1094" width="300" height="110" rx="10" fill="#E3FCEF" stroke="#00875A" stroke-width="2"/>
+  <rect x="760" y="1094" width="300" height="28" rx="10" fill="#00875A"/>
+  <text x="776" y="1113" class="tag">sfmkt_data.json</text>
+  <text x="776" y="1142" class="step">sync dedicado (sfmkt-sync.ts)</text>
+  <text x="776" y="1164" class="step">métricas de sprint/cycle do SFMKT</text>
+  <text x="776" y="1186" class="lbl">statusCategory + resolutiondate (já ok)</text>
+
+  <line x1="430" y1="1204" x2="430" y2="1246" stroke="#42526E" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="444" y="1232" class="lbl">git add + commit "[skip ci]" + push main</text>
+
+  <!-- ===================== 6. DEPLOY ===================== -->
+  <rect x="120" y="1248" width="940" height="118" rx="10" fill="#F4F5F7" stroke="#344563" stroke-width="2"/>
+  <rect x="120" y="1248" width="940" height="28" rx="10" fill="#344563"/>
+  <text x="136" y="1267" class="tag">GitHub (main) → Vercel</text>
+  <text x="136" y="1298" class="step">▸ push em <tspan class="mono">main</tspan> dispara build no Vercel · commit usa <tspan class="mono">[skip ci]</tspan> (sem loop de Action)</text>
+  <text x="136" y="1320" class="step">▸ build: <tspan class="mono">tsc -b &amp;&amp; vite build</tspan> (vercel.json) — type-check estrito + bundle (data.json embutido)</text>
+  <text x="136" y="1342" class="step">▸ deploy estático servido pela Vercel · API serverless em <tspan class="mono">/api/*</tspan> (comentários)</text>
+
+  <line x1="430" y1="1366" x2="430" y2="1408" stroke="#42526E" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- ===================== 7. FRONTEND ===================== -->
+  <rect x="120" y="1410" width="940" height="330" rx="10" fill="#DEEBFF" stroke="#0747A6" stroke-width="2"/>
+  <rect x="120" y="1410" width="940" height="28" rx="10" fill="#0747A6"/>
+  <text x="136" y="1429" class="tag">React (Vite) — Dashboard</text>
+
+  <rect x="140" y="1450" width="430" height="120" rx="8" fill="#FFFFFF" stroke="#C1C7D0"/>
+  <text x="156" y="1471" class="h">src/hooks/useSMDashboardData.ts</text>
+  <text x="156" y="1492" class="step">Filtra por time (sm-config) · release · período</text>
+  <text x="156" y="1512" class="step">Quinzena ativa → customStart/End (quinzenas.ts)</text>
+  <text x="156" y="1532" class="step">Cone semanal: planejados, não-planejados, bugs,</text>
+  <text x="156" y="1550" class="step">  <tspan class="h" fill="#0747A6">realizado (DONE &amp; resolved na semana)</tspan>, descartados</text>
+
+  <rect x="590" y="1450" width="450" height="120" rx="8" fill="#FFFFFF" stroke="#C1C7D0"/>
+  <text x="606" y="1471" class="h">KPIs &amp; gráficos</text>
+  <text x="606" y="1492" class="step">Throughput, Lead Time (P15/P85), WIP</text>
+  <text x="606" y="1512" class="step">Donut de tipos · Scatter de lead time</text>
+  <text x="606" y="1532" class="step">src/cone/computeCone.ts → tabela semanal</text>
+  <text x="606" y="1550" class="step">descartados/cancelados excluídos da entrega</text>
+
+  <rect x="140" y="1582" width="430" height="86" rx="8" fill="#FFF7E6" stroke="#FF8B00"/>
+  <text x="156" y="1603" class="h" fill="#B25A00">Header — frescura dos dados</text>
+  <text x="156" y="1624" class="step">"Sincronizado em DD/MM HH:mm" (data-meta.json)</text>
+  <text x="156" y="1644" class="step">badge âmbar se syncedAt &gt; 2h (sync atrasado)</text>
+
+  <rect x="590" y="1582" width="450" height="86" rx="8" fill="#FFFFFF" stroke="#C1C7D0"/>
+  <text x="606" y="1603" class="h">Análises por métrica (gap/ação)</text>
+  <text x="606" y="1624" class="step">MetricCommentEditor (squadId = selectedTeam)</text>
+  <text x="606" y="1644" class="step">POST/GET /api/comments — escrita atômica por campo</text>
+
+  <rect x="140" y="1680" width="900" height="48" rx="8" fill="#FAFBFC" stroke="#C1C7D0"/>
+  <text x="156" y="1709" class="step">Rotas (React Router): Home · <tspan class="mono">/sm/:smId</tspan> (SMDashboard) · Cone · páginas de relatório</text>
+
+  <!-- user -->
+  <circle cx="590" cy="1800" r="20" fill="#DEEBFF" stroke="#0747A6" stroke-width="2"/>
+  <circle cx="590" cy="1793" r="7" fill="#0747A6"/>
+  <path d="M576 1816 a14 12 0 0 1 28 0" fill="#0747A6"/>
+  <text x="620" y="1798" class="h">SM / time abre o dashboard no navegador</text>
+  <text x="620" y="1818" class="sub">vê vazão, cone, KPIs e escreve análises por quinzena</text>
+  <line x1="430" y1="1740" x2="500" y2="1788" stroke="#42526E" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- comments / redis side flow -->
+  <rect x="1100" y="1450" width="540" height="278" rx="10" fill="#FBE9FF" stroke="#8E44AD" stroke-width="2"/>
+  <rect x="1100" y="1450" width="540" height="28" rx="10" fill="#8E44AD"/>
+  <text x="1116" y="1469" class="tag">Fluxo paralelo — Análises (não vêm do Jira)</text>
+  <text x="1116" y="1500" class="step">Editor no front → <tspan class="mono">POST /api/comments</tspan> (1 comentário)</text>
+  <text x="1116" y="1522" class="step">Backend faz <tspan class="mono">HSET</tspan> só naquele campo (atômico)</text>
+  <text x="1116" y="1544" class="step">Chave: encode(squadId:release:quinzena:metric)</text>
+  <text x="1116" y="1566" class="step">Valor: <tspan class="mono">{ gap, action, updatedAt(server) }</tspan></text>
+  <text x="1116" y="1588" class="step"><tspan class="mono">GET /api/comments</tspan> reconstrói a árvore aninhada</text>
+  <rect x="1116" y="1606" width="508" height="106" rx="8" fill="#FFFFFF" stroke="#C1C7D0"/>
+  <text x="1132" y="1628" class="h">Upstash Redis (Vercel KV)</text>
+  <text x="1132" y="1650" class="mono">Hash: locavia_dashboard_comments_v2</text>
+  <text x="1132" y="1672" class="step">env: KV_REST_API_URL / KV_REST_API_TOKEN</text>
+  <text x="1132" y="1694" class="step">local: tools/local-api-server.ts (porta 3001)</text>
+  <line x1="1040" y1="1625" x2="1100" y2="1610" stroke="#8E44AD" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ===================== LEGEND ===================== -->
+  <rect x="120" y="1880" width="1520" height="230" rx="10" fill="#FAFBFC" stroke="#C1C7D0"/>
+  <text x="140" y="1908" class="h" font-size="14">Legenda &amp; notas-chave</text>
+  <rect x="140" y="1924" width="18" height="14" rx="3" fill="#E9F2FF" stroke="#0052CC"/><text x="166" y="1936" class="sub">Fonte Jira</text>
+  <rect x="260" y="1924" width="18" height="14" rx="3" fill="#F4F5F7" stroke="#344563"/><text x="286" y="1936" class="sub">CI/CD (Actions, Vercel)</text>
+  <rect x="470" y="1924" width="18" height="14" rx="3" fill="#EAE6FF" stroke="#5243AA"/><text x="496" y="1936" class="sub">Extração / pós-processo</text>
+  <rect x="690" y="1924" width="18" height="14" rx="3" fill="#FFF7E6" stroke="#FF8B00"/><text x="716" y="1936" class="sub">Regra de status corrigida (vazão)</text>
+  <rect x="960" y="1924" width="18" height="14" rx="3" fill="#E3FCEF" stroke="#00875A"/><text x="986" y="1936" class="sub">Artefatos de dados</text>
+  <rect x="1130" y="1924" width="18" height="14" rx="3" fill="#DEEBFF" stroke="#0747A6"/><text x="1156" y="1936" class="sub">Frontend React</text>
+  <rect x="1300" y="1924" width="18" height="14" rx="3" fill="#FBE9FF" stroke="#8E44AD"/><text x="1326" y="1936" class="sub">Análises / Redis</text>
+
+  <text x="140" y="1972" class="step">• <tspan class="h">Vazão = `resolved &gt;= startOfWeek()`</tspan> — o painel usa exatamente o `resolutiondate` do Jira para a semana de entrega.</text>
+  <text x="140" y="1994" class="step">• Status de <tspan class="h">QA/deploy/homolog não são "concluído"</tspan> (são "Em andamento" no Jira) e <tspan class="h">descartado/cancelado não contam como entrega</tspan>.</text>
+  <text x="140" y="2016" class="step">• Subtarefas (Subtarefa/Sub-Bug) são <tspan class="h">excluídas pelo JQL</tspan> — um JQL manual sem `type not in (..subTaskIssueTypes())` mostra mais itens que o painel.</text>
+  <text x="140" y="2038" class="step">• Classificação de status vive em <tspan class="mono">status-classification.ts</tspan> (fonte única, importada por field-mapper e metrics-calculator).</text>
+  <text x="140" y="2060" class="step">• Cron do GitHub é best-effort (pode atrasar). Forçar sync: <tspan class="mono">workflow_dispatch</tspan> ou <tspan class="mono">npm run sync:jira</tspan> com creds no <tspan class="mono">.env.local</tspan>.</text>
+  <text x="140" y="2082" class="step">• O MCP Atlassian desta máquina aponta para o instance <tspan class="mono">blite</tspan> (não tem VAA) — consultar a LM por REST direto com o token do <tspan class="mono">.env.local</tspan>.</text>
+</svg>

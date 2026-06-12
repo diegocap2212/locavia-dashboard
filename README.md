@@ -59,6 +59,8 @@ npm run sync:sfmkt
 
 As variáveis `KV_*` são configuradas automaticamente ao linkar um Vercel KV Store no painel da Vercel.
 
+As variáveis `JIRA_*` vivem nos **Secrets do GitHub Actions** (usadas pelo workflow de sync) e também podem ser colocadas no `.env.local` (gitignored) para rodar `npm run sync:jira` localmente. O Jira é a instância **Grupo LM** (`https://grupolm.atlassian.net`); o token é um Atlassian API token (Basic Auth `email:token`).
+
 ---
 
 ## Build e Deploy
@@ -107,9 +109,13 @@ locavia-dashboard/
 │   └── comments.ts            # Vercel serverless: GET/POST análises no Redis
 │
 ├── sync/                      # Scripts de sincronização (Jira + Salesforce)
-│   ├── sync-jira.ts
+│   ├── sync-jira.ts           # Orquestra a busca (JQL) e grava src/data.json + data-meta.json
+│   ├── jira-client.ts         # Cliente REST do Jira (Basic Auth, paginação por token, expand=changelog)
+│   ├── field-mapper.ts        # Mapeia issue do Jira → DashboardItem (time, release, status, datas)
+│   ├── metrics-calculator.ts  # Pós-processo: TimeInTodo (changelog), LeadTime, flags de qualidade
+│   ├── status-classification.ts # Fonte única de classificação de status (DONE/IN_PROGRESS/TODO)
 │   ├── story-points.ts        # Fonte única de extração de story points (compartilhado)
-│   └── sfmkt-sync.ts
+│   └── sfmkt-sync.ts          # Sync dedicado do projeto SFMKT → sfmkt_data.json (métricas de sprint)
 │
 ├── scripts/                   # Scripts de build e verificação de dados
 │   ├── update-data.ts
@@ -161,6 +167,17 @@ Mesmo que atenda aos critérios acima, o item é **DESCARTADO** se o status for:
 > [!IMPORTANT]
 > Estas regras garantem uma paridade de ~100% com a aba "BASE CONE" da planilha SharePoint, filtrando ruídos e itens que ainda não entraram em ciclo de entrega.
 
+### Data de conclusão e classificação de status
+
+A **data de conclusão** (`Resolved`) de cada item vem **direto do `resolutiondate` do Jira** — exatamente o campo `resolved` que os times usam no JQL de vazão (`resolved >= startOfWeek()`). A classificação de status vive numa fonte única, [`sync/status-classification.ts`](sync/status-classification.ts), importada por `field-mapper.ts` e `metrics-calculator.ts` (não duplicar listas).
+
+Regras:
+- **`StatusCategory = DONE`** quando o item tem `resolution`/`resolutiondate` **OU** o `statusCategory` do Jira é concluído (no Jira da LM os nomes são em pt-BR: `Itens concluídos` / `Em andamento` / `Itens Pendentes`).
+- **Status de QA/deploy/homolog NÃO são DONE.** `AGUARDANDO QA`, `QA EM PROGRESSO`, `EM TESTE(S)`, `AGUARDANDO DEPLOY QA/PROD`, `AGUARDANDO HOMOLOG`, `HOMOLOG EM PROGRESSO` são `Em andamento` no Jira (sem `resolution`) → `IN_PROGRESS`. Tratá-los como entrega jogava a data de conclusão para a semana em que a issue entrou em QA, antecipando a vazão em até ~2 semanas.
+- **`DESCARTADO`/`CANCELADO` nunca são DONE** (não contam como entrega), mesmo tendo `resolution`.
+- **Subtarefas (`Subtarefa`/`Sub-Bug`) são excluídas** pelo JQL (`type not in (Epic, subTaskIssueTypes())`). Um JQL manual sem essa exclusão retorna mais itens que o painel — a diferença é esperada.
+- `metrics-calculator.ts` usa o changelog **apenas** para `TimeInTodo` (início do desenvolvimento); **não** deriva a conclusão do changelog.
+
 ### SFMKT (Salesforce Marketplace)
 
 A aba **"SFMktplace"** da Gabi vem do **sync principal** (`src/data.json`), como qualquer outro time: o JQL do [`sync-jira.ts`](sync/sync-jira.ts) inclui `OR (project = SFMKT ...)` e o [`field-mapper.ts`](sync/field-mapper.ts) marca `Team='SFMKT'` para keys `SFMKT-*`. A team `SALESFORCE` em [`sm-config.ts`](src/config/sm-config.ts) casa **só** SFMKT (antes incluía `APV`/`FUSCA`, do pós-venda, o que poluía a aba com bugs que não eram do SFMKT). O sync dedicado (`sfmkt-sync.ts` → `sfmkt_data.json`) segue existindo para métricas de sprint/cycle.
@@ -173,7 +190,9 @@ O sync puxa os story points do Jira via [`sync/story-points.ts`](sync/story-poin
 
 A cada execução, `sync/sync-jira.ts` grava `src/data-meta.json` com o timestamp real da sincronização (`{ syncedAt }`). O header dos dashboards de SM lê esse valor e exibe **"Sincronizado em DD/MM/AAAA HH:mm"** — antes a data era inferida do `UpdatedAt` de uma issue arbitrária, o que não refletia a frescura real.
 
-Como o `syncedAt` muda a cada run, o workflow horário (`git add … src/data-meta.json`) **commita toda hora**, garantindo um redeploy no Vercel e funcionando como _heartbeat_: se a data no header parar de avançar enquanto o git mostra novos commits "automated hourly sync", o Vercel não está redeployando (verifique um eventual "Ignored Build Step" no painel do projeto).
+Como o `syncedAt` muda a cada run, o workflow de sync (`git add … src/data-meta.json`) **commita a cada execução**, garantindo um redeploy no Vercel e funcionando como _heartbeat_: se a data no header parar de avançar enquanto o git mostra novos commits "automated hourly sync", o Vercel não está redeployando (verifique um eventual "Ignored Build Step" no painel do projeto).
+
+O workflow [`hourly-sync.yml`](.github/workflows/hourly-sync.yml) roda a cada **30 min** (`cron: '*/30 * * * *'`), mas crons agendados do GitHub são _best-effort_ e podem atrasar/pular. Por isso o header do SMDashboard mostra um **badge âmbar de defasagem** quando `syncedAt` tem mais de 2h, para ninguém confiar num número desatualizado sem perceber. Para forçar um sync na hora, use **workflow_dispatch** (aba Actions) ou rode localmente `npm run sync:jira` com as credenciais Jira no `.env.local`.
 
 ---
 

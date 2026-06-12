@@ -68,6 +68,10 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
   // Hora real da última sincronização com o Jira, gravada por sync/sync-jira.ts em src/data-meta.json.
   // (Antes mostrávamos items[0].UpdatedAt — o "updated" de uma issue qualquer — que não refletia a frescura dos dados.)
   const syncedAt = new Date((dataMeta as { syncedAt: string }).syncedAt);
+  // Alerta de defasagem: o cron de sync é best-effort e pode atrasar/pular.
+  // Se os dados estão velhos, sinalizamos para ninguém confiar em número desatualizado sem saber.
+  const hoursSinceSync = (Date.now() - syncedAt.getTime()) / (1000 * 60 * 60);
+  const isStale = hoursSinceSync >= 2;
 
   return (
     <div className="min-h-screen bg-slate-50 p-6 md:p-8 font-sans">
@@ -80,8 +84,14 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
             </span>
             Dashboard — {smConfig.name}
           </h1>
-          <p className="text-sm text-slate-500 mt-1 flex items-center">
-            {items.length} issues analisadas · Sincronizado em {format(syncedAt, 'dd/MM/yyyy HH:mm')}
+          <p className="text-sm text-slate-500 mt-1 flex items-center flex-wrap gap-2">
+            <span>{items.length} issues analisadas · Sincronizado em {format(syncedAt, 'dd/MM/yyyy HH:mm')}</span>
+            {isStale && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-xs font-medium border border-amber-200">
+                <Clock className="w-3 h-3" />
+                Dados de {Math.floor(hoursSinceSync)}h atrás — sync pode estar atrasado
+              </span>
+            )}
           </p>
         </div>
         

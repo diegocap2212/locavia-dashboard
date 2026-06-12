@@ -1,5 +1,6 @@
 import { JiraApiIssue, DashboardItem } from '../src/types/jira';
 import { extractStoryPoints } from './story-points';
+import { classifyStatus } from './status-classification';
 
 const teamMapping: Record<string, string> = {
   'WHATSAPP': 'WHATSAPP',
@@ -172,30 +173,18 @@ export function mapJiraIssueToDashboardItem(issue: JiraApiIssue): DashboardItem 
     }
   }
 
-  // 3. Status Categorization
+  // 3. Status Categorization (regra única em status-classification.ts).
+  // DONE sse a issue tem resolução (resolutiondate) OU o statusCategory do Jira é "concluído".
+  // Status de QA/deploy/homolog são "Em andamento" no Jira (sem resolução) -> NÃO são DONE:
+  // contá-los como entrega jogava a data de conclusão para a semana errada.
+  // Status fica UPPERCASE (contrato com o front: ex. item.Status === 'CANCELADO'/'DESCARTADO').
   const statusName = (issue.fields.status?.name || '').toUpperCase();
-  const categoryName = (issue.fields.status?.statusCategory?.name || '').toUpperCase();
-  
-  let category: DashboardItem['StatusCategory'] = 'TODO';
-  
-  // Statuses that represent "DONE":
-  // Primary gate: DESENV CONCLUÍDO (planilha conta entrega aqui para filhos US/Task/Bug/Spike)
-  // Post-dev statuses: itens já passaram do gate de desenvolvimento, portanto também são DONE
-  const doneStatuses = [
-    'CONCLUIDO', 'CONCLUÍDO', 'DESENV CONCLUIDO', 'DESENV CONCLUÍDO',
-    'DONE', 'RESOLVIDO', 'FINALIZADO', 'ENTREGUE', 'FECHADO', 'ENTREGA FINALIZADA',
-    'TESTE CONCLUIDO', 'AGUARDANDO QA', 'QA EM PROGRESSO',
-    'EM TESTE', 'AGUARDANDO TESTE',
-    'AGUARDANDO DEPLOY QA', 'AGUARDANDO DEPLOY PROD',
-    'AGUARDANDO HOMOLOG', 'HOMOLOG EM PROGRESSO',
-  ];
-  const inProgressStatuses = ['EM DESENVOLVIMENTO', 'IN PROGRESS', 'EM ANDAMENTO', 'DESENVOLVENDO', 'SENDO DESENVOLVIDO', 'FIXING', 'REFINANDO', 'EM REFINAMENTO', 'AGUARDANDO CODE REVIEW', 'CODE REVIEW EM PROGRESSO', 'NOVAS ATIVIDADES', 'ATIVIDADES EM ANDAMENTO', 'PRONTO PARA DESENVOLVER', 'PRONTO PRA DESENVOLVER', 'PRIORIZADO'];
-
-  if (categoryName.includes('DONE') || doneStatuses.some(s => statusName === s || statusName.includes(s))) {
-    category = 'DONE';
-  } else if (categoryName.includes('PROGRESS') || inProgressStatuses.some(s => statusName === s || statusName.includes(s))) {
-    category = 'IN_PROGRESS';
-  }
+  const categoryName = issue.fields.status?.statusCategory?.name || '';
+  const category: DashboardItem['StatusCategory'] = classifyStatus(
+    statusName,
+    categoryName,
+    !!issue.fields.resolutiondate,
+  );
 
   return {
     Type: issue.fields.issuetype?.name || 'Task',
