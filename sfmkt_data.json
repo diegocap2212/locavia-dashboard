@@ -481,7 +481,7 @@
         "missingAssignee": false,
         "noStatusTransitions": false,
         "noSprint": true,
-        "staleTodo": false,
+        "staleTodo": true,
         "suspiciouslyLongLead": false,
         "doneWithoutCycleData": false
       }
@@ -509,7 +509,7 @@
         "missingAssignee": false,
         "noStatusTransitions": false,
         "noSprint": true,
-        "staleTodo": false,
+        "staleTodo": true,
         "suspiciouslyLongLead": false,
         "doneWithoutCycleData": false
       }
@@ -1075,7 +1075,7 @@
       }
     }
   ],
-  "synced_at": "2026-06-13T00:02:18.911Z",
+  "synced_at": "2026-06-13T05:06:08.457Z",
   "project": "SFMKT",
   "total_fetched": 38
 }
