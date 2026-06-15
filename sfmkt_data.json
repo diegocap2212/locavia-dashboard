@@ -174,11 +174,11 @@
       "key": "SFMKT-143",
       "summary": "Monitoramento dos disparos e dinâmica do aquecimento LM AssineCar",
       "type": "História",
-      "status": "EM DESENVOLVIMENTO",
-      "statusCategory": "IN_PROGRESS",
+      "status": "DESENV CONCLUIDO",
+      "statusCategory": "DONE",
       "assignee": "Josivan Santos de Freitas",
       "created": "2026-06-03T09:54:01.037-0300",
-      "resolved": null,
+      "resolved": "2026-06-15T16:55:38.408-0300",
       "sprint": "SFMKT-SP Sprint 18",
       "sprintId": 20725,
       "sprintState": "active",
@@ -187,8 +187,8 @@
       "labels": [
         "EVOLUÇÃO"
       ],
-      "leadTimeDays": null,
-      "cycleTimeDays": null,
+      "leadTimeDays": 12,
+      "cycleTimeDays": 12,
       "timeInTodoDays": 0,
       "dq": {
         "missingResolutionDate": false,
@@ -1075,7 +1075,7 @@
       }
     }
   ],
-  "synced_at": "2026-06-15T17:33:54.785Z",
+  "synced_at": "2026-06-15T21:09:56.792Z",
   "project": "SFMKT",
   "total_fetched": 38
 }
