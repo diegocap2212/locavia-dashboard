@@ -120,28 +120,20 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
           </p>
         </div>
         
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 self-stretch lg:self-auto">
-          {/* Team Tabs */}
-          <div className="flex bg-white rounded-lg p-1 border border-slate-200 shadow-sm overflow-x-auto">
-            <button
-              onClick={() => { setSelectedTeam('ALL'); setSelectedRelease('ALL'); }}
-              className={`px-4 py-2 text-sm font-medium rounded-md transition-colors whitespace-nowrap ${
-                selectedTeam === 'ALL' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-              }`}
+        <div className="flex flex-wrap items-center gap-3 self-stretch lg:self-auto lg:justify-end">
+          {/* Time (dropdown — substitui as abas; sem scroll horizontal) */}
+          <div className="flex bg-white rounded-lg p-1 border border-slate-200 shadow-sm shrink-0">
+            <select
+              className="bg-transparent border-none text-sm font-medium text-slate-700 py-2 pl-3 pr-8 focus:ring-0 cursor-pointer w-full outline-none"
+              value={selectedTeam}
+              onChange={(e) => { setSelectedTeam(e.target.value); setSelectedRelease('ALL'); }}
+              title="Time / squad"
             >
-              Visão Geral
-            </button>
-            {smConfig.teams.map(t => (
-              <button
-                key={t.carCode}
-                onClick={() => { setSelectedTeam(t.carCode); setSelectedRelease('ALL'); }}
-                className={`px-4 py-2 text-sm font-medium rounded-md transition-colors whitespace-nowrap ${
-                  selectedTeam === t.carCode ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                }`}
-              >
-                {t.displayName}
-              </button>
-            ))}
+              <option value="ALL">Time: Visão Geral</option>
+              {smConfig.teams.map(t => (
+                <option key={t.carCode} value={t.carCode}>{t.displayName}</option>
+              ))}
+            </select>
           </div>
 
           {/* Release Filter */}
@@ -207,23 +199,6 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
           {/* Atualização sob demanda do Jira (dispara o sync no GitHub Actions) */}
           <RefreshButton />
         </div>
-      </div>
-
-      {/* Indicador de filtros ativos — evita demonstrar com recorte errado (preocupação LM) */}
-      <div className="flex flex-wrap items-center gap-2 mb-6 text-xs">
-        <span className="text-slate-400 font-medium uppercase tracking-wide mr-1">Filtros ativos:</span>
-        {[
-          { label: 'Time', value: selectedTeam === 'ALL' ? 'Todos' : (smConfig.teams.find(t => t.carCode === selectedTeam)?.displayName ?? selectedTeam) },
-          { label: 'Release', value: selectedRelease === 'ALL' ? 'Todas' : selectedRelease },
-          { label: 'Período', value: selectedSemanaId === 'CUSTOM' ? (customStart && customEnd ? `${customStart} → ${customEnd}` : 'Customizado') : (activeSemana?.label ?? selectedSemanaId) },
-          { label: 'Análise da', value: analysisWeekLabel ?? analysisWeekId },
-          { label: 'Visão', value: gLabel },
-        ].map(chip => (
-          <span key={chip.label} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700">
-            <span className="text-slate-400 font-semibold">{chip.label}:</span>
-            <span className="font-semibold">{chip.value}</span>
-          </span>
-        ))}
       </div>
 
       {/* KPI Cards */}

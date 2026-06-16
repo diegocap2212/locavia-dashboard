@@ -42,7 +42,7 @@ const NavigationHeader: React.FC<{
   onTabChange: (view: ActiveView) => void;
   rightSlot?: React.ReactNode;
 }> = ({ activeView, onTabChange, rightSlot }) => (
-  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 2rem', marginBottom: '1rem' }}>
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', padding: '0 2rem', marginBottom: '1rem' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', opacity: 0.65 }}>
         <span style={{ color: 'var(--text-muted)', fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>powered by</span>

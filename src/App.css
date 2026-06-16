@@ -49,9 +49,17 @@ body {
 
 .dashboard-content {
   flex: 1;
+  min-width: 0; /* permite encolher no flex pai e evita overflow horizontal da página */
   max-width: 1500px;
   margin: 0 auto;
   padding: 3rem 4rem;
+}
+
+/* Em telas menores, reduz o respiro lateral para o conteúdo caber sem scroll horizontal */
+@media (max-width: 1100px) {
+  .dashboard-content {
+    padding: 1.5rem;
+  }
 }
 
 /* Header */
