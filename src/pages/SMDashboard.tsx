@@ -90,6 +90,14 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
   const flowForCharts = regroupFlow(weeklyFlowData, granularity);
   const cfdForCharts = regroupCFD(cfdData, granularity);
   const gLabel = GRANULARITY_LABEL[granularity];
+
+  // Throughput e Lead Time são da SEMANA selecionada (a janela termina nela, então é o último
+  // bucket de weeklyFlowData). Assim os números mudam claramente ao trocar de semana.
+  const selWeekData =
+    weeklyFlowData.find(w => format(w.weekStart, 'yyyy-MM-dd') === analysisWeekId)
+    ?? weeklyFlowData[weeklyFlowData.length - 1];
+  const weekThroughput = selWeekData?.throughput ?? 0;
+  const weekLeadTime = selWeekData?.leadTimeAvg ?? null;
   // Hora real da última sincronização com o Jira, gravada por sync/sync-jira.ts em src/data-meta.json.
   // (Antes mostrávamos items[0].UpdatedAt — o "updated" de uma issue qualquer — que não refletia a frescura dos dados.)
   const syncedAt = new Date((dataMeta as { syncedAt: string }).syncedAt);
@@ -202,32 +210,35 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
       </div>
 
       {/* KPI Cards */}
+      <p className="text-xs text-slate-500 mb-2">
+        <span className="font-semibold">Throughput</span> e <span className="font-semibold">Lead Time</span> referem-se à <span className="font-semibold">semana selecionada</span>; <span className="font-semibold">WIP</span> e <span className="font-semibold">A Fazer</span> são o estado atual.
+      </p>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
-        <KPICard 
-          title="Throughput" 
-          value={kpis.throughput} 
-          subtext={`entregas no período`}
+        <KPICard
+          title="Throughput"
+          value={weekThroughput}
+          subtext={`entregas · ${analysisWeekLabel ?? 'semana'}`}
           icon={CheckCircle2}
           iconColorClass="text-emerald-500 bg-emerald-50"
         />
-        <KPICard 
-          title="Lead Time" 
-          value={kpis.leadTimeAvg !== null ? `${kpis.leadTimeAvg}d` : '-'} 
-          subtext={`P85: ${kpis.leadTimeP85 || '-'}d · P15: ${kpis.leadTimeP15 || '-'}d`}
+        <KPICard
+          title="Lead Time"
+          value={weekLeadTime !== null ? `${weekLeadTime}d` : '-'}
+          subtext={`média · ${analysisWeekLabel ?? 'semana'}`}
           icon={Clock}
           iconColorClass="text-slate-500 bg-slate-100"
         />
-        <KPICard 
-          title="WIP" 
-          value={kpis.wip} 
-          subtext="em andamento"
+        <KPICard
+          title="WIP"
+          value={kpis.wip}
+          subtext="em andamento agora"
           icon={Activity}
           iconColorClass="text-amber-500 bg-amber-50"
         />
-        <KPICard 
-          title="A Fazer" 
-          value={kpis.aFazer} 
-          subtext="backlog atualizado"
+        <KPICard
+          title="A Fazer"
+          value={kpis.aFazer}
+          subtext="backlog restante hoje"
           icon={Layers}
           iconColorClass="text-violet-500 bg-violet-50"
         />
