@@ -1,4 +1,5 @@
 import { Redis } from '@upstash/redis';
+import { isAuthed } from './_session';
 
 // Inicializa o cliente Redis. Se as variáveis não estiverem definidas,
 // ele usará os defaults definidos pelo ambiente da Vercel.
@@ -8,11 +9,19 @@ const redis = new Redis({
 });
 
 // Hash onde cada campo é um comentário isolado.
-// Campo: encodeURIComponent(squadId):...(releaseId):...(quinzenaId):...(metricId)
+// Campo: encodeURIComponent(squadId):...(releaseId):...(periodId):...(metricId)
 // Valor: { gap, action }
 // Isso permite escrita atômica por campo (HSET), sem read-modify-write do blob inteiro.
-const HASH_KEY = 'locavia_dashboard_comments_v2';
+//
+// Cadência roteia o hash (migração não-destrutiva):
+//   'quinzena' → v2 (legado Locavia/BF-CEM)   ·   'semana' → v3_semana (SMDashboard semanal)
+const HASH_V2 = 'locavia_dashboard_comments_v2';
+const HASH_V3_SEMANA = 'locavia_dashboard_comments_v3_semana';
 const SEP = ':';
+
+function hashKeyFor(cadence: unknown): string {
+  return cadence === 'semana' ? HASH_V3_SEMANA : HASH_V2;
+}
 
 function encodeField(squadId: string, releaseId: string, quinzenaId: string, metricId: string): string {
   return [squadId, releaseId, quinzenaId, metricId].map(encodeURIComponent).join(SEP);
@@ -35,28 +44,43 @@ function hashToTree(hash: Record<string, any>): Record<string, any> {
 }
 
 export default async function handler(req: any, res: any) {
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-  );
+  // CORS travado: só a origem do dashboard (env ALLOWED_ORIGIN) pode chamar de outro site.
+  // Chamadas same-origin (a própria SPA) NÃO dependem de CORS e seguem funcionando mesmo sem
+  // ALLOWED_ORIGIN setado. Sem `*`: outros sites não conseguem ler/escrever análises pelo browser.
+  const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || '';
+  const origin = (req.headers?.origin as string) || '';
+  if (ALLOWED_ORIGIN && origin === ALLOWED_ORIGIN) {
+    res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
+    res.setHeader('Vary', 'Origin');
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
+    // Preflight de origem não autorizada → recusa.
+    if (ALLOWED_ORIGIN && origin && origin !== ALLOWED_ORIGIN) {
+      res.status(403).end();
+      return;
+    }
     res.status(200).end();
     return;
   }
 
+  // Gate de login (quando configurado): leitura/escrita de análises exige sessão.
+  if (!isAuthed(req)) {
+    return res.status(401).json({ error: 'Não autenticado.' });
+  }
+
   try {
     if (req.method === 'GET') {
-      const hash = await redis.hgetall(HASH_KEY);
+      const hashKey = hashKeyFor(req.query?.cadence);
+      const hash = await redis.hgetall(hashKey);
       return res.status(200).json(hash ? hashToTree(hash as Record<string, any>) : {});
     }
 
     if (req.method === 'POST') {
       const body = req.body;
-      const { squadId, releaseId, quinzenaId, metricId, gap, action } = body || {};
+      const { squadId, releaseId, quinzenaId, metricId, gap, action, cadence } = body || {};
 
       if (!squadId || !releaseId || !quinzenaId || !metricId) {
         return res.status(400).json({
@@ -64,11 +88,12 @@ export default async function handler(req: any, res: any) {
         });
       }
 
+      const hashKey = hashKeyFor(cadence);
       const field = encodeField(squadId, releaseId, quinzenaId, metricId);
       // Timestamp da edição gerado no servidor (fonte autoritativa, evita relógio do cliente).
       const updatedAt = new Date().toISOString();
       // Escrita atômica e isolada: só este campo é tocado. Sem clobber entre editores.
-      await redis.hset(HASH_KEY, { [field]: { gap: gap || '', action: action || '', updatedAt } });
+      await redis.hset(hashKey, { [field]: { gap: gap || '', action: action || '', updatedAt } });
 
       return res.status(200).json({ success: true, message: 'Comment saved successfully', updatedAt });
     }

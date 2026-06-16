@@ -56,8 +56,16 @@ npm run sync:sfmkt
 | `JIRA_API_TOKEN` | Token Jira Cloud (usado apenas nos scripts de sync) |
 | `JIRA_USER_EMAIL` | E-mail do usuário Jira (scripts de sync) |
 | `JIRA_BASE_URL` | URL da instância Jira (scripts de sync) |
+| `SESSION_SECRET` | Segredo para assinar o cookie de sessão (gate de login). Junto com `DASHBOARD_PASSWORD`, ativa o login. |
+| `DASHBOARD_PASSWORD` | Senha de acesso ao painel (vive só no servidor). |
+| `ALLOWED_ORIGIN` | Origem permitida no CORS do `/api/comments` (URL do dashboard). |
+| `GITHUB_DISPATCH_TOKEN` | PAT GitHub (Actions: Read/Write) para o botão "Atualizar agora" disparar o sync. Só no servidor. |
+| `GITHUB_REPO` | Repositório `owner/repo` alvo do `workflow_dispatch`. |
+| `GITHUB_WORKFLOW` / `GITHUB_REF` | (Opcionais) workflow (`hourly-sync.yml`) e branch (`main`) do dispatch. |
 
 As variáveis `KV_*` são configuradas automaticamente ao linkar um Vercel KV Store no painel da Vercel.
+
+> **Gate de login:** o painel só exige senha quando `SESSION_SECRET` **e** `DASHBOARD_PASSWORD` estão setadas (produção). Em dev/local, sem essas vars, o gate fica desativado e tudo segue aberto — sem quebrar o fluxo de desenvolvimento.
 
 As variáveis `JIRA_*` vivem nos **Secrets do GitHub Actions** (usadas pelo workflow de sync) e também podem ser colocadas no `.env.local` (gitignored) para rodar `npm run sync:jira` localmente. O Jira é a instância **Grupo LM** (`https://grupolm.atlassian.net`); o token é um Atlassian API token (Basic Auth `email:token`).
 
@@ -99,14 +107,19 @@ locavia-dashboard/
 │   ├── services/
 │   │   ├── dataService.ts     # Fetch Google Sheets com fallback para data.json
 │   │   └── commentsService.ts # CRUD de análises via /api/comments
-│   ├── config/                # Configurações de SM, quinzenas, releases
+│   ├── config/                # Configurações de SM, quinzenas, semanas, releases
 │   ├── types/                 # Interfaces TypeScript
 │   ├── cone/                  # Algoritmo de cálculo CONE (computeCone.ts)
+│   ├── cfd/                   # CFD (Cumulative Flow Diagram) — computeCFD.ts (transform isolado)
+│   ├── lib/                   # Utilitários puros (timeBuckets.ts — granularidade dos gráficos)
 │   ├── data.json              # Dados sincronizados do Jira (gerado pelo sync)
 │   └── data-meta.json         # { syncedAt } — hora real da última sincronização
 │
 ├── api/
-│   └── comments.ts            # Vercel serverless: GET/POST análises no Redis
+│   ├── comments.ts            # Vercel serverless: GET/POST análises no Redis (roteia hash por cadência)
+│   ├── login.ts               # Gate de login (senha única) — sessão por cookie HttpOnly
+│   ├── refresh.ts             # Dispara o sync do Jira sob demanda (workflow_dispatch) + status
+│   └── _session.ts            # Helper de sessão (HMAC) compartilhado por login/comments/refresh
 │
 ├── sync/                      # Scripts de sincronização (Jira + Salesforce)
 │   ├── sync-jira.ts           # Orquestra a busca (JQL) e grava src/data.json + data-meta.json
@@ -143,8 +156,67 @@ locavia-dashboard/
 Cada save faz `HSET` apenas no seu próprio campo — escrita **atômica e isolada**, sem
 read-modify-write do blob inteiro. Isso elimina a condição de corrida entre múltiplos
 editores na mesma página e o risco de um save sobrescrever os dados de outro time.
-O `GET /api/comments` reconstrói a árvore aninhada (`[squadId][releaseId][quinzenaId][metricId]`)
+O `GET /api/comments` reconstrói a árvore aninhada (`[squadId][releaseId][periodId][metricId]`)
 que o frontend consome. O blob legado `locavia_dashboard_comments` é mantido como backup.
+
+**Cadência (quinzenal × semanal):** a partir do pedido da LM, as análises do **SMDashboard**
+passaram a ser **semanais**. Para não misturar com as quinzenas do Locavia/BF-CEM, o
+`/api/comments` roteia o hash por uma flag `cadence` (migração **não-destrutiva**):
+
+| Cadência | Hash Redis | Usado por |
+|---|---|---|
+| `quinzena` (default) | `locavia_dashboard_comments_v2` | Locavia, BF/CEM (inalterado) |
+| `semana` | `locavia_dashboard_comments_v3_semana` | SMDashboard (seletor de semana) |
+
+O `periodId` na chave do campo é o id da quinzena **ou** o id da semana (segunda-feira `YYYY-MM-DD`,
+ver [`src/config/semanas.ts`](src/config/semanas.ts)), conforme a cadência. O `v2` antigo segue
+intacto e legível.
+
+> **Atenção (follow-up conhecido):** o deck `/presentation/:smId` ainda lê comentários na cadência
+> padrão (`quinzena`/v2). Para exibir as novas análises semanais (v3) ele precisa do mesmo tratamento
+> de cadência — fora do escopo desta entrega.
+
+---
+
+## Segurança e Acesso
+
+- **Gate de login (senha única).** O app é envolvido por `AuthGate` ([src/components/AuthGate.tsx](src/components/AuthGate.tsx)),
+  que checa a sessão via `GET /api/login`. Em produção (com `SESSION_SECRET` + `DASHBOARD_PASSWORD`
+  setadas), exibe a tela de senha; a senha é validada no servidor (timing-safe) e a sessão fica
+  num cookie **HttpOnly** assinado por HMAC (12h). As APIs `/api/comments` e `/api/refresh` recusam
+  requisições sem sessão quando o gate está ativo.
+- **CORS travado.** O `/api/comments` só aceita origem cruzada da `ALLOWED_ORIGIN` (sem `*`).
+  Chamadas same-origin (a própria SPA) seguem funcionando.
+- **Segredos.** Tokens (Jira, GitHub PAT, Redis, senha) vivem **só no servidor** (env vars na Vercel /
+  Secrets do GitHub). Nada é embarcado no cliente. Rotacione `GITHUB_DISPATCH_TOKEN` e o token Jira
+  periodicamente.
+- **Limite honesto (P1 futuro).** O `data.json` ainda é embarcado no bundle público — quem inspeciona
+  o JS consegue baixá-lo. Proteção real do dataset exige servir os dados por API autenticada (mudança
+  arquitetural maior, fora deste escopo).
+
+---
+
+## SMDashboard — Vazão/Lead Time, CFD, Granularidade e Refresh
+
+- **Vazão e Lead Time separados.** Antes combinados num só gráfico; agora são dois cards
+  ([VazaoTrendChart](src/components/VazaoTrendChart.tsx) e [LeadTimeTrendChart](src/components/LeadTimeTrendChart.tsx)).
+  Os mesmos componentes existem nas páginas Locavia/BF-CEM ([WeeklyVazaoChart](src/components/WeeklyVazaoChart.tsx) / [WeeklyLeadTimeChart](src/components/WeeklyLeadTimeChart.tsx)).
+- **CFD (Cumulative Flow Diagram).** Fluxo acumulado por status (A Fazer · Em andamento · Concluído),
+  calculado em [`src/cfd/computeCFD.ts`](src/cfd/computeCFD.ts) como **saída aditiva** do
+  `useSMDashboardData` — mesmo recorte de filtros dos demais gráficos, **sem alterar** cone/vazão/lead time.
+  `Created`/`Resolved` são confiáveis; a banda **Em andamento** depende de `StartDate` (esparso ~61%),
+  com fallback `StartDate → CommitmentDate` e **aviso de fidelidade** na UI quando a cobertura é baixa.
+- **Granularidade.** Seletor Semanal/Quinzenal/Mensal ([`src/lib/timeBuckets.ts`](src/lib/timeBuckets.ts))
+  re-agrega as séries semanais para visualizar evoluções mais longas. **Não** altera a geração de
+  semanas do cone (vazão/contagens somadas; lead time ponderado pelo throughput; CFD pega o estado
+  acumulado da última semana do bin).
+- **Botão "Atualizar agora".** Dispara o sync do Jira sob demanda via `POST /api/refresh`
+  (`workflow_dispatch` no [hourly-sync.yml](.github/workflows/hourly-sync.yml)), com o token só no
+  servidor. **Não é instantâneo** (~2-5 min de sync + redeploy): a UI faz polling do status da
+  execução e recarrega ao concluir. Requer `GITHUB_DISPATCH_TOKEN` + `GITHUB_REPO`.
+- **Cadência semanal das análises.** O seletor de período do SM passou de quinzena para **semana**:
+  a semana escolhida define o comentário (Redis v3) **e** a janela dos gráficos (semana + 7 anteriores
+  para contexto). O modo "Período Customizado (Dias)" segue disponível.
 
 ---
 
@@ -239,4 +311,5 @@ npx playwright test tests/comments-e2e.spec.ts --config=playwright.local.config.
 
 - Verifique o card **Qualidade dos Dados** no Dashboard para identificar itens "Done" sem data de resolução.
 - Análises qualitativas devem ser registradas **por time** — ao selecionar um time específico no filtro do dashboard SM, a análise ficará vinculada àquele time (não ao SM como um todo).
-- Quinzenas com datas de início e fim corretas garantem que os filtros de período funcionem. Qualquer nova quinzena deve ser adicionada em `src/config/quinzenas.ts` seguindo o padrão `YYYY-MM-DD`.
+- Quinzenas (Locavia/BF-CEM) com datas de início e fim corretas garantem que os filtros de período funcionem. Qualquer nova quinzena deve ser adicionada em `src/config/quinzenas.ts` seguindo o padrão `YYYY-MM-DD`.
+- O **SMDashboard** usa cadência **semanal** ([`src/config/semanas.ts`](src/config/semanas.ts), segunda-feira como início). As análises semanais são gravadas no hash Redis `..._v3_semana` (via flag `cadence`); o `v2` (quinzenal) permanece intacto.

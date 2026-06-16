@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Edit3, Save, AlertCircle, CheckCircle, CalendarClock } from 'lucide-react';
 import { format } from 'date-fns';
-import { getComments, saveComment } from '../services/commentsService';
+import { getComments, saveComment, type Cadence } from '../services/commentsService';
 import { getQuinzenaById } from '../config/quinzenas';
 
 interface Props {
   squadId: string;
   releaseId: string;
-  quinzenaId: string;
+  quinzenaId: string;          // id do período (quinzenaId ou semanaId, conforme a cadência)
   metricId: string;
   metricLabel: string;
+  cadence?: Cadence;           // 'quinzena' (default) | 'semana'
+  periodLabel?: string;        // rótulo do período; se ausente, busca pela quinzena
   placeholderGap?: string;
   placeholderAction?: string;
 }
@@ -20,6 +22,8 @@ export const MetricCommentEditor: React.FC<Props> = ({
   quinzenaId,
   metricId,
   metricLabel,
+  cadence = 'quinzena',
+  periodLabel,
   placeholderGap = "Identifique qual foi o gargalo neste período...",
   placeholderAction = "Proponha a solução ágil e planos de ação do time..."
 }) => {
@@ -30,17 +34,14 @@ export const MetricCommentEditor: React.FC<Props> = ({
   const [action, setAction] = useState('');
   const [updatedAt, setUpdatedAt] = useState<string | undefined>(undefined);
 
-  const quinzenaLabel = getQuinzenaById(quinzenaId)?.label;
+  const periodDisplayLabel = periodLabel ?? getQuinzenaById(quinzenaId)?.label;
 
-  // Load comments on mount and when targets change
+  // Carrega a análise do alvo atual. O reset ao trocar de alvo é feito por remontagem
+  // (prop `key` no call-site), então aqui não há setState síncrono no corpo do effect —
+  // só a escrita assíncrona quando a busca resolve.
   useEffect(() => {
     let isMounted = true;
-    // Reset imediato para evitar mostrar análise do target anterior enquanto carrega
-    setGap('');
-    setAction('');
-    setUpdatedAt(undefined);
-    setIsEditing(false);
-    getComments().then(data => {
+    getComments(cadence).then(data => {
       if (!isMounted) return;
       const comment = data[squadId]?.[releaseId]?.[quinzenaId]?.[metricId] || { gap: '', action: '' };
       setGap(comment.gap || '');
@@ -48,7 +49,7 @@ export const MetricCommentEditor: React.FC<Props> = ({
       setUpdatedAt(comment.updatedAt);
     });
     return () => { isMounted = false; };
-  }, [squadId, releaseId, quinzenaId, metricId]);
+  }, [squadId, releaseId, quinzenaId, metricId, cadence]);
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -57,7 +58,7 @@ export const MetricCommentEditor: React.FC<Props> = ({
     // Escrita atômica e isolada: o backend faz HSET apenas neste campo.
     // Não há mais read-modify-write do blob inteiro, então editores
     // concorrentes na mesma página não se sobrescrevem.
-    const res = await saveComment(squadId, releaseId, quinzenaId, metricId, { gap, action });
+    const res = await saveComment(squadId, releaseId, quinzenaId, metricId, { gap, action }, cadence);
 
     setIsSaving(false);
     if (res.ok) {
@@ -75,9 +76,9 @@ export const MetricCommentEditor: React.FC<Props> = ({
           <h4 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-main)', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>
             Análise Qualitativa — {metricLabel}
           </h4>
-          {quinzenaLabel && (
+          {periodDisplayLabel && (
             <span style={{ fontSize: '0.72rem', fontWeight: 500, color: 'var(--text-muted)' }}>
-              {quinzenaLabel}
+              {periodDisplayLabel}
             </span>
           )}
         </div>

@@ -1,0 +1,96 @@
+import React, { useEffect, useRef, useState } from 'react';
+import { RefreshCw, Check, AlertTriangle } from 'lucide-react';
+import { triggerRefresh, getRefreshStatus } from '../services/refreshService';
+
+type Phase = 'idle' | 'starting' | 'running' | 'done' | 'error';
+
+const POLL_INTERVAL_MS = 8000;
+const POLL_TIMEOUT_MS = 8 * 60 * 1000;
+
+/**
+ * Botão "Atualizar agora" — dispara o sync do Jira sob demanda (workflow_dispatch via /api/refresh)
+ * e acompanha a execução por polling. Não é instantâneo: o sync roda no GitHub Actions e a Vercel
+ * redeploya, então comunicamos o tempo (~2-5 min) e recarregamos o painel ao concluir.
+ */
+export const RefreshButton: React.FC = () => {
+  const [phase, setPhase] = useState<Phase>('idle');
+  const [msg, setMsg] = useState<string>('');
+  const startedAtRef = useRef<number>(0);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const stopPolling = () => {
+    if (pollRef.current) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
+  };
+
+  useEffect(() => stopPolling, []);
+
+  const beginPolling = () => {
+    startedAtRef.current = Date.now();
+    stopPolling();
+    pollRef.current = setInterval(async () => {
+      if (Date.now() - startedAtRef.current > POLL_TIMEOUT_MS) {
+        stopPolling();
+        setPhase('done');
+        setMsg('Sincronização disparada. Recarregue a página em alguns minutos para ver os dados novos.');
+        return;
+      }
+      const s = await getRefreshStatus();
+      if (s.status === 'completed') {
+        stopPolling();
+        if (s.conclusion === 'success' || s.conclusion === null || s.conclusion === undefined) {
+          setPhase('done');
+          setMsg('Sincronização concluída. Recarregando o painel...');
+          setTimeout(() => window.location.reload(), 4000);
+        } else {
+          setPhase('error');
+          setMsg('A sincronização falhou no GitHub Actions — verifique a execução.');
+        }
+      } else if (s.status === 'in_progress' || s.status === 'queued') {
+        setMsg('Sincronizando com o Jira... (pode levar alguns minutos)');
+      }
+    }, POLL_INTERVAL_MS);
+  };
+
+  const onClick = async () => {
+    setPhase('starting');
+    setMsg('Disparando sincronização...');
+    const r = await triggerRefresh();
+    if (!r.ok) {
+      setPhase('error');
+      setMsg(r.error || 'Não foi possível iniciar a sincronização.');
+      return;
+    }
+    setPhase('running');
+    setMsg(r.alreadyRunning ? 'Sincronização já em andamento...' : 'Sincronização iniciada...');
+    beginPolling();
+  };
+
+  const busy = phase === 'starting' || phase === 'running';
+
+  return (
+    <div className="flex flex-col items-end shrink-0 min-w-[160px]">
+      <button
+        onClick={onClick}
+        disabled={busy}
+        className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-semibold shadow-sm transition-colors w-full justify-center
+          ${busy
+            ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'
+            : 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700'}`}
+        title="Dispara a sincronização com o Jira (leva alguns minutos)"
+      >
+        {phase === 'done' ? <Check className="w-4 h-4" />
+          : phase === 'error' ? <AlertTriangle className="w-4 h-4 text-rose-500" />
+          : <RefreshCw className={`w-4 h-4 ${busy ? 'animate-spin' : ''}`} />}
+        {busy ? 'Sincronizando...' : 'Atualizar agora'}
+      </button>
+      {msg && (
+        <span className={`text-[11px] mt-1 text-right leading-tight max-w-[220px] ${phase === 'error' ? 'text-rose-600' : 'text-slate-500'}`}>
+          {msg}
+        </span>
+      )}
+    </div>
+  );
+};

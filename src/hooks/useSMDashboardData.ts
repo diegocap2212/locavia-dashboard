@@ -4,6 +4,7 @@ import type { SMConfig } from '../config/sm-config';
 import { startOfWeek, endOfWeek, isWithinInterval, addDays, subDays } from 'date-fns';
 import importedData from '../data.json';
 import { excelToJSDate } from './useDashboardData';
+import { computeCFD } from '../cfd/computeCFD';
 
 // Safe date parser to handle Jira timezone offsets correctly in all browsers
 const parseDate = (d: string | null | undefined) => {
@@ -342,6 +343,13 @@ export function useSMDashboardData(
     // Filter weekly flow trend points to selected period
     const filteredWeeklyFlowData = weeklyFlowData.filter(w => w.weekStart >= startOfWeekLimit && w.weekStart <= endOfWeekLimit);
 
+    // ── CFD (Cumulative Flow Diagram) — saída ADITIVA ──
+    // Usa o MESMO recorte (releaseFilteredItems) e as MESMAS semanas dos demais gráficos.
+    // O acumulado é calculado sobre todo o histórico e depois recortado ao período visível,
+    // para que as bandas reflitam corretamente tudo que já foi concluído antes da janela.
+    const cfdResult = computeCFD(releaseFilteredItems, weeks);
+    const cfdData = cfdResult.points.filter(p => p.weekStart >= startOfWeekLimit && p.weekStart <= endOfWeekLimit);
+
     // Global KPIs constrained to the selected period
     const doneItems = releaseFilteredItems.filter(i => {
       const resolved = i.Resolved ? parseDate(i.Resolved) : null;
@@ -402,6 +410,8 @@ export function useSMDashboardData(
       items: activeItems,
       weeks: filteredWeeks,
       weeklyFlowData: filteredWeeklyFlowData,
+      cfdData,
+      cfdCoverage: cfdResult.startDateCoverage,
       issueTypeBreakdown,
       leadTimeHistogram,
       kpis: {

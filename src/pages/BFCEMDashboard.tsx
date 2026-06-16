@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, type Variants } from 'framer-motion';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  Bar, ComposedChart, Line, BarChart, Legend
+  Bar, BarChart, Legend
 } from 'recharts';
 import {
   Users, Activity, CheckCircle2, Clock, ShoppingCart, UserCircle, Download
@@ -13,6 +13,8 @@ import TemporalDeliveryMatrix from '../components/TemporalDeliveryMatrix';
 import { MetricCommentEditor } from '../components/MetricCommentEditor';
 import { MultiSelect } from '../components/MultiSelect';
 import { DateRangeFilter } from '../components/DateRangeFilter';
+import { WeeklyVazaoChart } from '../components/WeeklyVazaoChart';
+import { WeeklyLeadTimeChart } from '../components/WeeklyLeadTimeChart';
 import { SM_CONFIGS } from '../config/sm-config';
 import { getComments, exportComments } from '../services/commentsService';
 import { getQuinzenas, getAutomaticActiveQuinzena, getQuinzenaById } from '../config/quinzenas';
@@ -151,12 +153,6 @@ const BFCEMDashboard: React.FC = () => {
           </div>
 
           <button
-            onClick={() => navigate('/presentation/bf-cem')}
-            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--surface-color)', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-main)', transition: 'all 0.2s', boxShadow: 'var(--shadow-sm)' }}
-          >
-            <span>📺</span> Apresentação
-          </button>
-          <button
             onClick={async () => exportComments(await getComments())}
             style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--surface-color)', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', transition: 'all 0.2s', boxShadow: 'var(--shadow-sm)' }}
           >
@@ -258,28 +254,7 @@ const BFCEMDashboard: React.FC = () => {
 
       {/* Throughput + Flow Balance */}
       <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1fr', gap: '1.5rem', marginTop: '1.5rem' }}>
-        <motion.div className="premium-card chart-section" variants={itemVariants}>
-          <div className="chart-header">
-            <h3 className="chart-title">Throughput Semanal</h3>
-          </div>
-          <div style={{ width: '100%', height: 320 }}>
-            <ResponsiveContainer>
-              <ComposedChart data={weeklyPerformance} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
-                <XAxis dataKey="name" stroke="var(--text-muted)" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} dy={10} />
-                <YAxis yAxisId="left" orientation="left" stroke="var(--text-muted)" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis yAxisId="right" orientation="right" stroke="var(--warning)" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} dx={10} />
-                <Tooltip contentStyle={{ backgroundColor: 'var(--surface-color)', border: '1px solid var(--border-color)', borderRadius: '12px', boxShadow: 'var(--shadow-md)' }} />
-                <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
-                <Bar yAxisId="left" dataKey="História" stackId="a" fill="#3b82f6" name="Histórias" />
-                <Bar yAxisId="left" dataKey="Bug" stackId="a" fill="#ef4444" name="Bugs" />
-                <Bar yAxisId="left" dataKey="Tarefa" stackId="a" fill="#9ca3af" name="Tarefas" />
-                <Bar yAxisId="left" dataKey="Spike" stackId="a" fill="#f59e0b" name="Spikes" radius={[4, 4, 0, 0]} />
-                <Line yAxisId="right" type="monotone" dataKey="Lead Time (Méd)" stroke="var(--warning)" strokeWidth={3} dot={{ r: 4, strokeWidth: 2, fill: 'white' }} activeDot={{ r: 6 }} />
-              </ComposedChart>
-            </ResponsiveContainer>
-          </div>
-        </motion.div>
+        <WeeklyVazaoChart data={weeklyPerformance} />
 
         <motion.div className="premium-card chart-section" variants={itemVariants} style={{ display: 'flex', flexDirection: 'column' }}>
           <div className="chart-header">
@@ -307,6 +282,11 @@ const BFCEMDashboard: React.FC = () => {
         </motion.div>
       </div>
 
+      {/* Lead Time (separado da Vazão) */}
+      <div style={{ marginTop: '1.5rem' }}>
+        <WeeklyLeadTimeChart data={weeklyPerformance} height={280} />
+      </div>
+
       {/* Comentários Qualitativos */}
       <div style={{ marginTop: '1.5rem' }}>
         <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -317,22 +297,25 @@ const BFCEMDashboard: React.FC = () => {
             squadId={activeSquadId} 
             releaseId={activeReleaseId} 
             quinzenaId={selectedQuinzenaId}
-            metricId="vazao" 
-            metricLabel="Throughput" 
+            key={`vazao-${activeSquadId}-${activeReleaseId}-${selectedQuinzenaId}`}
+            metricId="vazao"
+            metricLabel="Throughput"
           />
           <MetricCommentEditor 
             squadId={activeSquadId} 
             releaseId={activeReleaseId} 
             quinzenaId={selectedQuinzenaId}
-            metricId="leadTime" 
-            metricLabel="Lead Time" 
+            key={`leadTime-${activeSquadId}-${activeReleaseId}-${selectedQuinzenaId}`}
+            metricId="leadTime"
+            metricLabel="Lead Time"
           />
           <MetricCommentEditor 
             squadId={activeSquadId} 
             releaseId={activeReleaseId} 
             quinzenaId={selectedQuinzenaId}
-            metricId="flowBalance" 
-            metricLabel="Balanço do Fluxo" 
+            key={`flowBalance-${activeSquadId}-${activeReleaseId}-${selectedQuinzenaId}`}
+            metricId="flowBalance"
+            metricLabel="Balanço do Fluxo"
           />
         </div>
       </div>

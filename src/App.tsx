@@ -3,7 +3,7 @@ import { Routes, Route, useNavigate, useLocation, useParams } from 'react-router
 import { motion, type Variants } from 'framer-motion';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
-  Bar, ComposedChart, Line, BarChart
+  Bar, BarChart
 } from 'recharts';
 import {
   Users, Activity, CheckCircle2, Clock, RefreshCw,
@@ -13,13 +13,15 @@ import { useDashboardData, excelToJSDate, formatDate } from './hooks/useDashboar
 import TemporalDeliveryMatrix from './components/TemporalDeliveryMatrix';
 import { SMDashboard } from './pages/SMDashboard';
 import { SM_CONFIGS } from './config/sm-config';
-import PresentationDeck from './pages/PresentationDeck';
 import { MultiSelect } from './components/MultiSelect';
 import { DateRangeFilter } from './components/DateRangeFilter';
+import { WeeklyVazaoChart } from './components/WeeklyVazaoChart';
+import { WeeklyLeadTimeChart } from './components/WeeklyLeadTimeChart';
 import { getComments, exportComments } from './services/commentsService';
 import './App.css';
 
 const BFCEMDashboard = lazy(() => import('./pages/BFCEMDashboard'));
+// (Feature de apresentação removida — deck executivo descontinuado.)
 type ActiveView = 'locavia' | 'bf-cem' | 'sm-gabriela' | 'sm-rafael' | 'sm-ed';
 
 const containerVariants: Variants = {
@@ -114,12 +116,6 @@ const SMDashboardWrapper = () => {
           rightSlot={
             <>
               <button
-                onClick={() => navigate(`/presentation/${smId}`)}
-                style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'white', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-main)', transition: 'all 0.2s', boxShadow: 'var(--shadow-sm)' }}
-              >
-                <span>📺</span> Apresentação
-              </button>
-              <button
                 onClick={async () => exportComments(await getComments())}
                 style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'white', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', transition: 'all 0.2s', boxShadow: 'var(--shadow-sm)' }}
               >
@@ -172,7 +168,6 @@ const App: React.FC = () => {
   return (
     <div className="dashboard-wrapper">
       <Routes>
-        <Route path="/presentation/:smId" element={<PresentationDeck />} />
         <Route path="/sm/:smId" element={<SMDashboardWrapper />} />
 
         <Route path="/cone-bf-cem" element={
@@ -240,13 +235,6 @@ const App: React.FC = () => {
                 onStartDateChange={setStartDate} onEndDateChange={setEndDate}
               />
             </div>}
-
-            <button
-              onClick={() => navigate('/presentation/locavia')}
-              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--surface-color)', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', transition: 'all 0.2s', boxShadow: 'var(--shadow-sm)' }}
-            >
-              <span>📺</span> Apresentação
-            </button>
           </div>
         </motion.header>
 
@@ -343,28 +331,7 @@ const App: React.FC = () => {
         </motion.div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1fr', gap: '1.5rem', marginTop: '1.5rem' }}>
-          <motion.div className="premium-card chart-section" variants={itemVariants}>
-            <div className="chart-header">
-              <h3 className="chart-title">Throughput Semanal</h3>
-            </div>
-            <div style={{ width: '100%', height: 320 }}>
-              <ResponsiveContainer>
-                <ComposedChart data={weeklyPerformance} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
-                  <XAxis dataKey="name" stroke="var(--text-muted)" tick={{fontSize: 11}} axisLine={false} tickLine={false} dy={10} />
-                  <YAxis yAxisId="left" orientation="left" stroke="var(--text-muted)" tick={{fontSize: 11}} axisLine={false} tickLine={false} />
-                  <YAxis yAxisId="right" orientation="right" stroke="var(--warning)" tick={{fontSize: 11}} axisLine={false} tickLine={false} dx={10} />
-                  <Tooltip contentStyle={{ backgroundColor: 'var(--surface-color)', border: '1px solid var(--border-color)', borderRadius: '12px', boxShadow: 'var(--shadow-md)' }} />
-                  <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }}/>
-                  <Bar yAxisId="left" dataKey="História" stackId="a" fill="#3b82f6" name="Histórias" />
-                  <Bar yAxisId="left" dataKey="Bug" stackId="a" fill="#ef4444" name="Bugs" />
-                  <Bar yAxisId="left" dataKey="Tarefa" stackId="a" fill="#9ca3af" name="Tarefas" />
-                  <Bar yAxisId="left" dataKey="Spike" stackId="a" fill="#f59e0b" name="Spikes" radius={[4, 4, 0, 0]} />
-                  <Line yAxisId="right" type="monotone" dataKey="Lead Time (Méd)" stroke="var(--warning)" strokeWidth={3} dot={{ r: 4, strokeWidth: 2, fill: 'white' }} activeDot={{ r: 6 }} />
-                </ComposedChart>
-              </ResponsiveContainer>
-            </div>
-          </motion.div>
+          <WeeklyVazaoChart data={weeklyPerformance} />
 
           <motion.div className="premium-card chart-section" variants={itemVariants} style={{ display: 'flex', flexDirection: 'column' }}>
             <div className="chart-header">
@@ -393,6 +360,10 @@ const App: React.FC = () => {
               </span>
             </div>
           </motion.div>
+        </div>
+
+        <div style={{ marginTop: '1.5rem' }}>
+          <WeeklyLeadTimeChart data={weeklyPerformance} height={280} />
         </div>
 
         <motion.div className="premium-card" variants={itemVariants} style={{ marginTop: '1.5rem' }}>

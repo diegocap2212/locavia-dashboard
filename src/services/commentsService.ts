@@ -1,8 +1,16 @@
 import type { CommentsData, MetricComment } from '../types/comments';
 
-export async function getComments(): Promise<CommentsData> {
+/**
+ * Cadência da análise — define em qual hash do Redis o comentário vive:
+ *   'quinzena' → locavia_dashboard_comments_v2 (legado: Locavia/BF-CEM)
+ *   'semana'   → locavia_dashboard_comments_v3_semana (SMDashboard, cadência semanal)
+ * Migração não-destrutiva: os dois coexistem; o v2 antigo segue legível.
+ */
+export type Cadence = 'quinzena' | 'semana';
+
+export async function getComments(cadence: Cadence = 'quinzena'): Promise<CommentsData> {
   try {
-    const response = await fetch('/api/comments');
+    const response = await fetch(`/api/comments?cadence=${cadence}`);
     if (response.ok) {
       return await response.json();
     }
@@ -13,16 +21,16 @@ export async function getComments(): Promise<CommentsData> {
 }
 
 /**
- * Salva UM comentário de forma atômica e isolada.
- * O backend faz HSET apenas no campo correspondente — não há read-modify-write
- * do blob inteiro, então editores concorrentes não se sobrescrevem.
+ * Salva UM comentário de forma atômica e isolada (HSET de um único campo no backend).
+ * `periodId` é o id do período: quinzenaId (cadência quinzena) ou semanaId (cadência semana).
  */
 export async function saveComment(
   squadId: string,
   releaseId: string,
-  quinzenaId: string,
+  periodId: string,
   metricId: string,
-  comment: MetricComment
+  comment: MetricComment,
+  cadence: Cadence = 'quinzena'
 ): Promise<{ ok: boolean; updatedAt?: string }> {
   try {
     const response = await fetch('/api/comments', {
@@ -30,7 +38,8 @@ export async function saveComment(
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ squadId, releaseId, quinzenaId, metricId, ...comment }),
+      // Mantém o nome de campo `quinzenaId` no payload (contrato do backend); o valor é o id do período.
+      body: JSON.stringify({ squadId, releaseId, quinzenaId: periodId, metricId, cadence, ...comment }),
     });
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));

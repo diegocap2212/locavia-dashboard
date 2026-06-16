@@ -6,14 +6,18 @@ import { PlannedVsDeliveredChart } from '../components/PlannedVsDeliveredChart';
 import { LeadTimeCycleTimeScatter } from '../components/LeadTimeCycleTimeScatter';
 import { ConeWeeklyTable } from '../components/ConeWeeklyTable';
 import { DataQualityPanel } from '../components/DataQualityPanel';
-import { WeeklyFlowTrendChart } from '../components/WeeklyFlowTrendChart';
+import { VazaoTrendChart } from '../components/VazaoTrendChart';
+import { LeadTimeTrendChart } from '../components/LeadTimeTrendChart';
+import { CFDChart } from '../components/CFDChart';
 import { IssueTypeDonut } from '../components/IssueTypeDonut';
 import { FlowBalanceChart } from '../components/FlowBalanceChart';
 import { LeadTimeHistogram } from '../components/LeadCycleTimeHistogram';
 import { MetricCommentEditor } from '../components/MetricCommentEditor';
 import { PointsVelocityChart } from '../components/PointsVelocityChart';
 import { PointsCommittedVsDeliveredChart } from '../components/PointsCommittedVsDeliveredChart';
-import { getQuinzenas, getAutomaticActiveQuinzena, getQuinzenaById } from '../config/quinzenas';
+import { getSemanas, getAutomaticActiveSemana, getSemanaById, semanaIdForDate } from '../config/semanas';
+import { regroupFlow, regroupCFD, GRANULARITY_LABEL, type Granularity } from '../lib/timeBuckets';
+import { RefreshButton } from '../components/RefreshButton';
 import { CheckCircle2, Clock, Activity, Layers, Loader2, TrendingUp, Target, Gauge, Percent } from 'lucide-react';
 import { format } from 'date-fns';
 import { DateRangeFilter } from '../components/DateRangeFilter';
@@ -28,11 +32,27 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
   const [customStartDateStr, setCustomStartDateStr] = useState<string>('');
   const [customEndDateStr, setCustomEndDateStr] = useState<string>('');
   const [selectedRelease, setSelectedRelease] = useState<string>('ALL');
-  const [selectedQuinzenaId, setSelectedQuinzenaId] = useState<string>(() => getAutomaticActiveQuinzena());
-  
-  const activeQuinzena = selectedQuinzenaId !== 'CUSTOM' ? getQuinzenaById(selectedQuinzenaId) : undefined;
-  const customStart = selectedQuinzenaId === 'CUSTOM' ? customStartDateStr : activeQuinzena?.startDate;
-  const customEnd = selectedQuinzenaId === 'CUSTOM' ? customEndDateStr : activeQuinzena?.endDate;
+  const [selectedSemanaId, setSelectedSemanaId] = useState<string>(() => getAutomaticActiveSemana());
+  const [granularity, setGranularity] = useState<Granularity>('semana');
+  // "Agora" capturado uma vez no mount (inicializador lazy do useState — roda só uma vez,
+  // sem chamar Date.now() no corpo do render). Usado p/ calcular a defasagem do sync.
+  const [nowMs] = useState(() => Date.now());
+
+  // Cadência semanal: a semana escolhida define a análise (Redis v3) E a janela dos gráficos
+  // (a semana + CONTEXT_WEEKS-1 semanas anteriores, para dar contexto de tendência).
+  const CONTEXT_WEEKS = 8;
+  const semanas = getSemanas();
+  const activeSemana = selectedSemanaId !== 'CUSTOM' ? getSemanaById(selectedSemanaId) : undefined;
+  const selIdx = semanas.findIndex(s => s.id === selectedSemanaId);
+  const windowStart = selIdx >= 0 ? semanas[Math.max(0, selIdx - (CONTEXT_WEEKS - 1))].startDate : undefined;
+  const customStart = selectedSemanaId === 'CUSTOM' ? customStartDateStr : windowStart;
+  const customEnd = selectedSemanaId === 'CUSTOM' ? customEndDateStr : activeSemana?.endDate;
+
+  // Semana à qual a análise/comentário fica atrelada (sempre uma semana real, mesmo em modo custom).
+  const analysisWeekId = selectedSemanaId !== 'CUSTOM'
+    ? selectedSemanaId
+    : (customEndDateStr ? semanaIdForDate(customEndDateStr) : getAutomaticActiveSemana());
+  const analysisWeekLabel = getSemanaById(analysisWeekId)?.label;
   
   const { data, loading, error, availableReleases } = useSMDashboardData(
     smConfig, 
@@ -64,13 +84,18 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
     );
   }
 
-  const { items, kpis, weeks, weeklyFlowData, issueTypeBreakdown, leadTimeHistogram } = data;
+  const { items, kpis, weeks, weeklyFlowData, cfdData, cfdCoverage, issueTypeBreakdown, leadTimeHistogram } = data;
+  // Re-agrega as séries semanais conforme a granularidade escolhida (funções puras — sem hooks).
+  // Não altera o cone nem as métricas-fonte; só muda o bucket de exibição de Vazão/Lead Time/CFD.
+  const flowForCharts = regroupFlow(weeklyFlowData, granularity);
+  const cfdForCharts = regroupCFD(cfdData, granularity);
+  const gLabel = GRANULARITY_LABEL[granularity];
   // Hora real da última sincronização com o Jira, gravada por sync/sync-jira.ts em src/data-meta.json.
   // (Antes mostrávamos items[0].UpdatedAt — o "updated" de uma issue qualquer — que não refletia a frescura dos dados.)
   const syncedAt = new Date((dataMeta as { syncedAt: string }).syncedAt);
   // Alerta de defasagem: o cron de sync é best-effort e pode atrasar/pular.
   // Se os dados estão velhos, sinalizamos para ninguém confiar em número desatualizado sem saber.
-  const hoursSinceSync = (Date.now() - syncedAt.getTime()) / (1000 * 60 * 60);
+  const hoursSinceSync = (nowMs - syncedAt.getTime()) / (1000 * 60 * 60);
   const isStale = hoursSinceSync >= 2;
 
   return (
@@ -136,24 +161,39 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
             </div>
           )}
 
-          {/* Quinzena Filter */}
+          {/* Semana (cadência semanal das análises) */}
           <div className="flex bg-white rounded-lg p-1 border border-slate-200 shadow-sm shrink-0">
-            <select 
+            <select
               className="bg-transparent border-none text-sm font-medium text-slate-700 py-2 pl-3 pr-8 focus:ring-0 cursor-pointer w-full outline-none"
-              value={selectedQuinzenaId}
-              onChange={(e) => setSelectedQuinzenaId(e.target.value)}
+              value={selectedSemanaId}
+              onChange={(e) => setSelectedSemanaId(e.target.value)}
+              title="Semana de análise — define o comentário e a janela dos gráficos"
             >
               <option value="CUSTOM">Período Customizado (Dias)</option>
-              {getQuinzenas().map(q => (
-                <option key={q.id} value={q.id}>
-                  {q.label}
+              {getSemanas().map(s => (
+                <option key={s.id} value={s.id}>
+                  {s.label}
                 </option>
               ))}
             </select>
           </div>
 
+          {/* Granularidade dos gráficos temporais (Vazão / Lead Time / CFD) */}
+          <div className="flex bg-white rounded-lg p-1 border border-slate-200 shadow-sm shrink-0">
+            <select
+              className="bg-transparent border-none text-sm font-medium text-slate-700 py-2 pl-3 pr-8 focus:ring-0 cursor-pointer w-full outline-none"
+              value={granularity}
+              onChange={(e) => setGranularity(e.target.value as Granularity)}
+              title="Granularidade dos gráficos temporais"
+            >
+              <option value="semana">Visão: Semanal</option>
+              <option value="quinzena">Visão: Quinzenal</option>
+              <option value="mes">Visão: Mensal</option>
+            </select>
+          </div>
+
           {/* Days Filter */}
-          {selectedQuinzenaId === 'CUSTOM' && (
+          {selectedSemanaId === 'CUSTOM' && (
             <div className="flex bg-white rounded-lg p-1 border border-slate-200 shadow-sm shrink-0">
               <DateRangeFilter
                 startDate={customStartDateStr}
@@ -163,7 +203,27 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
               />
             </div>
           )}
+
+          {/* Atualização sob demanda do Jira (dispara o sync no GitHub Actions) */}
+          <RefreshButton />
         </div>
+      </div>
+
+      {/* Indicador de filtros ativos — evita demonstrar com recorte errado (preocupação LM) */}
+      <div className="flex flex-wrap items-center gap-2 mb-6 text-xs">
+        <span className="text-slate-400 font-medium uppercase tracking-wide mr-1">Filtros ativos:</span>
+        {[
+          { label: 'Time', value: selectedTeam === 'ALL' ? 'Todos' : (smConfig.teams.find(t => t.carCode === selectedTeam)?.displayName ?? selectedTeam) },
+          { label: 'Release', value: selectedRelease === 'ALL' ? 'Todas' : selectedRelease },
+          { label: 'Período', value: selectedSemanaId === 'CUSTOM' ? (customStart && customEnd ? `${customStart} → ${customEnd}` : 'Customizado') : (activeSemana?.label ?? selectedSemanaId) },
+          { label: 'Análise da', value: analysisWeekLabel ?? analysisWeekId },
+          { label: 'Visão', value: gLabel },
+        ].map(chip => (
+          <span key={chip.label} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700">
+            <span className="text-slate-400 font-semibold">{chip.label}:</span>
+            <span className="font-semibold">{chip.value}</span>
+          </span>
+        ))}
       </div>
 
       {/* KPI Cards */}
@@ -198,15 +258,38 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
         />
       </div>
 
-      {/* ── ROW 1: Flow Trends + Issue Type Donut ── */}
+      {/* ── ROW 1: Vazão e Lead Time (gráficos SEPARADOS — pedido LM/Michelle) ── */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col h-[420px]">
+          <h2 className="text-lg font-bold text-slate-800 mb-1 flex items-center">
+            <span className="text-amber-500 mr-2">⚡</span> Vazão · {gLabel}
+          </h2>
+          <p className="text-sm text-slate-500 mb-4">Entregas (throughput) por tipo de item</p>
+          <div className="flex-1 min-h-0">
+            <VazaoTrendChart data={flowForCharts} />
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col h-[420px]">
+          <h2 className="text-lg font-bold text-slate-800 mb-1 flex items-center">
+            <span className="text-amber-500 mr-2">⏱</span> Lead Time · {gLabel}
+          </h2>
+          <p className="text-sm text-slate-500 mb-4">Tempo médio Criado → Resolvido (dias)</p>
+          <div className="flex-1 min-h-0">
+            <LeadTimeTrendChart data={flowForCharts} />
+          </div>
+        </div>
+      </div>
+
+      {/* ── ROW 1b: CFD (Cumulative Flow Diagram) + Entrega por Tipo ── */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
         <div className="xl:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col h-[450px]">
           <h2 className="text-lg font-bold text-slate-800 mb-1 flex items-center">
-            <span className="text-amber-500 mr-2">⚡</span> Vazão & Tempos por Semana
+            <span className="text-emerald-500 mr-2">▥</span> Fluxo Acumulado (CFD)
           </h2>
-          <p className="text-sm text-slate-500 mb-4">Throughput (barras por tipo) + Lead Time (linhas)</p>
+          <p className="text-sm text-slate-500 mb-4">Itens por status ao longo do tempo ({gLabel.toLowerCase()}): A Fazer · Em andamento · Concluído</p>
           <div className="flex-1 min-h-0">
-            <WeeklyFlowTrendChart data={weeklyFlowData} />
+            <CFDChart data={cfdForCharts} coverage={cfdCoverage} />
           </div>
         </div>
 
@@ -225,7 +308,10 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
         <MetricCommentEditor
           squadId={selectedTeam}
           releaseId={selectedRelease}
-          quinzenaId={selectedQuinzenaId}
+          quinzenaId={analysisWeekId}
+          cadence="semana"
+          periodLabel={analysisWeekLabel}
+          key={`vazao-${selectedTeam}-${selectedRelease}-${analysisWeekId}`}
           metricId="vazao"
           metricLabel="Vazão Semanal"
         />
@@ -309,7 +395,10 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
         <MetricCommentEditor
           squadId={selectedTeam}
           releaseId={selectedRelease}
-          quinzenaId={selectedQuinzenaId}
+          quinzenaId={analysisWeekId}
+          cadence="semana"
+          periodLabel={analysisWeekLabel}
+          key={`pontos-${selectedTeam}-${selectedRelease}-${analysisWeekId}`}
           metricId="pontos"
           metricLabel="Pontos das User Stories"
         />
@@ -350,14 +439,20 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
         <MetricCommentEditor
           squadId={selectedTeam}
           releaseId={selectedRelease}
-          quinzenaId={selectedQuinzenaId}
+          quinzenaId={analysisWeekId}
+          cadence="semana"
+          periodLabel={analysisWeekLabel}
+          key={`leadTime-${selectedTeam}-${selectedRelease}-${analysisWeekId}`}
           metricId="leadTime"
           metricLabel="Lead Time"
         />
         <MetricCommentEditor
           squadId={selectedTeam}
           releaseId={selectedRelease}
-          quinzenaId={selectedQuinzenaId}
+          quinzenaId={analysisWeekId}
+          cadence="semana"
+          periodLabel={analysisWeekLabel}
+          key={`flowBalance-${selectedTeam}-${selectedRelease}-${analysisWeekId}`}
           metricId="flowBalance"
           metricLabel="Balanço do Fluxo"
         />
