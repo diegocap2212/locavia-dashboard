@@ -118,8 +118,9 @@ locavia-dashboard/
 ├── api/
 │   ├── comments.ts            # Vercel serverless: GET/POST análises no Redis (roteia hash por cadência)
 │   ├── login.ts               # Gate de login (senha única) — sessão por cookie HttpOnly
-│   ├── refresh.ts             # Dispara o sync do Jira sob demanda (workflow_dispatch) + status
-│   └── _session.ts            # Helper de sessão (HMAC) compartilhado por login/comments/refresh
+│   └── refresh.ts             # Dispara o sync do Jira sob demanda (workflow_dispatch) + status
+│   # (lógica de sessão HMAC é inline em cada function — a Vercel não empacota imports
+│   #  relativos entre serverless functions)
 │
 ├── sync/                      # Scripts de sincronização (Jira + Salesforce)
 │   ├── sync-jira.ts           # Orquestra a busca (JQL) e grava src/data.json + data-meta.json

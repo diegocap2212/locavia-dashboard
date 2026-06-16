@@ -1,5 +1,4 @@
 import crypto from 'crypto';
-import { sessionConfigured, makeToken, cookieHeader, isAuthed } from './_session';
 
 /**
  * Gate de login por senha única.
@@ -8,7 +7,65 @@ import { sessionConfigured, makeToken, cookieHeader, isAuthed } from './_session
  *   DELETE /api/login → logout (limpa o cookie)
  *
  * A senha vive só no servidor (env DASHBOARD_PASSWORD); a comparação é timing-safe.
+ * Sessão = token assinado por HMAC (env SESSION_SECRET) em cookie HttpOnly (12h).
+ *
+ * NB: lógica de sessão é inline (sem import relativo entre functions — a Vercel não
+ * empacota ./_session e dá ERR_MODULE_NOT_FOUND em runtime).
  */
+
+const SESSION_COOKIE = 'dash_session';
+const MAX_AGE_SECONDS = 60 * 60 * 12; // 12h
+
+function sessionConfigured(): boolean {
+  return !!process.env.SESSION_SECRET && !!process.env.DASHBOARD_PASSWORD;
+}
+
+function sign(payload: string, secret: string): string {
+  return crypto.createHmac('sha256', secret).update(payload).digest('base64url');
+}
+
+function makeToken(secret: string): string {
+  const exp = Date.now() + MAX_AGE_SECONDS * 1000;
+  const payload = Buffer.from(JSON.stringify({ exp })).toString('base64url');
+  return `${payload}.${sign(payload, secret)}`;
+}
+
+function verifyToken(token: string, secret: string): boolean {
+  const [payload, sig] = token.split('.');
+  if (!payload || !sig) return false;
+  const a = Buffer.from(sig);
+  const b = Buffer.from(sign(payload, secret));
+  if (a.length !== b.length) return false;
+  if (!crypto.timingSafeEqual(a, b)) return false;
+  try {
+    const { exp } = JSON.parse(Buffer.from(payload, 'base64url').toString());
+    return typeof exp === 'number' && exp > Date.now();
+  } catch {
+    return false;
+  }
+}
+
+function parseCookie(header: string | undefined, name: string): string | null {
+  if (!header) return null;
+  for (const part of header.split(';')) {
+    const i = part.indexOf('=');
+    if (i === -1) continue;
+    if (part.slice(0, i).trim() === name) return decodeURIComponent(part.slice(i + 1).trim());
+  }
+  return null;
+}
+
+function cookieHeader(token: string, maxAge: number): string {
+  return `${SESSION_COOKIE}=${token}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${maxAge}`;
+}
+
+function isAuthed(req: any): boolean {
+  const secret = process.env.SESSION_SECRET || '';
+  if (!secret || !process.env.DASHBOARD_PASSWORD) return true;
+  const token = parseCookie(req?.headers?.cookie, SESSION_COOKIE);
+  return !!token && verifyToken(token, secret);
+}
+
 export default async function handler(req: any, res: any) {
   res.setHeader('Cache-Control', 'no-store');
 
@@ -30,7 +87,7 @@ export default async function handler(req: any, res: any) {
     const valid = a.length === b.length && crypto.timingSafeEqual(a, b);
     if (!valid) return res.status(401).json({ error: 'Senha incorreta.' });
 
-    res.setHeader('Set-Cookie', cookieHeader(makeToken(secret)));
+    res.setHeader('Set-Cookie', cookieHeader(makeToken(secret), MAX_AGE_SECONDS));
     return res.status(200).json({ ok: true });
   }
 

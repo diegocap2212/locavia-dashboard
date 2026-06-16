@@ -1,5 +1,44 @@
 import { Redis } from '@upstash/redis';
-import { isAuthed } from './_session';
+import crypto from 'crypto';
+
+// ── Sessão (inline) ────────────────────────────────────────────────────────
+// Inline de propósito: a Vercel não empacota imports relativos entre functions
+// (./_session dava ERR_MODULE_NOT_FOUND em runtime). isAuthed retorna true quando
+// o gate não está configurado (dev), então não quebra o fluxo local.
+const SESSION_COOKIE = 'dash_session';
+function sign(payload: string, secret: string): string {
+  return crypto.createHmac('sha256', secret).update(payload).digest('base64url');
+}
+function verifyToken(token: string, secret: string): boolean {
+  const [payload, sig] = token.split('.');
+  if (!payload || !sig) return false;
+  const a = Buffer.from(sig);
+  const b = Buffer.from(sign(payload, secret));
+  if (a.length !== b.length) return false;
+  if (!crypto.timingSafeEqual(a, b)) return false;
+  try {
+    const { exp } = JSON.parse(Buffer.from(payload, 'base64url').toString());
+    return typeof exp === 'number' && exp > Date.now();
+  } catch {
+    return false;
+  }
+}
+function parseCookie(header: string | undefined, name: string): string | null {
+  if (!header) return null;
+  for (const part of header.split(';')) {
+    const i = part.indexOf('=');
+    if (i === -1) continue;
+    if (part.slice(0, i).trim() === name) return decodeURIComponent(part.slice(i + 1).trim());
+  }
+  return null;
+}
+function isAuthed(req: any): boolean {
+  const secret = process.env.SESSION_SECRET || '';
+  if (!secret || !process.env.DASHBOARD_PASSWORD) return true;
+  const token = parseCookie(req?.headers?.cookie, SESSION_COOKIE);
+  return !!token && verifyToken(token, secret);
+}
+// ────────────────────────────────────────────────────────────────────────────
 
 // Inicializa o cliente Redis. Se as variáveis não estiverem definidas,
 // ele usará os defaults definidos pelo ambiente da Vercel.
