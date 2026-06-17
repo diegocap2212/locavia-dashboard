@@ -32,8 +32,8 @@
       "key": "SFMKT-157",
       "summary": "Documentação sobre processo e fluxo de aquecimento da BU AssineCar",
       "type": "História",
-      "status": "SPRINT BACKLOG",
-      "statusCategory": "TODO",
+      "status": "EM DESENVOLVIMENTO",
+      "statusCategory": "IN_PROGRESS",
       "assignee": "André Cacciatori",
       "created": "2026-06-17T09:34:58.821-0300",
       "resolved": null,
@@ -45,7 +45,7 @@
       "labels": [],
       "leadTimeDays": null,
       "cycleTimeDays": null,
-      "timeInTodoDays": null,
+      "timeInTodoDays": 0,
       "dq": {
         "missingResolutionDate": false,
         "missingAssignee": false,
@@ -1131,7 +1131,7 @@
       }
     }
   ],
-  "synced_at": "2026-06-17T18:44:22.558Z",
+  "synced_at": "2026-06-17T21:12:33.582Z",
   "project": "SFMKT",
   "total_fetched": 40
 }
