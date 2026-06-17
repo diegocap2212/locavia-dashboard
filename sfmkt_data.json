@@ -4,8 +4,8 @@
       "key": "SFMKT-158",
       "summary": "Integração Whatsapp x RD Station x Salesforce",
       "type": "História",
-      "status": "SPRINT BACKLOG",
-      "statusCategory": "TODO",
+      "status": "EM DESENVOLVIMENTO",
+      "statusCategory": "IN_PROGRESS",
       "assignee": "Izaque Bernardo",
       "created": "2026-06-17T09:42:10.770-0300",
       "resolved": null,
@@ -17,7 +17,7 @@
       "labels": [],
       "leadTimeDays": null,
       "cycleTimeDays": null,
-      "timeInTodoDays": null,
+      "timeInTodoDays": 0,
       "dq": {
         "missingResolutionDate": false,
         "missingAssignee": false,
@@ -1131,7 +1131,7 @@
       }
     }
   ],
-  "synced_at": "2026-06-17T16:15:33.352Z",
+  "synced_at": "2026-06-17T18:44:22.558Z",
   "project": "SFMKT",
   "total_fetched": 40
 }
