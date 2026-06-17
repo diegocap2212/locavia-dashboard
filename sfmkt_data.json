@@ -1,6 +1,62 @@
 {
   "items": [
     {
+      "key": "SFMKT-158",
+      "summary": "Integração Whatsapp x RD Station x Salesforce",
+      "type": "História",
+      "status": "Priorizado",
+      "statusCategory": "TODO",
+      "assignee": "Izaque Bernardo",
+      "created": "2026-06-17T09:42:10.770-0300",
+      "resolved": null,
+      "sprint": "SFMKT-SP Sprint 18",
+      "sprintId": 20725,
+      "sprintState": "active",
+      "storyPoints": 5,
+      "priority": "Medium",
+      "labels": [],
+      "leadTimeDays": null,
+      "cycleTimeDays": null,
+      "timeInTodoDays": null,
+      "dq": {
+        "missingResolutionDate": false,
+        "missingAssignee": false,
+        "noStatusTransitions": false,
+        "noSprint": false,
+        "staleTodo": false,
+        "suspiciouslyLongLead": false,
+        "doneWithoutCycleData": false
+      }
+    },
+    {
+      "key": "SFMKT-157",
+      "summary": "Documentação sobre processo e fluxo de aquecimento da BU AssineCar",
+      "type": "História",
+      "status": "SPRINT BACKLOG",
+      "statusCategory": "TODO",
+      "assignee": "André Cacciatori",
+      "created": "2026-06-17T09:34:58.821-0300",
+      "resolved": null,
+      "sprint": "SFMKT-SP Sprint 18",
+      "sprintId": 20725,
+      "sprintState": "active",
+      "storyPoints": null,
+      "priority": "Medium",
+      "labels": [],
+      "leadTimeDays": null,
+      "cycleTimeDays": null,
+      "timeInTodoDays": null,
+      "dq": {
+        "missingResolutionDate": false,
+        "missingAssignee": false,
+        "noStatusTransitions": false,
+        "noSprint": false,
+        "staleTodo": false,
+        "suspiciouslyLongLead": false,
+        "doneWithoutCycleData": false
+      }
+    },
+    {
       "key": "SFMKT-155",
       "summary": "Monitoramento SAP  ",
       "type": "História",
@@ -32,25 +88,25 @@
       "key": "SFMKT-151",
       "summary": "[Migração SalesCloud] Configuração do Funil de Oportunidades - Processo de Renovação",
       "type": "História",
-      "status": "1. Backlog",
-      "statusCategory": "TODO",
+      "status": "EM DESENVOLVIMENTO",
+      "statusCategory": "IN_PROGRESS",
       "assignee": "Izaque Bernardo",
       "created": "2026-06-12T07:49:17.693-0300",
       "resolved": null,
-      "sprint": null,
-      "sprintId": null,
-      "sprintState": null,
+      "sprint": "SFMKT-SP Sprint 18",
+      "sprintId": 20725,
+      "sprintState": "active",
       "storyPoints": 5,
       "priority": "Medium",
       "labels": [],
       "leadTimeDays": null,
       "cycleTimeDays": null,
-      "timeInTodoDays": null,
+      "timeInTodoDays": 5,
       "dq": {
         "missingResolutionDate": false,
         "missingAssignee": false,
         "noStatusTransitions": false,
-        "noSprint": true,
+        "noSprint": false,
         "staleTodo": false,
         "suspiciouslyLongLead": false,
         "doneWithoutCycleData": false
@@ -1075,7 +1131,7 @@
       }
     }
   ],
-  "synced_at": "2026-06-17T12:21:18.264Z",
+  "synced_at": "2026-06-17T12:48:33.415Z",
   "project": "SFMKT",
-  "total_fetched": 38
+  "total_fetched": 40
 }
