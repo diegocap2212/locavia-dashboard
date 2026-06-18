@@ -71,6 +71,10 @@ jobs:
           if git diff --quiet && git diff --staged --quiet; then
             echo "Sem alterações nos arquivos de dados. Ignorando commit."
           else
-            git commit -m "chore: automated hourly sync [skip ci]"
+            # SEM [skip ci]: o SMDashboard lê o data.json embutido no build, então
+            # cada sync com dado novo precisa disparar um deploy na Vercel para o
+            # painel em produção refletir os itens atualizados. O guard acima garante
+            # que só commitamos (e portanto só deployamos) quando os dados mudaram.
+            git commit -m "chore: automated hourly sync"
             git push origin main
           fi
