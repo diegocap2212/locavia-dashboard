@@ -244,8 +244,8 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
         />
       </div>
 
-      {/* ── ROW 1: Vazão e Lead Time (gráficos SEPARADOS — pedido LM/Michelle) ── */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+      {/* ── ROW 1: Vazão, Lead Time e Entrega por Tipo (gráficos SEPARADOS — pedido LM/Michelle) ── */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col h-[420px]">
           <h2 className="text-lg font-bold text-slate-800 mb-1 flex items-center">
             <span className="text-amber-500 mr-2">⚡</span> Vazão · {gLabel}
@@ -265,21 +265,8 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
             <LeadTimeTrendChart data={flowForCharts} />
           </div>
         </div>
-      </div>
 
-      {/* ── ROW 1b: CFD (Cumulative Flow Diagram) + Entrega por Tipo ── */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
-        <div className="xl:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col h-[450px]">
-          <h2 className="text-lg font-bold text-slate-800 mb-1 flex items-center">
-            <span className="text-emerald-500 mr-2">▥</span> Fluxo Acumulado (CFD)
-          </h2>
-          <p className="text-sm text-slate-500 mb-4">Itens por status ao longo do tempo ({gLabel.toLowerCase()}): A Fazer · Em andamento · Concluído</p>
-          <div className="flex-1 min-h-0">
-            <CFDChart data={cfdForCharts} coverage={cfdCoverage} />
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col h-[450px]">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col h-[420px]">
           <h2 className="text-lg font-bold text-slate-800 mb-1 flex items-center">
             <span className="text-blue-500 mr-2">◉</span> Entrega por Tipo
           </h2>
@@ -303,16 +290,56 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
         />
       </div>
 
+      {/* ── ROW 1b: CFD (Cumulative Flow Diagram) — largura total ── */}
+      <div className="grid grid-cols-1 gap-6 mb-8">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col h-[450px]">
+          <h2 className="text-lg font-bold text-slate-800 mb-1 flex items-center">
+            <span className="text-emerald-500 mr-2">▥</span> Fluxo Acumulado (CFD)
+          </h2>
+          <p className="text-sm text-slate-500 mb-4">Itens por status ao longo do tempo ({gLabel.toLowerCase()}): A Fazer · Em andamento · Concluído</p>
+          <div className="flex-1 min-h-0">
+            <CFDChart data={cfdForCharts} coverage={cfdCoverage} />
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-8">
+        <MetricCommentEditor
+          squadId={selectedTeam}
+          releaseId={selectedRelease}
+          quinzenaId={analysisWeekId}
+          cadence="semana"
+          periodLabel={analysisWeekLabel}
+          key={`cfd-${selectedTeam}-${selectedRelease}-${analysisWeekId}`}
+          metricId="cfd"
+          metricLabel="Fluxo Acumulado (CFD)"
+        />
+      </div>
+
       {/* ── ROW 2: Planejadas vs Realizadas ── */}
       <div className="grid grid-cols-1 gap-6 mb-8">
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col h-[450px]">
-          <h2 className="text-lg font-bold text-slate-800 mb-6 flex items-center">
+          <h2 className="text-lg font-bold text-slate-800 mb-1 flex items-center">
             <span className="text-blue-500 mr-2">★</span> Planejadas vs Realizadas (Por Semana)
           </h2>
-          <div className="flex-1">
+          <p className="text-sm text-slate-500 mb-4">Composição da entrada por origem — planejado vs. fora da planning, contra o realizado</p>
+          <div className="flex-1 min-h-0">
             <PlannedVsDeliveredChart data={weeks} />
           </div>
         </div>
+      </div>
+
+      <div className="mb-8">
+        <MetricCommentEditor
+          squadId={selectedTeam}
+          releaseId={selectedRelease}
+          quinzenaId={analysisWeekId}
+          cadence="semana"
+          periodLabel={analysisWeekLabel}
+          key={`planejadas-${selectedTeam}-${selectedRelease}-${analysisWeekId}`}
+          metricId="planejadas"
+          metricLabel="Planejadas vs Realizadas"
+        />
       </div>
 
       {/* ── SEÇÃO: Pontos das User Stories ── */}
