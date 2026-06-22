@@ -88,7 +88,7 @@
       "key": "SFMKT-151",
       "summary": "[Migração SalesCloud] Configuração do Funil de Oportunidades - Processo de Renovação",
       "type": "História",
-      "status": "EM DESENVOLVIMENTO",
+      "status": "Aguardando QA",
       "statusCategory": "IN_PROGRESS",
       "assignee": "Izaque Bernardo",
       "created": "2026-06-12T07:49:17.693-0300",
@@ -1131,7 +1131,7 @@
       }
     }
   ],
-  "synced_at": "2026-06-21T23:53:19.733Z",
+  "synced_at": "2026-06-22T04:49:35.642Z",
   "project": "SFMKT",
   "total_fetched": 40
 }
