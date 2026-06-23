@@ -657,8 +657,12 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
       const anchor = anchorDates.reduce((min, d) => (d < min ? d : min));
       const releaseStartDate = getMon(anchor);
 
+      // Cone da home = forecast executivo "quando termina": SEMPRE gen1 (backlog = todos os
+      // itens restantes, projetado pela velocidade). O gen2 (scope-creep) dependia de uma data
+      // de kickoff por release e, com início auto-derivado, zerava o backlogInicial das releases
+      // BF/CEM — deixando-as sem cone. gen1 funciona de forma consistente para todas.
       const params: ConeParams = {
-        generation,
+        generation: 'gen1',
         release: releaseId,
         startDate: releaseStartDate,
         targetDate: farFuture,
