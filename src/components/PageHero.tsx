@@ -27,8 +27,9 @@ interface Props {
  * navy + glow radial Magenta→Violet. Garante coerência visual entre as visões.
  */
 const PageHero: React.FC<Props> = ({ eyebrow, title, subtitle, leading, status, children }) => (
-  <div style={{ background: 'var(--navy)', position: 'relative', overflow: 'hidden', padding: '2.25rem 2.5rem 1.75rem' }}>
-    {/* glow radial */}
+  <div style={{ background: 'var(--navy)', position: 'relative', padding: '2.25rem 2.5rem 1.75rem' }}>
+    {/* glow radial (confinado ao próprio div via inset:0 — não precisa de overflow:hidden no pai,
+        que cortaria os menus de dropdown abertos sobre o hero) */}
     <div style={{
       position: 'absolute', inset: 0, pointerEvents: 'none',
       background: 'radial-gradient(ellipse 70% 60% at 30% 50%, rgba(255,41,147,0.14) 0%, rgba(139,12,246,0.12) 55%, transparent 100%)',

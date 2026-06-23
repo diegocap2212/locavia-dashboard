@@ -16,9 +16,8 @@ import { PointsVelocityChart } from '../components/PointsVelocityChart';
 import { PointsCommittedVsDeliveredChart } from '../components/PointsCommittedVsDeliveredChart';
 import { getAutomaticActiveSemana, getSemanaById, semanaIdForDate } from '../config/semanas';
 import { RefreshButton } from '../components/RefreshButton';
-import { CheckCircle2, Clock, Activity, Layers, Loader2, TrendingUp, Gauge, Download } from 'lucide-react';
+import { CheckCircle2, Clock, Activity, Layers, Loader2, TrendingUp, Gauge } from 'lucide-react';
 import { format } from 'date-fns';
-import { getComments, exportComments } from '../services/commentsService';
 import PageHero from '../components/PageHero';
 import Tabs from '../components/Tabs';
 import NavDropdown from '../components/NavDropdown';
@@ -227,18 +226,6 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
           )}
 
           <RefreshButton />
-
-          <button
-            onClick={async () => exportComments(await getComments())}
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: 6, color: '#fff',
-              background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.16)',
-              borderRadius: 8, padding: '7px 12px', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600,
-            }}
-            title="Exportar todas as análises qualitativas"
-          >
-            <Download size={13} /> Exportar Análises
-          </button>
         </div>
       </PageHero>
 
