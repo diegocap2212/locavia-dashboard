@@ -73,6 +73,27 @@ const BF_CEM_JORNADA_TEAMS = new Set([
 
 export type ConeType = 'locavia' | 'bf-cem';
 
+export interface ReleaseSummary {
+  total: number;
+  done: number;
+  remaining: number;
+  velTrend: number;
+  velBest: number;
+  velWorst: number;
+  entregaMelhor: Date | null;
+  entregaPior: Date | null;
+}
+
+export interface ReleaseConeData {
+  releaseId: string;
+  displayName: string;
+  chartData: ChartDataPoint[];
+  bLabel: string;
+  wLabel: string;
+  vLabel: string;
+  summary: ReleaseSummary;
+}
+
 const getMon = (d: Date) => {
   const mon = new Date(d);
   mon.setDate(mon.getDate() - (mon.getDay() === 0 ? 6 : mon.getDay() - 1));
@@ -579,8 +600,126 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
     };
   }, [data, selectedTeams, selectedReleases, startDate, endDate, coneType]);
 
+  const releaseCones = useMemo((): ReleaseConeData[] => {
+    if (!data.length) return [];
+
+    const rawItems = normalizeJqlData(data);
+    const today = new Date();
+    const farFuture = new Date(today.getTime() + 2 * 365 * 86400000);
+
+    // Map ALL items to ConeItem[] once — computeCone filters by release internally
+    const allTypedItems: ConeItem[] = rawItems.map(item => {
+      const labels = (item.Labels || []) as string[];
+      const team = item.Team || null;
+      const jornadas: string[] = [];
+      if (labels.includes('COMPRAS') || (team && team.includes('Compras'))) jornadas.push('COMPRAS');
+      if (labels.includes('ESTOQUE') || (team && team.includes('Estoque'))) jornadas.push('ESTOQUE');
+      if (labels.includes('MOB') || (team && team.includes('Mobilização'))) jornadas.push('MOB');
+      if (labels.includes('LAKE-DOMINIO') || (team && team.includes('BI')) || (team && team.includes('Relatórios'))) jornadas.push('LAKE-DOMINIO');
+      const createdDate = excelToJSDate(item.Created) || new Date();
+      const resolvedDate = excelToJSDate(item.Resolved);
+      const committedDate = item.CommitmentDate ? excelToJSDate(item.CommitmentDate as string) : null;
+      const startDateVal = item.StartDate ? excelToJSDate(item.StartDate as string) : null;
+      return {
+        key: item.Key,
+        type: item.Type,
+        status: item.Status,
+        team,
+        jornadas,
+        releases: item.Release ? [item.Release] : [],
+        created: createdDate,
+        committed: committedDate,
+        startDate: startDateVal,
+        resolved: resolvedDate,
+        flagged: labels.includes('IMPEDIDO') || labels.includes('Impediment') ? 'Impediment' : null
+      };
+    });
+
+    // Source of truth: active releases from config (excludes DEFAULT and inactive entries)
+    const activeReleases = releaseConfig.releases.filter(r => r.active !== false && r.id !== 'DEFAULT');
+
+    return activeReleases.flatMap((relConf): ReleaseConeData[] => {
+      const releaseId = relConf.id;
+      const generation = (relConf.generation || 'gen1') as 'gen1' | 'gen2';
+      const percentileWindow = relConf.percentileWindow || 8;
+      const EXCLUDED = generation === 'gen1' ? LOCAVIA_EXCLUDED_STATUSES : BF_CEM_EXCLUDED_STATUSES;
+
+      // Items for this specific release (used for anchor date and summary stats)
+      const releaseItems = allTypedItems.filter(it => it.releases.includes(releaseId));
+      if (!releaseItems.length) return [];
+
+      const activeItems = releaseItems.filter(it => !EXCLUDED.includes(it.status));
+      if (!activeItems.length) return [];
+
+      const anchorDates = activeItems
+        .map(it => it.committed || it.created)
+        .filter((d): d is Date => d !== null);
+      if (!anchorDates.length) return [];
+
+      const anchor = anchorDates.reduce((min, d) => (d < min ? d : min));
+      const releaseStartDate = getMon(anchor);
+
+      const params: ConeParams = {
+        generation,
+        release: releaseId,
+        startDate: releaseStartDate,
+        targetDate: farFuture,
+        stepDays: 7,
+        requiredVelocity: 1,
+        percentileWindow,
+        dataRef: today
+      };
+
+      // Pass ALL items — computeCone filters by release via matchesScope
+      const result = computeCone(allTypedItems, params);
+      const { velBest, velWorst, velTrend } = result;
+
+      const bLabel = `Melhor (${velBest.toFixed(1)}/sem)`;
+      const wLabel = `Pior (${velWorst.toFixed(1)}/sem)`;
+      const vLabel = `Tendência (${velTrend.toFixed(1)}/sem)`;
+
+      const horizon = result.entregaPior
+        ? new Date(result.entregaPior.getTime() + 4 * 7 * 86400000)
+        : new Date(today.getTime() + 78 * 7 * 86400000);
+
+      const chartData: ChartDataPoint[] = result.weeks
+        .filter(wk => wk.week >= releaseStartDate && wk.week <= horizon)
+        .map(wk => ({
+          name: formatDate(wk.week),
+          'A Fazer (Real)': wk.concluido !== null ? wk.melhor : null,
+          fullDate: wk.week,
+          [bLabel]: wk.melhor,
+          [wLabel]: wk.pior,
+          [vLabel]: wk.tendencia,
+        }));
+
+      const done = activeItems.filter(it => it.resolved != null).length;
+      const total = activeItems.length;
+
+      return [{
+        releaseId,
+        displayName: relConf.displayName,
+        chartData,
+        bLabel,
+        wLabel,
+        vLabel,
+        summary: {
+          total,
+          done,
+          remaining: total - done,
+          velTrend,
+          velBest,
+          velWorst,
+          entregaMelhor: result.entregaMelhor,
+          entregaPior: result.entregaPior,
+        }
+      }];
+    });
+  }, [data]);
+
   return {
     ...dashboardState,
+    releaseCones,
     loading,
     error,
     selectedTeams,

@@ -1,6 +1,7 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import type { WeeklyConeMetrics } from '../hooks/useSMDashboardData';
+import { CHART } from '../lib/chartColors';
 
 interface Props {
   data: WeeklyConeMetrics[];
@@ -41,13 +42,13 @@ export const PointsVelocityChart: React.FC<Props> = ({ data }) => {
         <BarChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 5 }}>
           <defs>
             <linearGradient id="barGradViolet" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#8B5CF6" stopOpacity={0.9} />
-              <stop offset="100%" stopColor="#8B5CF6" stopOpacity={0.65} />
+              <stop offset="0%" stopColor={CHART.violet} stopOpacity={0.9} />
+              <stop offset="100%" stopColor={CHART.violet} stopOpacity={0.65} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-          <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94A3B8', fontSize: 11 }} dy={8} />
-          <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94A3B8', fontSize: 11 }} />
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={CHART.grid} />
+          <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: CHART.axis, fontSize: 11 }} dy={8} />
+          <YAxis axisLine={false} tickLine={false} tick={{ fill: CHART.axis, fontSize: 11 }} />
           <Tooltip content={<PointsTooltip />} cursor={{ fill: '#F1F5F9' }} />
           <Bar dataKey="Pontos Entregues" fill="url(#barGradViolet)" radius={[4, 4, 0, 0]} maxBarSize={48} />
         </BarChart>

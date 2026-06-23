@@ -3,6 +3,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
 import type { WeeklyFlowDataPoint } from '../hooks/useSMDashboardData';
+import { CHART } from '../lib/chartColors';
 
 interface Props {
   data: WeeklyFlowDataPoint[];
@@ -56,16 +57,16 @@ export const VazaoTrendChart: React.FC<Props> = ({ data }) => {
     <div className="h-full w-full">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-          <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94A3B8', fontSize: 11 }} dy={8} />
-          <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94A3B8', fontSize: 11 }} allowDecimals={false} />
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={CHART.grid} />
+          <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: CHART.axis, fontSize: 11 }} dy={8} />
+          <YAxis axisLine={false} tickLine={false} tick={{ fill: CHART.axis, fontSize: 11 }} allowDecimals={false} />
           <Tooltip content={<VazaoTooltip />} />
           <Legend iconType="circle" wrapperStyle={{ paddingTop: '12px', fontSize: '12px' }} />
-          <Bar dataKey="História" stackId="tp" fill="#3B82F6" maxBarSize={32} />
-          <Bar dataKey="Bug" stackId="tp" fill="#EF4444" maxBarSize={32} />
-          <Bar dataKey="Tarefa" stackId="tp" fill="#10B981" maxBarSize={32} />
-          <Bar dataKey="Spike" stackId="tp" fill="#8B5CF6" maxBarSize={32} />
-          <Bar dataKey="Outros" stackId="tp" fill="#94A3B8" maxBarSize={32} radius={[4, 4, 0, 0]} />
+          <Bar dataKey="História" stackId="tp" fill={CHART.primary} maxBarSize={32} />
+          <Bar dataKey="Bug" stackId="tp" fill={CHART.red} maxBarSize={32} />
+          <Bar dataKey="Tarefa" stackId="tp" fill={CHART.mint} maxBarSize={32} />
+          <Bar dataKey="Spike" stackId="tp" fill={CHART.violet} maxBarSize={32} />
+          <Bar dataKey="Outros" stackId="tp" fill={CHART.neutral} maxBarSize={32} radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

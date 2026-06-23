@@ -4,6 +4,7 @@ import {
   Legend, ResponsiveContainer, ReferenceLine
 } from 'recharts';
 import type { WeeklyFlowDataPoint } from '../hooks/useSMDashboardData';
+import { CHART } from '../lib/chartColors';
 
 interface Props {
   data: WeeklyFlowDataPoint[];
@@ -68,15 +69,15 @@ export const FlowBalanceChart: React.FC<Props> = ({ data }) => {
       <div className="flex-1 min-h-0">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={recentData} margin={{ top: 10, right: 5, left: -15, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={CHART.grid} />
             <XAxis dataKey="name" axisLine={false} tickLine={false}
-              tick={{ fill: '#94A3B8', fontSize: 10 }} dy={6} />
-            <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94A3B8', fontSize: 10 }} />
+              tick={{ fill: CHART.axis, fontSize: 10 }} dy={6} />
+            <YAxis axisLine={false} tickLine={false} tick={{ fill: CHART.axis, fontSize: 10 }} />
             <Tooltip content={<CustomTooltip />} cursor={{ fill: '#F8FAFC' }} />
             <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }} />
             <ReferenceLine y={0} stroke="#CBD5E1" />
-            <Bar dataKey="entradas" fill="#94A3B8" name="Criadas" radius={[4, 4, 0, 0]} barSize={14} />
-            <Bar dataKey="saidas" fill="#10B981" name="Entregues" radius={[4, 4, 0, 0]} barSize={14} />
+            <Bar dataKey="entradas" fill={CHART.neutral} name="Criadas" radius={[4, 4, 0, 0]} barSize={14} />
+            <Bar dataKey="saidas" fill={CHART.mint} name="Entregues" radius={[4, 4, 0, 0]} barSize={14} />
           </BarChart>
         </ResponsiveContainer>
       </div>
