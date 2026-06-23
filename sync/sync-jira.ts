@@ -59,7 +59,10 @@ async function main() {
   // SFMKT (Salesforce Marketplace) é projeto próprio: traz tudo do projeto, só excluindo épicos/subtarefas.
   // Não aplicar cf[13065]/cf[12683] (filtros específicos dos projetos LM) para não descartar issues do SFMKT.
   const sfmktFilter = `project = SFMKT and type not in (Epic, subTaskIssueTypes())`;
-  const simpleJql = `(${lmFilter}) OR (${sfmktFilter}) ORDER BY created DESC`;
+  // SFV (Salesforce Vendas) — projeto próprio (time da Gabriela): traz tudo do projeto,
+  // sem os filtros específicos dos projetos LM, só excluindo épicos/subtarefas.
+  const sfvFilter = `project = SFV and type not in (Epic, subTaskIssueTypes())`;
+  const simpleJql = `(${lmFilter}) OR (${sfmktFilter}) OR (${sfvFilter}) ORDER BY created DESC`;
 
   console.log(`Iniciando sincronização Jira... JQL: ${simpleJql}`);
 
