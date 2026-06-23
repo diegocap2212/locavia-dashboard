@@ -258,17 +258,21 @@ function drawCone(
     ctx.textBaseline = 'middle';
     ctx.fillText('hoje', todayX, padT - 10);
 
-    if (summary.remaining > 0) {
-      const proj85 = summary.entregaMelhor
-        ? summary.entregaMelhor.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' })
-        : '—';
-      const proj15 = summary.entregaPior
-        ? summary.entregaPior.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' })
-        : '—';
+    const fmt = (d: Date | null) =>
+      d ? d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }) : '—';
 
-      pill(ctx, todayX - 10, todayY - 6, `${summary.remaining} restantes`, '#FF2993', 'end', W, H);
-      pill(ctx, p85EndX, p85EndY - 16, `P85 · ${proj85}`, '#FFFFFF', 'mid', W, H);
-      pill(ctx, p15EndX, p15EndY + 16, `P15 · ${proj15}`, '#A052FF', 'mid', W, H);
+    if (summary.remaining > 0) {
+      pill(ctx, todayX - 10, todayY - 6, `faltam ${summary.remaining}`, '#FF2993', 'end', W, H);
+
+      if (summary.confident) {
+        // Faixa de incerteza significativa: dois extremos com linguagem clara.
+        pill(ctx, p85EndX, p85EndY - 16, `Otimista · ${fmt(summary.entregaMelhor)}`, '#FFFFFF', 'mid', W, H);
+        pill(ctx, p15EndX, p15EndY + 16, `Pessimista · ${fmt(summary.entregaPior)}`, '#A052FF', 'mid', W, H);
+      } else {
+        // Amostra curta / sem dispersão: uma projeção só + aviso (evita P15==P85 enganoso).
+        pill(ctx, p85EndX, p85EndY - 16, `Previsão · ${fmt(summary.entregaMelhor)}`, '#FFFFFF', 'mid', W, H);
+        pill(ctx, todayX + 12, padT + 6, `amostra curta — sem faixa de incerteza`, '#F7C365', 'start', W, H);
+      }
     } else {
       pill(ctx, todayX - 10, todayY + 2, `${summary.total} concluídos`, '#2BBB92', 'end', W, H);
     }

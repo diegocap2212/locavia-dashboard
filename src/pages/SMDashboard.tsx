@@ -257,9 +257,24 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
               </ChartCard>
             </div>
 
-            <ChartCard title="Fluxo Acumulado (CFD)" subtitle="Itens por status ao longo do tempo: A Fazer · Em andamento · Concluído" height={450}>
-              <CFDChart data={cfdForCharts} coverage={cfdCoverage} />
-            </ChartCard>
+            {/* CFD em destaque — card escuro (navy do header) com bandas vivas */}
+            <div style={{
+              background: 'linear-gradient(180deg, #16223a 0%, #0e1726 100%)',
+              borderRadius: 'var(--radius-lg)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              boxShadow: '0 18px 44px -18px rgba(0,0,0,0.55)',
+              padding: '1.5rem', display: 'flex', flexDirection: 'column', height: 460,
+            }}>
+              <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, color: '#fff', letterSpacing: '-0.01em' }}>
+                Fluxo Acumulado (CFD)
+              </h3>
+              <p style={{ margin: '0.25rem 0 1rem', fontSize: '0.82rem', color: 'rgba(255,255,255,0.55)' }}>
+                Itens por status ao longo do tempo: A Fazer · Em andamento · Concluído
+              </p>
+              <div style={{ flex: 1, minHeight: 0 }}>
+                <CFDChart data={cfdForCharts} coverage={cfdCoverage} dark />
+              </div>
+            </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1.5rem' }}>
               <ChartCard title="Balanço do Fluxo" subtitle="Entradas vs Saídas (últimas 8 semanas)">

@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import type { DashboardItem } from '../types/jira';
 import type { SMConfig } from '../config/sm-config';
 import { startOfWeek, endOfWeek, isWithinInterval, addDays, subDays } from 'date-fns';
-import importedData from '../data.json';
+import { fetchData } from '../services/dataService';
 import { excelToJSDate } from './useDashboardData';
 import { computeCFD } from '../cfd/computeCFD';
 
@@ -66,14 +66,19 @@ export function useSMDashboardData(
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    try {
-      // Simulate async loading to match the previous API, but load synchronously from the bundled import
-      setRawData(importedData as unknown as DashboardItem[]);
-      setLoading(false);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
-      setLoading(false);
-    }
+    let alive = true;
+    (async () => {
+      try {
+        setLoading(true);
+        const items = await fetchData();
+        if (alive) { setRawData(items as unknown as DashboardItem[]); setError(null); }
+      } catch (err) {
+        if (alive) setError(err instanceof Error ? err.message : String(err));
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => { alive = false; };
   }, []);
 
   const availableReleases = useMemo(() => {
@@ -369,7 +374,7 @@ export function useSMDashboardData(
     // ── Issue Type Breakdown (Donut) ──
     const issueTypeBreakdown: { name: string; value: number; color: string }[] = [];
     const typeColors: Record<string, string> = {
-      'História': '#FF2993', 'Bug': '#EF4444', 'Tarefa': '#2BBB92', 'Spike': '#8B0CF6', 'Outros': '#94A3B8'
+      'História': '#3B82F6', 'Bug': '#EF4444', 'Tarefa': '#22C55E', 'Spike': '#8B5CF6', 'Outros': '#94A3B8'
     };
     const typeCounts: Record<string, number> = {};
     doneItems.forEach(i => {

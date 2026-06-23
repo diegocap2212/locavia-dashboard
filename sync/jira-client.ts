@@ -1,5 +1,11 @@
 import { JiraApiIssue } from '../src/types/jira';
 
+// Teto de itens por sync. Acima disso, o sync FALHA explicitamente (não trunca em silêncio).
+const MAX_ISSUES = Number(process.env.JIRA_MAX_ISSUES || 30000);
+const MAX_RETRIES = 4;
+
+const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+
 export class JiraClient {
   private baseUrl: string;
   private authHeader: string;
@@ -12,8 +18,7 @@ export class JiraClient {
 
   private async request(endpoint: string, options: RequestInit = {}): Promise<any> {
     const url = `${this.baseUrl}/rest/api/3${endpoint}`;
-    
-    // Add default headers
+
     const headers = new Headers(options.headers || {});
     headers.set('Authorization', this.authHeader);
     headers.set('Accept', 'application/json');
@@ -21,20 +26,41 @@ export class JiraClient {
       headers.set('Content-Type', 'application/json');
     }
 
-    const response = await fetch(url, { ...options, headers });
-    
-    if (!response.ok) {
-      let errorDetail = '';
+    let lastErr: unknown;
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
       try {
-        const errorData = await response.json();
-        errorDetail = JSON.stringify(errorData);
-      } catch {
-        errorDetail = await response.text();
-      }
-      throw new Error(`Jira API Error: ${response.status} ${response.statusText} at ${url}\nDetails: ${errorDetail}`);
-    }
+        const response = await fetch(url, { ...options, headers });
 
-    return response.json();
+        // 429 / 5xx → transitório: espera (Retry-After ou backoff exponencial) e tenta de novo.
+        if (response.status === 429 || response.status >= 500) {
+          if (attempt < MAX_RETRIES) {
+            const retryAfter = Number(response.headers.get('retry-after')) || 0;
+            const backoff = retryAfter > 0 ? retryAfter * 1000 : Math.min(1000 * 2 ** attempt, 16000);
+            console.warn(`Jira ${response.status} — retry em ${backoff}ms (tentativa ${attempt + 1}/${MAX_RETRIES})`);
+            await sleep(backoff);
+            continue;
+          }
+        }
+
+        if (!response.ok) {
+          let errorDetail = '';
+          try { errorDetail = JSON.stringify(await response.json()); }
+          catch { errorDetail = await response.text(); }
+          throw new Error(`Jira API Error: ${response.status} ${response.statusText} at ${url}\nDetails: ${errorDetail}`);
+        }
+
+        return response.json();
+      } catch (err) {
+        lastErr = err;
+        // Erro de rede (não-HTTP): backoff e retry.
+        const isHttp = err instanceof Error && err.message.startsWith('Jira API Error:');
+        if (isHttp || attempt >= MAX_RETRIES) throw err;
+        const backoff = Math.min(1000 * 2 ** attempt, 16000);
+        console.warn(`Falha de rede no Jira — retry em ${backoff}ms (tentativa ${attempt + 1}/${MAX_RETRIES})`);
+        await sleep(backoff);
+      }
+    }
+    throw lastErr;
   }
 
   // Busca issues via Enhanced Search (JQL) com paginação por tokens
@@ -69,11 +95,13 @@ export class JiraClient {
       }
 
       nextPageToken = data.nextPageToken;
-      isLast = !nextPageToken || allIssues.length >= 30000;
-      
-      if (isLast && nextPageToken) {
-        console.log(`Aviso: Limite de 30.000 itens atingido, mas ainda há mais dados.`);
+
+      // Estouro do teto: aborta com erro claro em vez de truncar silenciosamente.
+      if (allIssues.length >= MAX_ISSUES && nextPageToken) {
+        throw new Error(`Limite de ${MAX_ISSUES} itens atingido e ainda há mais dados no Jira. ` +
+          `Aumente JIRA_MAX_ISSUES ou restrinja o JQL para não perder itens silenciosamente.`);
       }
+      isLast = !nextPageToken;
     }
 
     return allIssues;

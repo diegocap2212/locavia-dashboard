@@ -80,7 +80,18 @@ const Home: React.FC = () => {
   return (
     <>
       <PageHero
-        eyebrow="Locavia · LM"
+        eyebrow={
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            Locavia ·
+            <span style={{
+              display: 'inline-flex', alignItems: 'center',
+              background: 'rgba(255,255,255,0.92)', borderRadius: 6,
+              padding: '3px 7px', boxShadow: '0 1px 3px rgba(0,0,0,0.25)',
+            }}>
+              <img src="/lm-logo.svg" alt="LM" style={{ height: 14, display: 'block' }} />
+            </span>
+          </span>
+        }
         title="Cone da Incerteza"
         subtitle={rc ? (releaseCones.find(r => r.releaseId === selectedId)?.displayName ?? selectedId) : undefined}
         status={status}
@@ -124,11 +135,12 @@ const Home: React.FC = () => {
             }}>
               <ConeCanvas coneData={rc} height={340} />
               {/* Legend */}
-              <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', padding: '0.5rem 0.25rem 0.75rem' }}>
+              <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', padding: '0.5rem 0.25rem 0.5rem' }}>
                 {[
-                  { color: '#FF2993', dash: false, label: 'Realizado' },
-                  { color: '#FFFFFF', dash: true,  label: 'Projeção P85 · padrão LM' },
-                  { color: 'linear-gradient(90deg,rgba(255,41,147,0.55),rgba(139,12,246,0.18))', dash: false, label: 'Faixa de incerteza (P15–P85)', band: true },
+                  { color: '#FF2993', dash: false, label: 'Realizado (a fazer hoje)' },
+                  { color: '#FFFFFF', dash: true,  label: 'Cenário otimista (P85)' },
+                  { color: '#A052FF', dash: true,  label: 'Cenário pessimista (P15)' },
+                  { color: 'linear-gradient(90deg,rgba(255,41,147,0.55),rgba(139,12,246,0.18))', dash: false, label: 'Faixa de incerteza', band: true },
                 ].map(({ color, dash, label, band }) => (
                   <span key={label} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.76rem', color: 'rgba(255,255,255,0.6)' }}>
                     {band
@@ -139,6 +151,14 @@ const Home: React.FC = () => {
                   </span>
                 ))}
               </div>
+              {/* Explicação curta */}
+              <p style={{ margin: 0, padding: '0 0.25rem 0.6rem', fontSize: '0.72rem', color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>
+                A faixa mostra a <strong style={{ color: 'rgba(255,255,255,0.7)' }}>incerteza da entrega</strong>: quanto mais aberta, menos previsível.
+                Otimista = ritmo dos melhores períodos (P85); pessimista = ritmo dos piores (P15).
+                {rc.summary.remaining > 0 && !rc.summary.confident && (
+                  <span style={{ color: '#f7c365' }}> · Poucas semanas de dados ({rc.summary.weeksWithData}) — faixa de incerteza ainda indisponível.</span>
+                )}
+              </p>
             </div>
           )}
 
@@ -179,21 +199,25 @@ const Home: React.FC = () => {
                   accent: '#FF2993',
                 },
                 {
-                  label: 'Velocidade · P85',
+                  label: 'Velocidade (otimista)',
                   value: `${rc.summary.velBest.toFixed(1)}`,
-                  sub: 'itens/semana · padrão LM',
+                  sub: 'itens/semana · P85 (padrão LM)',
                   accent: '#8B0CF6',
                 },
                 {
                   label: 'Projeção de Entrega',
                   value: isDelivered ? 'Concluído' : fmtDate(rc.summary.entregaMelhor),
-                  sub: isDelivered ? '' : `até ${fmtDate(rc.summary.entregaPior)} (P15)`,
+                  sub: isDelivered
+                    ? ''
+                    : rc.summary.confident
+                      ? `otimista → pessimista: até ${fmtDate(rc.summary.entregaPior)}`
+                      : 'previsão única (amostra curta)',
                   accent: '#2BBB92',
                 },
                 {
-                  label: 'Tendência · P50',
+                  label: 'Tendência (mediana)',
                   value: `${rc.summary.velTrend.toFixed(1)}`,
-                  sub: 'itens/semana',
+                  sub: 'itens/semana · P50',
                   accent: '#9ca3af',
                 },
               ].map(({ label, value, sub, accent }) => (

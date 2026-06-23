@@ -1,4 +1,18 @@
 import crypto from 'crypto';
+import { Redis } from '@upstash/redis';
+
+// Rate-limit de login (anti brute-force). Usa o mesmo KV do resto do app.
+// Se o KV não estiver configurado, o limite é ignorado (não quebra dev/local).
+const redis = (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN)
+  ? new Redis({ url: process.env.KV_REST_API_URL, token: process.env.KV_REST_API_TOKEN })
+  : null;
+const RL_MAX = 8;             // tentativas falhas
+const RL_WINDOW = 15 * 60;    // por 15 min
+
+function clientIp(req: any): string {
+  const xf = (req.headers?.['x-forwarded-for'] as string) || '';
+  return xf.split(',')[0].trim() || (req.headers?.['x-real-ip'] as string) || 'unknown';
+}
 
 /**
  * Gate de login por senha única.
@@ -82,11 +96,31 @@ export default async function handler(req: any, res: any) {
     const body = req.body || {};
     const provided = typeof body.password === 'string' ? body.password : '';
 
+    // Rate-limit por IP (best-effort): bloqueia após RL_MAX falhas na janela.
+    const rlKey = `login_attempts:${clientIp(req)}`;
+    if (redis) {
+      try {
+        const attempts = Number((await redis.get(rlKey)) || 0);
+        if (attempts >= RL_MAX) {
+          return res.status(429).json({ error: 'Muitas tentativas. Tente novamente em alguns minutos.' });
+        }
+      } catch { /* KV indisponível: não bloqueia o login */ }
+    }
+
     const a = Buffer.from(provided);
     const b = Buffer.from(expected);
     const valid = a.length === b.length && crypto.timingSafeEqual(a, b);
-    if (!valid) return res.status(401).json({ error: 'Senha incorreta.' });
+    if (!valid) {
+      if (redis) {
+        try {
+          const n = await redis.incr(rlKey);
+          if (n === 1) await redis.expire(rlKey, RL_WINDOW);
+        } catch { /* ignore */ }
+      }
+      return res.status(401).json({ error: 'Senha incorreta.' });
+    }
 
+    if (redis) { try { await redis.del(rlKey); } catch { /* ignore */ } }
     res.setHeader('Set-Cookie', cookieHeader(makeToken(secret), MAX_AGE_SECONDS));
     return res.status(200).json({ ok: true });
   }

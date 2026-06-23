@@ -1,6 +1,7 @@
 import { JiraApiIssue, DashboardItem } from '../src/types/jira';
 import { extractStoryPoints } from './story-points';
 import { classifyStatus } from './status-classification';
+import { normalizeReleaseId } from '../src/lib/normalizeRelease';
 
 const teamMapping: Record<string, string> = {
   'WHATSAPP': 'WHATSAPP',
@@ -172,6 +173,9 @@ export function mapJiraIssueToDashboardItem(issue: JiraApiIssue): DashboardItem 
         else if (allReleasesRaw.length > 0) finalRelease = allReleasesRaw[0];
     }
   }
+
+  // Passe final pela normalização canônica (mesma regra do runtime) — dado já sai consistente.
+  finalRelease = normalizeReleaseId(finalRelease);
 
   // 3. Status Categorization (regra única em status-classification.ts).
   // DONE sse a issue tem resolução (resolutiondate) OU o statusCategory do Jira é "concluído".

@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { fetchData, type JiraItem } from '../services/dataService';
-import rawDataFallback from '../data.json';
 import releaseConfig from '../config/release-config.json';
 import { excelToJSDate } from './useDashboardData';
+import { normalizeReleaseId } from '../lib/normalizeRelease';
 
 export interface ReleaseBreakdown {
   releaseId: string;
@@ -31,17 +31,6 @@ const EXCLUDED_WIP_STATUSES = new Set([
   'A REFINAR', 'SANEAMENTO', 'ESPERANDO', 'DESCARTADO', 'CANCELADO', 'NOGO',
 ]);
 
-/** Normaliza a release com os mesmos hotfixes do useDashboardData. */
-const normalizeRelease = (raw: unknown): string => {
-  let r = String(raw || 'OUTROS').toUpperCase();
-  if (r.includes('ONDA 4') && r.includes('RELEASE 2')) r = 'O4R2';
-  if (r.includes('WAVE 4') && r.includes('RELEASE 2')) r = 'O4R2';
-  if (r.includes('ASSINECAR')) r = 'O4R2';
-  if (r.includes('ONDA 4') && r.includes('RELEASE 1')) r = 'O4R1';
-  if (r.includes('WAVE 4') && r.includes('RELEASE 1')) r = 'O4R1';
-  return r;
-};
-
 const leadTimeDays = (item: JiraItem): number | null => {
   const start = excelToJSDate(item.Created);
   const end = item.Resolved ? excelToJSDate(item.Resolved) : excelToJSDate(item.UpdatedAt);
@@ -66,8 +55,9 @@ export const useTeamReleaseData = (teamId: string) => {
         setLoading(true);
         const cloud = await fetchData();
         setData(cloud);
-      } catch {
-        setData(rawDataFallback as JiraItem[]);
+      } catch (err) {
+        console.error('Falha ao carregar dados de /api/data:', err);
+        setData([]);
       } finally {
         setLoading(false);
       }
@@ -82,7 +72,7 @@ export const useTeamReleaseData = (teamId: string) => {
     // agrupa por release
     const byRelease = new Map<string, JiraItem[]>();
     for (const it of items) {
-      const rel = normalizeRelease(it.Release);
+      const rel = normalizeReleaseId(it.Release);
       if (!byRelease.has(rel)) byRelease.set(rel, []);
       byRelease.get(rel)!.push(it);
     }

@@ -1,8 +1,8 @@
 import { useState, useMemo, useEffect } from 'react';
 import { fetchData, type JiraItem } from '../services/dataService';
-import rawDataFallback from '../data.json';
 import releaseConfig from '../config/release-config.json';
 import { computeCone, type ConeItem, type ConeParams } from '../cone/computeCone';
+import { normalizeReleaseId } from '../lib/normalizeRelease';
 
 export interface ChartDataPoint {
   name: string;
@@ -82,6 +82,10 @@ export interface ReleaseSummary {
   velWorst: number;
   entregaMelhor: Date | null;
   entregaPior: Date | null;
+  /** semanas com throughput real (base do percentil) */
+  weeksWithData: number;
+  /** true quando há faixa de incerteza significativa (P85 ≠ P15 e amostra suficiente) */
+  confident: boolean;
 }
 
 export interface ReleaseConeData {
@@ -189,14 +193,8 @@ export const formatDate = (date: Date) => {
 const normalizeJqlData = (data: unknown[]): JiraItem[] => {
   return data.map(rawItem => {
     const item = rawItem as Record<string, unknown>;
-    let release = String(item.Release || 'OUTROS').toUpperCase();
-
-    // Hot-fix for O4R2 Variations (Matching Field Mapper logic)
-    if (release.includes('ONDA 4') && release.includes('RELEASE 2')) release = 'O4R2';
-    if (release.includes('WAVE 4') && release.includes('RELEASE 2')) release = 'O4R2';
-    if (release.includes('ASSINECAR')) release = 'O4R2'; // Found in WhatsApp raw data
-    if (release.includes('ONDA 4') && release.includes('RELEASE 1')) release = 'O4R1';
-    if (release.includes('WAVE 4') && release.includes('RELEASE 1')) release = 'O4R1';
+    // Normalização de release: regra ÚNICA compartilhada com o sync (normalizeReleaseId).
+    const release = normalizeReleaseId(item.Release);
 
     return {
       Type: String(item.Type || ''),
@@ -231,9 +229,9 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
         setData(cloudData);
         setError(null);
       } catch (err) {
-        console.error("Failed to load cloud data, using fallback:", err);
-        setData(rawDataFallback as JiraItem[]);
-        setError("Agente de Sincronização: Ativo (Dados do SharePoint carregados)");
+        console.error("Falha ao carregar dados de /api/data:", err);
+        setData([]);
+        setError("Não foi possível carregar os dados. Faça login novamente ou tente recarregar.");
       } finally {
         setLoading(false);
       }
@@ -695,6 +693,13 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
 
       const done = activeItems.filter(it => it.resolved != null).length;
       const total = activeItems.length;
+      const remaining = total - done;
+
+      // Confiança da faixa: precisa de amostra suficiente E P85≠P15 com datas distintas.
+      const weeksWithData = result.weeks.filter(wk => wk.concluido !== null).length;
+      const datesDiffer = !!result.entregaMelhor && !!result.entregaPior
+        && result.entregaMelhor.getTime() !== result.entregaPior.getTime();
+      const confident = remaining > 0 && weeksWithData >= 3 && velBest !== velWorst && datesDiffer;
 
       return [{
         releaseId,
@@ -706,12 +711,14 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
         summary: {
           total,
           done,
-          remaining: total - done,
+          remaining,
           velTrend,
           velBest,
           velWorst,
           entregaMelhor: result.entregaMelhor,
           entregaPior: result.entregaPior,
+          weeksWithData,
+          confident,
         }
       }];
     });

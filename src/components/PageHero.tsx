@@ -9,8 +9,8 @@ export interface HeroStatus {
 }
 
 interface Props {
-  /** breadcrumb mono em caixa alta, ex.: "RELEASE · LM" */
-  eyebrow: string;
+  /** breadcrumb mono em caixa alta, ex.: "RELEASE · LM" (texto ou nó, p/ logo) */
+  eyebrow: React.ReactNode;
   title: string;
   /** linha de subtítulo abaixo do título (opcional) */
   subtitle?: React.ReactNode;

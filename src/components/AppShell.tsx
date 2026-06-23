@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { SM_CONFIGS } from '../config/sm-config';
-import { ALL_TEAMS } from '../config/teams';
+import { deriveTeams } from '../config/teams';
+import { fetchData } from '../services/dataService';
 import NavDropdown from './NavDropdown';
 
 /* Inline Venice by blite SVG — sempre branco via currentColor */
@@ -68,6 +69,16 @@ const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     ? decodeURIComponent(location.pathname.split('/time/')[1])
     : null;
 
+  // Lista de times derivada de /api/data (memoizado em dataService) — não embute o data.json.
+  const [allTeams, setAllTeams] = useState<string[]>([]);
+  useEffect(() => {
+    let alive = true;
+    fetchData()
+      .then(items => { if (alive) setAllTeams(deriveTeams(items)); })
+      .catch(() => { /* sem sessão / erro: dropdown de Times fica vazio */ });
+    return () => { alive = false; };
+  }, []);
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-color)', fontFamily: 'Inter, system-ui, sans-serif' }}>
       {/* ── Navbar — fiel ao protótipo ── */}
@@ -114,7 +125,7 @@ const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             <NavDropdown
               label="Times"
               active={!!activeTeamId}
-              items={ALL_TEAMS.map(team => ({
+              items={allTeams.map(team => ({
                 id: team,
                 label: team,
                 active: activeTeamId === team,

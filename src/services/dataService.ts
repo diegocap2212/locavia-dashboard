@@ -12,71 +12,39 @@ export interface JiraItem {
   [key: string]: unknown;
 }
 
-interface GVizCol {
-  id?: string;
-  label?: string;
-}
+/**
+ * Busca o dataset do endpoint AUTENTICADO `/api/data` (same-origin, cookie de sessão
+ * enviado automaticamente). O data.json não é mais importado no client — só o servidor
+ * o entrega, e apenas com sessão válida.
+ *
+ * Memoizado em nível de módulo: todos os consumidores (hooks + AppShell) compartilham
+ * uma única chamada de rede por carga da página.
+ */
+let dataPromise: Promise<JiraItem[]> | null = null;
 
-interface GVizCell {
-  v: string | number | boolean | null;
+async function loadData(): Promise<JiraItem[]> {
+  const res = await fetch('/api/data', { credentials: 'same-origin' });
+  if (res.status === 401) {
+    throw new Error('Não autenticado para acessar os dados.');
+  }
+  if (!res.ok) {
+    throw new Error(`Falha ao carregar dados (${res.status}).`);
+  }
+  const body = await res.json();
+  const items = (body?.items ?? body) as JiraItem[];
+  if (!Array.isArray(items)) {
+    throw new Error('Resposta de dados inválida.');
+  }
+  return items;
 }
-
-interface GVizRow {
-  c: (GVizCell | null)[];
-}
-
-const CLOUD_DATA_URL = import.meta.env.VITE_CLOUD_DATA_URL;
 
 export const fetchData = async (): Promise<JiraItem[]> => {
-  if (!CLOUD_DATA_URL || CLOUD_DATA_URL.includes("your-id")) {
-    console.warn("VITE_CLOUD_DATA_URL is not configured properly. Falling back to internal data.");
-    throw new Error("Local fallback mode: CLOUD_DATA_URL not configured");
+  if (!dataPromise) {
+    dataPromise = loadData().catch(err => {
+      // Não cacheia falha: permite retry numa próxima chamada.
+      dataPromise = null;
+      throw err;
+    });
   }
-
-  try {
-    const response = await fetch(CLOUD_DATA_URL);
-    if (!response.ok) {
-        throw new Error(`Failed to fetch cloud data: ${response.statusText}`);
-    }
-
-    // Google Sheets JSON output (via gviz/tq) is wrapped in a callback.
-    // If it's pure CSV or JSON, handled differently.
-    const text = await response.text();
-    
-    // Simple logic to detect Google Sheets 'gviz' JSON format
-    if (text.includes("google.visualization.Query.setResponse")) {
-        const jsonStart = text.indexOf('{');
-        const jsonEnd = text.lastIndexOf('}');
-        const jsonStr = text.substring(jsonStart, jsonEnd + 1);
-        const gvizData = JSON.parse(jsonStr);
-        
-        // Transform gviz format to our JiraItem[] format
-        const rows = gvizData.table.rows as GVizRow[];
-        const cols = (gvizData.table.cols as GVizCol[]).map(c => c.label || c.id || '');
-        
-        return rows.map(row => {
-            const item: Record<string, unknown> = {};
-            row.c.forEach((cell, i) => {
-                const colName = cols[i];
-                if (colName) {
-                    item[colName] = cell ? cell.v : null;
-                }
-            });
-            return item as unknown as JiraItem;
-        });
-    }
-
-    // Standard JSON
-    const parsed = JSON.parse(text) as JiraItem[];
-    
-    if (!Array.isArray(parsed) || parsed.length === 0) {
-        console.warn("Cloud data source returned empty or invalid dataset. Forcing fallback to local data.");
-        throw new Error("Empty cloud data");
-    }
-
-    return parsed;
-  } catch (error) {
-    console.error("Error fetching cloud data:", error);
-    throw error;
-  }
+  return dataPromise;
 };

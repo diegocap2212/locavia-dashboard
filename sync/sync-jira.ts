@@ -1,9 +1,28 @@
 import 'dotenv/config';
 import fs from 'fs/promises';
 import path from 'path';
+import { z } from 'zod';
 import { JiraClient } from './jira-client';
 import { mapJiraIssueToDashboardItem } from './field-mapper';
 import { calculateMetrics } from './metrics-calculator';
+
+// Schema mínimo de sanidade do item normalizado — barra gravar lixo por cima de dado bom.
+const ItemSchema = z.object({
+  Key: z.string().min(1),
+  Type: z.string(),
+  Status: z.string(),
+  StatusCategory: z.enum(['TODO', 'IN_PROGRESS', 'DONE']),
+  Team: z.string(),
+  Created: z.string(),
+  Release: z.string(),
+}).passthrough();
+
+// Escrita atômica: grava em tmp e renomeia (rename é atômico no mesmo FS).
+async function writeAtomic(filePath: string, content: string) {
+  const tmp = `${filePath}.tmp-${process.pid}`;
+  await fs.writeFile(tmp, content, 'utf-8');
+  await fs.rename(tmp, filePath);
+}
 
 async function main() {
   const baseUrl = process.env.JIRA_BASE_URL;
@@ -52,17 +71,25 @@ async function main() {
     }
 
     const dashboardItems = issues.map(issue => calculateMetrics(mapJiraIssueToDashboardItem(issue), issue));
-    
-    // Save to data.json
+
+    // Validação de schema: se os itens normalizados não baterem, ABORTA (não sobrescreve dado bom).
+    const parsed = z.array(ItemSchema).safeParse(dashboardItems);
+    if (!parsed.success) {
+      console.error("❌ ERRO: dados normalizados inválidos — sync abortado para não corromper data.json.");
+      console.error(parsed.error.issues.slice(0, 5));
+      process.exit(1);
+    }
+
+    // Save to data.json (escrita atômica)
     const outputPath = path.resolve(process.cwd(), 'src/data.json');
-    await fs.writeFile(outputPath, JSON.stringify(dashboardItems, null, 2), 'utf-8');
+    await writeAtomic(outputPath, JSON.stringify(dashboardItems, null, 2));
 
     // Grava o timestamp real desta sincronização. O header dos dashboards de SM
     // lê este valor (em vez de inferir a "frescura" a partir de uma issue qualquer),
     // e ele também serve de heartbeat: se travar em produção enquanto o git mostra
     // novos commits de sync, é sinal de que o Vercel não está redeployando.
     const metaPath = path.resolve(process.cwd(), 'src/data-meta.json');
-    await fs.writeFile(metaPath, JSON.stringify({ syncedAt: new Date().toISOString() }, null, 2), 'utf-8');
+    await writeAtomic(metaPath, JSON.stringify({ syncedAt: new Date().toISOString() }, null, 2));
 
     console.log(`✅ Sucesso! ${dashboardItems.length} itens salvos em src/data.json`);
     
