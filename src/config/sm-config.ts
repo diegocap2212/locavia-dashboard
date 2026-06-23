@@ -19,8 +19,8 @@ export const SM_CONFIGS: SMConfig[] = [
     name: 'Gabriela',
     avatar: 'GA',
     teams: [
-      { carCode: 'TAOS', displayName: 'Taos', teamFieldValues: ['TAOS'], 
-        keyPrefixes: ['TAOS'], coneTab: 'TAOS O4R2' },
+      { carCode: 'SFV', displayName: 'Salesforce Vendas', teamFieldValues: ['SFV', 'SALESFORCE VENDAS'],
+        keyPrefixes: ['SFV'] },
       { carCode: 'GOL', displayName: 'Gol', teamFieldValues: ['GOL'], 
         keyPrefixes: ['GOL', 'LI'], coneTab: 'GOL O4R2' },
       { carCode: 'SALESFORCE', displayName: 'SFMktplace',
