@@ -369,7 +369,7 @@ export function useSMDashboardData(
     // ── Issue Type Breakdown (Donut) ──
     const issueTypeBreakdown: { name: string; value: number; color: string }[] = [];
     const typeColors: Record<string, string> = {
-      'História': '#3B82F6', 'Bug': '#EF4444', 'Tarefa': '#10B981', 'Spike': '#8B5CF6', 'Outros': '#94A3B8'
+      'História': '#FF2993', 'Bug': '#EF4444', 'Tarefa': '#2BBB92', 'Spike': '#8B0CF6', 'Outros': '#94A3B8'
     };
     const typeCounts: Record<string, number> = {};
     doneItems.forEach(i => {

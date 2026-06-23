@@ -4,6 +4,7 @@ import {
 } from 'recharts';
 import { AlertTriangle } from 'lucide-react';
 import type { CFDPoint } from '../cfd/computeCFD';
+import { CHART } from '../lib/chartColors';
 
 interface Props {
   data: CFDPoint[];
@@ -67,15 +68,15 @@ export const CFDChart: React.FC<Props> = ({ data, coverage }) => {
       <div className="flex-1 min-h-0">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-            <XAxis dataKey="weekLabel" axisLine={false} tickLine={false} tick={{ fill: '#94A3B8', fontSize: 11 }} dy={8} />
-            <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94A3B8', fontSize: 11 }} allowDecimals={false} />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={CHART.grid} />
+            <XAxis dataKey="weekLabel" axisLine={false} tickLine={false} tick={{ fill: CHART.axis, fontSize: 11 }} dy={8} />
+            <YAxis axisLine={false} tickLine={false} tick={{ fill: CHART.axis, fontSize: 11 }} allowDecimals={false} />
             <Tooltip content={<CFDTooltip />} />
             <Legend iconType="circle" wrapperStyle={{ paddingTop: '12px', fontSize: '12px' }} />
             {/* Ordem de empilhamento: Concluído na base, A Fazer no topo. */}
-            <Area type="monotone" dataKey="Concluído" stackId="cfd" stroke="#10B981" fill="#10B981" fillOpacity={0.85} />
-            <Area type="monotone" dataKey="Em andamento" stackId="cfd" stroke="#F59E0B" fill="#F59E0B" fillOpacity={0.7} />
-            <Area type="monotone" dataKey="A Fazer" stackId="cfd" stroke="#94A3B8" fill="#94A3B8" fillOpacity={0.55} />
+            <Area type="monotone" dataKey="Concluído" stackId="cfd" stroke={CHART.mint} fill={CHART.mint} fillOpacity={0.85} />
+            <Area type="monotone" dataKey="Em andamento" stackId="cfd" stroke={CHART.amber} fill={CHART.amber} fillOpacity={0.7} />
+            <Area type="monotone" dataKey="A Fazer" stackId="cfd" stroke={CHART.neutral} fill={CHART.neutral} fillOpacity={0.55} />
           </AreaChart>
         </ResponsiveContainer>
       </div>

@@ -3,6 +3,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Cell
 } from 'recharts';
+import { CHART } from '../lib/chartColors';
 
 interface HistogramBucket {
   range: string;
@@ -13,7 +14,8 @@ interface Props {
   leadTimeData: HistogramBucket[];
 }
 
-const BUCKET_COLORS = ['#10B981', '#34D399', '#FBBF24', '#F59E0B', '#F97316', '#EF4444'];
+// Gradiente de velocidade (rápido → lento). Pontas ancoradas na marca (mint/red).
+const BUCKET_COLORS = [CHART.mint, '#34D399', '#FBBF24', CHART.amber, '#F97316', CHART.red];
 
 interface CustomTooltipProps {
   active?: boolean;
@@ -54,17 +56,17 @@ export const LeadTimeHistogram: React.FC<Props> = ({ leadTimeData }) => {
       <div className="flex-1 min-h-0">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={leadTimeData} margin={{ top: 10, right: 5, left: -15, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={CHART.grid} />
             <XAxis dataKey="range" axisLine={false} tickLine={false}
-              tick={{ fill: '#94A3B8', fontSize: 11 }} dy={6} />
+              tick={{ fill: CHART.axis, fontSize: 11 }} dy={6} />
             <YAxis axisLine={false} tickLine={false}
-              tick={{ fill: '#94A3B8', fontSize: 11 }} allowDecimals={false} />
+              tick={{ fill: CHART.axis, fontSize: 11 }} allowDecimals={false} />
             <Tooltip content={<CustomTooltip />} cursor={{ fill: '#F8FAFC' }} />
             <Bar dataKey="count" name="Lead Time" radius={[6, 6, 0, 0]} maxBarSize={48}>
               {leadTimeData.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
-                  fill={BUCKET_COLORS[index] || '#94A3B8'}
+                  fill={BUCKET_COLORS[index] || CHART.neutral}
                   opacity={entry.count === maxCount ? 1 : 0.75}
                 />
               ))}

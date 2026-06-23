@@ -1,6 +1,7 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import type { WeeklyConeMetrics } from '../hooks/useSMDashboardData';
+import { CHART } from '../lib/chartColors';
 
 interface Props {
   data: WeeklyConeMetrics[];
@@ -53,13 +54,13 @@ export const PointsCommittedVsDeliveredChart: React.FC<Props> = ({ data }) => {
     <div className="h-full w-full">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={CHART.grid} />
           <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748B', fontSize: 11 }} />
           <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748B', fontSize: 11 }} />
           <Tooltip content={renderTooltip} cursor={{ fill: '#F1F5F9' }} />
           <Legend wrapperStyle={{ paddingTop: '12px', fontSize: '12px' }} />
-          <Bar dataKey="Comprometido" fill="#94A3B8" radius={[4, 4, 0, 0]} maxBarSize={40} />
-          <Bar dataKey="Entregue" fill="#10B981" radius={[4, 4, 0, 0]} maxBarSize={40} />
+          <Bar dataKey="Comprometido" fill={CHART.neutral} radius={[4, 4, 0, 0]} maxBarSize={40} />
+          <Bar dataKey="Entregue" fill={CHART.mint} radius={[4, 4, 0, 0]} maxBarSize={40} />
         </BarChart>
       </ResponsiveContainer>
     </div>

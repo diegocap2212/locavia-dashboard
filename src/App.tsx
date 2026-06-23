@@ -1,418 +1,300 @@
-import React, { lazy, Suspense } from 'react';
-import { Routes, Route, useNavigate, useLocation, useParams } from 'react-router-dom';
+import React, { lazy, Suspense, useState } from 'react';
+import { Routes, Route, Navigate, useParams, useNavigate } from 'react-router-dom';
 import { motion, type Variants } from 'framer-motion';
-import {
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
-  Bar, BarChart
-} from 'recharts';
-import {
-  Users, Activity, CheckCircle2, Clock, RefreshCw,
-  UserCircle, ShoppingCart, Download
-} from 'lucide-react';
-import { useDashboardData, excelToJSDate, formatDate } from './hooks/useDashboardData';
-import TemporalDeliveryMatrix from './components/TemporalDeliveryMatrix';
+import { RefreshCw, ExternalLink } from 'lucide-react';
+import { useDashboardData } from './hooks/useDashboardData';
 import { SMDashboard } from './pages/SMDashboard';
 import { SM_CONFIGS } from './config/sm-config';
-import { MultiSelect } from './components/MultiSelect';
-import { DateRangeFilter } from './components/DateRangeFilter';
-import { WeeklyVazaoChart } from './components/WeeklyVazaoChart';
-import { WeeklyLeadTimeChart } from './components/WeeklyLeadTimeChart';
-import { getComments, exportComments } from './services/commentsService';
+import AppShell from './components/AppShell';
+import ConeCanvas from './components/ConeCanvas';
+import PageHero, { deriveStatus } from './components/PageHero';
+import { KPICard } from './components/KPICard';
+import releaseConfig from './config/release-config.json';
 import './App.css';
 
-const BFCEMDashboard = lazy(() => import('./pages/BFCEMDashboard'));
-// (Feature de apresentação removida — deck executivo descontinuado.)
-type ActiveView = 'locavia' | 'bf-cem' | 'sm-gabriela' | 'sm-rafael' | 'sm-ed';
+const ReleaseDetail = lazy(() => import('./pages/ReleaseDetail'));
+const TeamDetail = lazy(() => import('./pages/TeamDetail'));
 
-const containerVariants: Variants = {
+const activeReleases = releaseConfig.releases.filter(r => r.active !== false && r.id !== 'DEFAULT');
+
+/* ────────────────────────────────────────────
+   Variants
+   ──────────────────────────────────────────── */
+const fadeUp: Variants = {
+  hidden: { opacity: 0, y: 18 },
+  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 280, damping: 24 } },
+};
+const stagger: Variants = {
   hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.1 } }
+  show: { opacity: 1, transition: { staggerChildren: 0.08 } },
 };
 
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 15 },
-  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
-};
-
-/* ──────────────────────────────────────────────
-   Shared Navigation Header — used by all views
-   ────────────────────────────────────────────── */
-const NavigationHeader: React.FC<{
-  activeView: ActiveView;
-  onTabChange: (view: ActiveView) => void;
-  rightSlot?: React.ReactNode;
-}> = ({ activeView, onTabChange, rightSlot }) => (
-  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', padding: '0 2rem', marginBottom: '1rem' }}>
-    <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', opacity: 0.65 }}>
-        <span style={{ color: 'var(--text-muted)', fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>powered by</span>
-        <img src="/venice-logo.png" alt="Venice" style={{ height: '12px', objectFit: 'contain' }} />
-      </div>
-      {rightSlot}
-    </div>
-    <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center', flexWrap: 'wrap' }}>
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
-        <span style={{ fontSize: '0.62rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em', marginBottom: '4px' }}>Consolidado</span>
-        <div style={{ display: 'flex', gap: '0.25rem', background: 'white', borderRadius: '8px', padding: '3px', border: '1px solid var(--border-color)' }}>
-          <button onClick={() => onTabChange('locavia')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '5px 12px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, background: activeView === 'locavia' ? 'var(--primary)' : 'transparent', color: activeView === 'locavia' ? 'white' : 'var(--text-muted)', transition: 'all 0.15s' }}>
-            <Users size={12} /> Principal
-          </button>
-          <button onClick={() => onTabChange('bf-cem')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '5px 12px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, background: activeView === 'bf-cem' ? 'var(--primary)' : 'transparent', color: activeView === 'bf-cem' ? 'white' : 'var(--text-muted)', transition: 'all 0.15s' }}>
-            <ShoppingCart size={12} /> BF / CEM
-          </button>
-        </div>
-      </div>
-
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
-        <span style={{ fontSize: '0.62rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em', marginBottom: '4px' }}>Agilistas / SMs</span>
-        <div style={{ display: 'flex', gap: '0.25rem', background: 'white', borderRadius: '8px', padding: '3px', border: '1px solid var(--border-color)' }}>
-          {SM_CONFIGS.map(c => (
-            <button
-              key={c.id}
-              onClick={() => onTabChange(`sm-${c.id}` as ActiveView)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '6px', padding: '5px 12px', borderRadius: '6px', border: 'none', cursor: 'pointer',
-                fontSize: '0.8rem', fontWeight: 600,
-                background: activeView === `sm-${c.id}` ? 'var(--primary)' : 'transparent',
-                color: activeView === `sm-${c.id}` ? 'white' : 'var(--text-muted)',
-                transition: 'all 0.15s'
-              }}
-            >
-              <UserCircle size={12} /> {c.name}
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
-/* ──────────────────────────────────────────
-   SM Dashboard Wrapper
-   ────────────────────────────────────────── */
+/* ────────────────────────────────────────────
+   SMDashboardWrapper
+   ──────────────────────────────────────────── */
 const SMDashboardWrapper = () => {
   const { smId } = useParams();
-  const navigate = useNavigate();
   const config = SM_CONFIGS.find(c => c.id === smId);
 
   if (!config) {
-    return <div className="p-8 text-center bg-slate-50 min-h-screen">SM não encontrado</div>;
+    return (
+      <div style={{ padding: '4rem 2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+        SM não encontrado.
+      </div>
+    );
   }
 
-  const activeView: ActiveView = `sm-${smId}` as ActiveView;
-
-  const handleTabChange = (view: ActiveView) => {
-    if (view === 'locavia') navigate('/');
-    else if (view === 'bf-cem') navigate('/cone-bf-cem');
-    else navigate(`/sm/${view.replace('sm-', '')}`);
-  };
-
-  return (
-    <div className="dashboard-content">
-      <div style={{ padding: '1.5rem 0 0', backgroundColor: '#f8fafc' }}>
-        <NavigationHeader
-          activeView={activeView}
-          onTabChange={handleTabChange}
-          rightSlot={
-            <>
-              <button
-                onClick={async () => exportComments(await getComments())}
-                style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'white', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', transition: 'all 0.2s', boxShadow: 'var(--shadow-sm)' }}
-              >
-                <Download size={13} /> Exportar Análises
-              </button>
-            </>
-          }
-        />
-        <SMDashboard smConfig={config} />
-      </div>
-    </div>
-  );
+  return <SMDashboard smConfig={config} />;
 };
 
-/* ──────────────────────────────────────────
-   Main App
-   ────────────────────────────────────────── */
-const App: React.FC = () => {
+/* ────────────────────────────────────────────
+   Home — Cone da Incerteza
+   ──────────────────────────────────────────── */
+const Home: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const activeView: ActiveView =
-    location.pathname.startsWith('/sm/gabriela') ? 'sm-gabriela' :
-    location.pathname.startsWith('/sm/rafael') ? 'sm-rafael' :
-    location.pathname.startsWith('/sm/ed') ? 'sm-ed' :
-    location.pathname === '/cone-bf-cem' ? 'bf-cem' : 'locavia';
+  const { loading, releaseCones } = useDashboardData('locavia');
 
-  const {
-    loading, chartData, weeklyPerformance, metrics,
-    filteredList, teams, releases, selectedTeams, setSelectedTeams,
-    selectedReleases, setSelectedReleases,
-    startDate, setStartDate, endDate, setEndDate,
-    temporalMatrixData
-  } = useDashboardData('locavia');
+  const [selectedId, setSelectedId] = useState<string>(activeReleases[0]?.id ?? '');
 
-  const handleTabChange = (view: ActiveView) => {
-    if (view === 'bf-cem') navigate('/cone-bf-cem');
-    else if (view.startsWith('sm-')) navigate(`/sm/${view.replace('sm-', '')}`);
-    else navigate('/');
-  };
+  const rc = releaseCones.find(r => r.releaseId === selectedId) ?? releaseCones[0];
+  const { summary } = rc ?? { summary: null };
+
+  const fmtDate = (d: Date | null) =>
+    d ? d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }) : '—';
+
+  const now = new Date();
+  const isDelivered = summary ? summary.remaining === 0 : false;
+  const status = summary
+    ? deriveStatus(summary.remaining, summary.entregaMelhor, summary.entregaPior, now)
+    : undefined;
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', flexDirection: 'column', gap: '1rem', background: 'var(--bg-color)' }}>
-        <RefreshCw className="animate-spin" size={40} color="var(--primary)" />
-        <p style={{ color: 'var(--text-main)', fontWeight: 600 }}>Carregando Workspace...</p>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh', flexDirection: 'column', gap: '1rem' }}>
+        <RefreshCw className="animate-spin" size={36} color="var(--primary)" />
+        <p style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Carregando dados...</p>
       </div>
     );
   }
 
   return (
-    <div className="dashboard-wrapper">
-      <Routes>
-        <Route path="/sm/:smId" element={<SMDashboardWrapper />} />
+    <>
+      <PageHero
+        eyebrow="Locavia · LM"
+        title="Cone da Incerteza"
+        subtitle={rc ? (releaseCones.find(r => r.releaseId === selectedId)?.displayName ?? selectedId) : undefined}
+        status={status}
+      >
+        <div style={{ position: 'relative' }}>
+          {/* Flat release selector */}
+          <div style={{ display: 'flex', gap: '0.375rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <span style={{ fontFamily: 'monospace', fontSize: '0.62rem', letterSpacing: '0.18em', color: 'rgba(255,255,255,0.38)', marginRight: '0.25rem', fontWeight: 700 }}>RELEASES</span>
+            {releaseCones.map(r => {
+              const active = selectedId === r.releaseId;
+              return (
+                <button
+                  key={r.releaseId}
+                  onClick={() => setSelectedId(r.releaseId)}
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
+                    padding: '5px 14px', borderRadius: 999,
+                    border: `1px solid ${active ? '#FF2993' : 'rgba(255,255,255,0.12)'}`,
+                    cursor: 'pointer', fontWeight: 700, fontSize: '0.78rem', letterSpacing: '0.03em',
+                    transition: 'all 0.15s',
+                    background: active ? 'linear-gradient(92deg, rgba(255,41,147,0.28), rgba(139,12,246,0.28))' : 'rgba(255,255,255,0.05)',
+                    color: active ? '#fff' : 'rgba(255,255,255,0.6)',
+                    boxShadow: active ? '0 0 0 1px rgba(255,41,147,0.5), 0 6px 18px -8px rgba(255,41,147,0.7)' : 'none',
+                  }}
+                >
+                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: active ? '#FF2993' : 'rgba(255,255,255,0.3)', display: 'inline-block' }} />
+                  {r.releaseId}
+                </button>
+              );
+            })}
+          </div>
 
-        <Route path="/cone-bf-cem" element={
-          <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}><RefreshCw className="animate-spin" size={32} color="var(--primary)" /></div>}>
-            <div className="dashboard-wrapper">
-              <BFCEMDashboard />
-            </div>
-          </Suspense>
-        } />
-
-        <Route path="*" element={
-          <motion.main className="dashboard-content" variants={containerVariants} initial="hidden" animate="show">
-        <motion.header className="header" variants={itemVariants}>
-          <div className="title-section">
-            <h1 style={{ letterSpacing: '-0.02em', marginBottom: '0.4rem' }}>
-              Dashboard de Métricas LM
-            </h1>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.75rem', opacity: 0.65 }}>
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>powered by</span>
-              <img src="/venice-logo.png" alt="Venice" style={{ height: '12px', objectFit: 'contain' }} />
-            </div>
-            {/* View Tabs */}
-            <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center', flexWrap: 'wrap' }}>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '0.62rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em', marginBottom: '4px' }}>Consolidado</span>
-                <div style={{ display: 'flex', gap: '0.25rem', background: 'var(--surface-color)', borderRadius: '8px', padding: '3px', border: '1px solid var(--border-color)' }}>
-                  <button
-                    onClick={() => handleTabChange('locavia')}
-                    style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '5px 12px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, background: activeView === 'locavia' ? 'var(--primary)' : 'transparent', color: activeView === 'locavia' ? 'white' : 'var(--text-muted)', transition: 'all 0.15s' }}
-                  >
-                    <Users size={12} /> Principal
-                  </button>
-                  <button
-                    onClick={() => handleTabChange('bf-cem')}
-                    style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '5px 12px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, background: activeView === 'bf-cem' ? 'var(--primary)' : 'transparent', color: activeView === 'bf-cem' ? 'white' : 'var(--text-muted)', transition: 'all 0.15s' }}
-                  >
-                    <ShoppingCart size={12} /> BF / CEM
-                  </button>
-                </div>
+          {/* Cone canvas — dark card inside hero */}
+          {rc && rc.chartData.length > 0 && (
+            <div style={{
+              borderRadius: 16,
+              background: 'linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))',
+              border: '1px solid rgba(255,255,255,0.08)',
+              padding: '0.75rem 0.75rem 0.25rem',
+              marginBottom: '0.25rem',
+            }}>
+              <ConeCanvas coneData={rc} height={340} />
+              {/* Legend */}
+              <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', padding: '0.5rem 0.25rem 0.75rem' }}>
+                {[
+                  { color: '#FF2993', dash: false, label: 'Realizado' },
+                  { color: '#FFFFFF', dash: true,  label: 'Projeção P85 · padrão LM' },
+                  { color: 'linear-gradient(90deg,rgba(255,41,147,0.55),rgba(139,12,246,0.18))', dash: false, label: 'Faixa de incerteza (P15–P85)', band: true },
+                ].map(({ color, dash, label, band }) => (
+                  <span key={label} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.76rem', color: 'rgba(255,255,255,0.6)' }}>
+                    {band
+                      ? <span style={{ width: 22, height: 12, borderRadius: 3, background: color, display: 'inline-block' }} />
+                      : <span style={{ width: 22, height: 0, borderTop: `3px ${dash ? 'dashed' : 'solid'} ${color}`, borderRadius: 2, display: 'inline-block' }} />
+                    }
+                    {label}
+                  </span>
+                ))}
               </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '0.62rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em', marginBottom: '4px' }}>Agilistas / SMs</span>
-                <div style={{ display: 'flex', gap: '0.25rem', background: 'var(--surface-color)', borderRadius: '8px', padding: '3px', border: '1px solid var(--border-color)' }}>
-                  {SM_CONFIGS.map(c => (
-                    <button
-                      key={c.id}
-                      onClick={() => handleTabChange(`sm-${c.id}` as ActiveView)}
-                      style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '5px 12px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, background: activeView === `sm-${c.id}` ? 'var(--primary)' : 'transparent', color: activeView === `sm-${c.id}` ? 'white' : 'var(--text-muted)', transition: 'all 0.15s' }}
-                    >
-                      <UserCircle size={12} /> {c.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
             </div>
-          </div>
+          )}
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-            {activeView === 'locavia' && <div style={{ display: 'flex', gap: '1rem' }}>
-              <MultiSelect label="Time" options={teams} selected={selectedTeams} onChange={setSelectedTeams} allLabel="TODOS" />
-              <MultiSelect label="Release" options={releases} selected={selectedReleases} onChange={setSelectedReleases} allLabel="TODAS" />
-              <DateRangeFilter
-                startDate={startDate} endDate={endDate}
-                onStartDateChange={setStartDate} onEndDateChange={setEndDate}
-              />
-            </div>}
-          </div>
-        </motion.header>
-
-        <motion.div className="metrics-grid" variants={containerVariants}>
-          <motion.div className="premium-card metric-card" variants={itemVariants}>
-            <div className="metric-header">
-              <h3 className="metric-label">Escopo Total</h3>
-              <div className="icon-wrapper icon-blue"><Users size={20} /></div>
-            </div>
-            <div className="metric-value">{metrics.totalItems}</div>
-            <p className="metric-sub">Itens no escopo ativo</p>
-          </motion.div>
-
-          <motion.div className="premium-card metric-card" variants={itemVariants}>
-            <div className="metric-header">
-              <h3 className="metric-label">Entregas</h3>
-              <div className="icon-wrapper icon-green"><CheckCircle2 size={20} /></div>
-            </div>
-            <div className="metric-value">{metrics.deliveredCount}</div>
-            <p className="metric-sub">Concluídas no período</p>
-          </motion.div>
-
-          <motion.div className="premium-card metric-card" variants={itemVariants}>
-            <div className="metric-header">
-              <h3 className="metric-label">WIP (A Fazer)</h3>
-              <div className="icon-wrapper icon-orange"><Activity size={20} /></div>
-            </div>
-            <div className="metric-value">{metrics.wipCount}</div>
-            <p className="metric-sub">Em desenvolvimento</p>
-          </motion.div>
-
-          <motion.div className="premium-card metric-card" variants={itemVariants}>
-            <div className="metric-header">
-              <h3 className="metric-label">Lead Time</h3>
-              <div className="icon-wrapper icon-gray"><Clock size={20} /></div>
-            </div>
-            <div className="metric-value">{metrics.avgLeadTime} <span style={{fontSize:'1.25rem', color:'var(--text-muted)'}}>d</span></div>
-            <p className="metric-sub">Tempo médio (Criado → Resolvido)</p>
-          </motion.div>
-        </motion.div>
-
-        <motion.div className="premium-card chart-section" variants={itemVariants} style={{ marginBottom: '1.5rem' }}>
-          <div className="chart-header">
-            <h3 className="chart-title">Burndown & Projeção do Cone</h3>
-            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--primary)' }}></div> Realizado</span>
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--warning)' }}></div> Tendência</span>
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--success)' }}></div> Melhor Caso</span>
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--danger)' }}></div> Pior Caso</span>
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#a855f7' }}></div> Vel. Necessária</span>
-            </div>
-          </div>
-          <div style={{ width: '100%', height: 380 }}>
-            <ResponsiveContainer>
-              <AreaChart data={chartData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="colorReal" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.1}/>
-                    <stop offset="95%" stopColor="var(--primary)" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
-                <XAxis dataKey="name" stroke="var(--text-muted)" tick={{fontSize: 12, fontWeight: 500}} dy={10} axisLine={false} tickLine={false} />
-                <YAxis stroke="var(--text-muted)" tick={{fontSize: 12, fontWeight: 500}} axisLine={false} tickLine={false} />
-                <Tooltip
-                  contentStyle={{ backgroundColor: 'var(--surface-color)', border: '1px solid var(--border-color)', borderRadius: '12px', boxShadow: 'var(--shadow-lg)', padding: '12px' }}
-                  itemStyle={{ fontSize: '13px', fontWeight: 600, padding: '2px 0' }}
-                  labelStyle={{ color: 'var(--text-muted)', marginBottom: '8px', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase' }}
-                />
-                <Area type="monotone" dataKey="A Fazer (Real)" stroke="var(--primary)" strokeWidth={3} fillOpacity={1} fill="url(#colorReal)" activeDot={{ r: 6, strokeWidth: 0 }} />
-                {Object.keys(chartData?.[chartData.length-1] || {}).map(key => {
-                  if (key.startsWith('Melhor Caso')) {
-                    return <Area key={key} type="monotone" dataKey={key} stroke="var(--success)" strokeWidth={2} strokeDasharray="4 4" fill="transparent" />;
-                  }
-                  if (key.startsWith('Pior Caso')) {
-                    return <Area key={key} type="monotone" dataKey={key} stroke="var(--danger)" strokeWidth={2} strokeDasharray="4 4" fill="transparent" />;
-                  }
-                  if (key.startsWith('Tendência')) {
-                    return <Area key={key} type="monotone" dataKey={key} stroke="var(--warning)" strokeWidth={2.5} strokeDasharray="3 3" fill="transparent" activeDot={{ r: 5 }} />;
-                  }
-                  if (key.startsWith('Velocidade Necessária')) {
-                    return <Area key={key} type="monotone" dataKey={key} stroke="#a855f7" strokeWidth={2} strokeDasharray="5 5" fill="transparent" />;
-                  }
-                  return null;
-                })}
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-
-        </motion.div>
-
-        <motion.div variants={itemVariants}>
-          <TemporalDeliveryMatrix data={temporalMatrixData} />
-        </motion.div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1fr', gap: '1.5rem', marginTop: '1.5rem' }}>
-          <WeeklyVazaoChart data={weeklyPerformance} />
-
-          <motion.div className="premium-card chart-section" variants={itemVariants} style={{ display: 'flex', flexDirection: 'column' }}>
-            <div className="chart-header">
-              <h3 className="chart-title">Fluxo de Entrada vs Saída</h3>
-            </div>
-            <div style={{ flex: 1, minHeight: 180 }}>
-              <ResponsiveContainer>
-                <BarChart data={weeklyPerformance.slice(-5)} margin={{ top: 0, right: 0, left: -25, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
-                  <XAxis dataKey="name" stroke="var(--text-muted)" tick={{fontSize: 10}} axisLine={false} tickLine={false} dy={8} />
-                  <YAxis stroke="var(--text-muted)" tick={{fontSize: 10}} axisLine={false} tickLine={false} />
-                  <Tooltip contentStyle={{ backgroundColor: 'var(--surface-color)', border: '1px solid var(--border-color)', borderRadius: '8px', boxShadow: 'var(--shadow-sm)' }} cursor={{fill: 'var(--bg-color)'}} />
-                  <Legend iconSize={8} wrapperStyle={{ fontSize: '11px', paddingTop: '5px' }} />
-                  <Bar dataKey="Entradas" fill="var(--text-muted)" name="Demandas Criadas" radius={[4, 4, 0, 0]} barSize={16} />
-                  <Bar dataKey="Saídas" fill="var(--success)" name="Entregas Feitas" radius={[4, 4, 0, 0]} barSize={16} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-            <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Saldo (Semana Atual):</span>
-              <span style={{
-                fontSize: '2rem', fontWeight: 800, letterSpacing: '-0.02em',
-                color: (weeklyPerformance?.[weeklyPerformance.length-1]?.Saldo || 0) > 0 ? 'var(--danger)' : 'var(--success)'
-              }}>
-                {(weeklyPerformance?.[weeklyPerformance.length-1]?.Saldo || 0) > 0 ? '+' : ''}{weeklyPerformance?.[weeklyPerformance.length-1]?.Saldo || 0}
-              </span>
-            </div>
-          </motion.div>
+          {/* Drill-down link */}
+          {rc && (
+            <button
+              onClick={() => navigate(`/release/${selectedId}`)}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '0.6rem',
+                background: 'var(--navy-surface)', color: '#fff',
+                border: 'none', borderRadius: 11, cursor: 'pointer',
+                fontWeight: 700, fontSize: '0.88rem', padding: '0.8rem 1.3rem',
+                transition: 'all 0.15s', marginTop: '0.75rem',
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#FF2993'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 8px 22px -10px rgba(255,41,147,0.8)'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--navy-surface)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = 'none'; }}
+            >
+              <ExternalLink size={15} /> Ver métricas de fluxo de <strong>{selectedId}</strong>
+            </button>
+          )}
         </div>
+      </PageHero>
 
-        <div style={{ marginTop: '1.5rem' }}>
-          <WeeklyLeadTimeChart data={weeklyPerformance} height={280} />
-        </div>
+      {/* ── Light content area ── */}
+      <div style={{ maxWidth: 1500, margin: '0 auto', padding: '2rem 2.5rem' }}>
+        {!rc ? (
+          <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '4rem' }}>Sem dados para esta release.</p>
+        ) : (
+          <motion.div variants={stagger} initial="hidden" animate="show">
 
-        <motion.div className="premium-card" variants={itemVariants} style={{ marginTop: '1.5rem' }}>
-          <div className="chart-header" style={{ padding: '1.75rem 2rem 0 2rem', borderBottom: 'none' }}>
-            <h3 className="chart-title">Backlog Recente</h3>
-          </div>
-          <div style={{ overflowX: 'auto', padding: '0 2rem 1.75rem 2rem' }}>
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Issue ID</th>
-                  <th>Tipo</th>
-                  <th>Descrição</th>
-                  <th>Status</th>
-                  <th>D. Criação</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredList.slice(0, 8).map((item) => {
-                  const isDone = item.Status.includes('DONE') || item.Status.includes('CONCLUIDO');
+            {/* KPI cards */}
+            <motion.div variants={stagger} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem', marginBottom: '1.75rem' }}>
+              {[
+                {
+                  label: 'Escopo',
+                  value: `${rc.summary.done}/${rc.summary.total}`,
+                  sub: `${rc.summary.remaining} restantes`,
+                  accent: '#FF2993',
+                },
+                {
+                  label: 'Velocidade · P85',
+                  value: `${rc.summary.velBest.toFixed(1)}`,
+                  sub: 'itens/semana · padrão LM',
+                  accent: '#8B0CF6',
+                },
+                {
+                  label: 'Projeção de Entrega',
+                  value: isDelivered ? 'Concluído' : fmtDate(rc.summary.entregaMelhor),
+                  sub: isDelivered ? '' : `até ${fmtDate(rc.summary.entregaPior)} (P15)`,
+                  accent: '#2BBB92',
+                },
+                {
+                  label: 'Tendência · P50',
+                  value: `${rc.summary.velTrend.toFixed(1)}`,
+                  sub: 'itens/semana',
+                  accent: '#9ca3af',
+                },
+              ].map(({ label, value, sub, accent }) => (
+                <motion.div key={label} variants={fadeUp}>
+                  <KPICard title={label} value={value} subtext={sub} accent={accent} />
+                </motion.div>
+              ))}
+            </motion.div>
+
+            {/* Release portfolio cards */}
+            <motion.div variants={fadeUp}>
+              <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Todas as Releases
+              </h2>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
+                {releaseCones.map(r => {
+                  const s = r.summary;
+                  const pct = s.total > 0 ? Math.round((s.done / s.total) * 100) : 0;
+                  const rLate = !!s.entregaPior && s.entregaPior < now && s.remaining > 0;
+                  const rRisk = !rLate && !!s.entregaMelhor && s.entregaMelhor > new Date(now.getTime() + 60 * 86400000) && s.remaining > 0;
+                  const accent = rLate ? '#ef4444' : rRisk ? '#f59e0b' : '#2BBB92';
+
                   return (
-                    <tr key={item.Key}>
-                      <td className="detail-key">{item.Key}</td>
-                      <td>
-                        <span className="badge badge-neutral">{item.Type}</span>
-                      </td>
-                      <td style={{ maxWidth: '300px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: 500 }}>
-                        {item.Summary as string}
-                      </td>
-                      <td>
-                        <span className={`badge ${isDone ? 'badge-success' : 'badge-warning'}`}>
-                          {item.Status}
+                    <div
+                      key={r.releaseId}
+                      onClick={() => setSelectedId(r.releaseId)}
+                      style={{
+                        background: 'var(--surface-color)',
+                        border: `1px solid ${r.releaseId === selectedId ? 'var(--primary)' : 'var(--border-color)'}`,
+                        borderRadius: 12, padding: '1.25rem',
+                        cursor: 'pointer', transition: 'all 0.15s',
+                        boxShadow: r.releaseId === selectedId ? 'var(--shadow-brand)' : 'var(--shadow-sm)',
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
+                        <div>
+                          <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                            {r.releaseId}
+                          </span>
+                          <p style={{ margin: '2px 0 0', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)' }}>
+                            {r.displayName}
+                          </p>
+                        </div>
+                        <span style={{
+                          fontSize: '0.7rem', fontWeight: 700, padding: '2px 8px', borderRadius: 999,
+                          background: rLate ? 'rgba(239,68,68,0.1)' : rRisk ? 'rgba(245,158,11,0.1)' : 'rgba(43,187,146,0.1)',
+                          color: accent,
+                        }}>
+                          {rLate ? 'Atrasado' : rRisk ? 'Em Risco' : s.remaining === 0 ? 'Entregue' : 'No Prazo'}
                         </span>
-                      </td>
-                      <td style={{ color: 'var(--text-muted)', fontWeight: 500 }}>
-                        {(() => { const d = excelToJSDate(item.Created); return d ? formatDate(d) : '-'; })()}
-                      </td>
-                    </tr>
+                      </div>
+
+                      {/* Progress bar */}
+                      <div style={{ background: 'var(--bg-color)', borderRadius: 999, height: 5, marginBottom: '0.75rem', overflow: 'hidden' }}>
+                        <div style={{ height: '100%', width: `${pct}%`, background: `linear-gradient(90deg, var(--primary), var(--brand-violet))`, borderRadius: 999, transition: 'width 0.5s ease' }} />
+                      </div>
+
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 500 }}>
+                        <span>{s.done}/{s.total} entregues ({pct}%)</span>
+                        <span>P85: {fmtDate(s.entregaMelhor)}</span>
+                      </div>
+                    </div>
                   );
                 })}
-              </tbody>
-            </table>
-          </div>
-        </motion.div>
-          </motion.main>
-        } />
-      </Routes>
-    </div>
+              </div>
+            </motion.div>
+
+          </motion.div>
+        )}
+      </div>
+    </>
   );
 };
+
+/* ────────────────────────────────────────────
+   App root
+   ──────────────────────────────────────────── */
+const App: React.FC = () => (
+  <AppShell>
+    <Routes>
+      <Route path="/sm/:smId" element={<SMDashboardWrapper />} />
+      <Route path="/cone-bf-cem" element={<Navigate to="/" replace />} />
+      <Route
+        path="/release/:releaseId"
+        element={
+          <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}><RefreshCw className="animate-spin" size={28} color="var(--primary)" /></div>}>
+            <ReleaseDetail />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/time/:teamId"
+        element={
+          <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}><RefreshCw className="animate-spin" size={28} color="var(--primary)" /></div>}>
+            <TeamDetail />
+          </Suspense>
+        }
+      />
+      <Route path="*" element={<Home />} />
+    </Routes>
+  </AppShell>
+);
 
 export default App;

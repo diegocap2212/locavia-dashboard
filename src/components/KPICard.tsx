@@ -1,44 +1,43 @@
 import React from 'react';
 import type { LucideIcon } from 'lucide-react';
-import clsx from 'clsx';
 
 interface KPICardProps {
   title: string;
   value: string | number;
   subtext?: string;
-  icon: LucideIcon;
+  icon?: LucideIcon;
+  /** cor de accent da borda esquerda + ícone (marca). Default Magenta. */
+  accent?: string;
+  /** compat legado — ignorado a favor de `accent` */
   iconColorClass?: string;
-  trend?: 'up' | 'down' | 'neutral';
-  trendValue?: string;
 }
 
-export const KPICard: React.FC<KPICardProps> = ({ 
-  title, value, subtext, icon: Icon, iconColorClass = 'text-blue-500', trend, trendValue 
-}) => {
-  return (
-    <div className="metric-card bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between transition-all hover:shadow-md hover:border-slate-300">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="metric-label text-sm font-semibold text-slate-500 uppercase tracking-wider">{title}</h3>
-        <div className={clsx("p-2 rounded-lg bg-slate-50", iconColorClass)}>
-          <Icon size={20} />
+/**
+ * KPI card branded — compartilhado por Home, /release/:id e /sm/:id.
+ * Valor em mono, borda-accent à esquerda (alinhado ao visual da home).
+ */
+export const KPICard: React.FC<KPICardProps> = ({ title, value, subtext, icon: Icon, accent = '#FF2993' }) => (
+  <div
+    className="premium-card"
+    style={{ padding: '1.2rem 1.4rem', borderLeft: `3px solid ${accent}`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+  >
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.6rem' }}>
+      <h3 style={{ margin: 0, fontFamily: 'monospace', fontSize: '0.66rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.14em', color: 'var(--text-muted)' }}>
+        {title}
+      </h3>
+      {Icon && (
+        <div style={{ display: 'flex', color: accent, opacity: 0.85 }}>
+          <Icon size={17} />
         </div>
-      </div>
-      <div>
-        <div className="metric-value text-3xl font-bold text-slate-800 mb-1">{value}</div>
-        {(subtext || trend) && (
-          <div className="flex items-center text-sm">
-            {trend && trendValue && (
-              <span className={clsx(
-                "font-medium mr-2 flex items-center",
-                trend === 'up' ? 'text-emerald-600' : trend === 'down' ? 'text-rose-600' : 'text-slate-500'
-              )}>
-                {trend === 'up' ? '↑' : trend === 'down' ? '↓' : '→'} {trendValue}
-              </span>
-            )}
-            {subtext && <span className="text-slate-500">{subtext}</span>}
-          </div>
-        )}
-      </div>
+      )}
     </div>
-  );
-};
+    <div style={{ fontFamily: 'monospace', fontSize: '1.8rem', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--text-main)', lineHeight: 1 }}>
+      {value}
+    </div>
+    {subtext && (
+      <p style={{ margin: '0.4rem 0 0', fontSize: '0.76rem', color: 'var(--text-muted)', fontWeight: 500 }}>
+        {subtext}
+      </p>
+    )}
+  </div>
+);

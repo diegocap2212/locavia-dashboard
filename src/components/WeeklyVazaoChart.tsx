@@ -36,10 +36,10 @@ export const WeeklyVazaoChart: React.FC<Props> = ({ data, granularityLabel = 'Se
           <YAxis stroke="var(--text-muted)" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
           <Tooltip contentStyle={{ backgroundColor: 'var(--surface-color)', border: '1px solid var(--border-color)', borderRadius: '12px', boxShadow: 'var(--shadow-md)' }} />
           <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
-          <Bar dataKey="História" stackId="a" fill="#3b82f6" name="Histórias" />
+          <Bar dataKey="História" stackId="a" fill="#FF2993" name="Histórias" />
           <Bar dataKey="Bug" stackId="a" fill="#ef4444" name="Bugs" />
-          <Bar dataKey="Tarefa" stackId="a" fill="#9ca3af" name="Tarefas" />
-          <Bar dataKey="Spike" stackId="a" fill="#f59e0b" name="Spikes" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="Tarefa" stackId="a" fill="#2BBB92" name="Tarefas" />
+          <Bar dataKey="Spike" stackId="a" fill="#8B0CF6" name="Spikes" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

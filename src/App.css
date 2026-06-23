@@ -1,18 +1,35 @@
 :root {
+  /* ── Light surface tokens ── */
   --bg-color: #f4f5f7;
   --surface-color: #ffffff;
   --border-color: #e5e7eb;
   --text-main: #111827;
   --text-secondary: #4b5563;
   --text-muted: #9ca3af;
-  --primary: #4f46e5;
-  --primary-light: #e0e7ff;
+
+  /* ── Brand — Blite/Venice ── */
+  --primary: #FF2993;
+  --primary-hover: #E61F7A;
+  --primary-light: rgba(255, 41, 147, 0.10);
+  --brand-violet: #8B0CF6;
+  --brand-mint: #2BBB92;
+
+  /* ── Dark shell tokens (navbar + hero) ── */
+  --navy: #0A0F1A;
+  --navy-mid: #111B27;
+  --navy-surface: #1A2840;
+  --hero-gradient: linear-gradient(135deg, rgba(255,41,147,0.22) 0%, rgba(139,12,246,0.22) 100%);
+  --shadow-brand: 0 4px 14px 0 rgba(255, 41, 147, 0.25);
+
+  /* ── Feedback ── */
   --success: #10b981;
   --success-light: #d1fae5;
   --warning: #f59e0b;
   --warning-light: #fef3c7;
   --danger: #ef4444;
   --danger-light: #fee2e2;
+
+  /* ── Elevation ── */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
@@ -20,12 +37,12 @@
   --radius-lg: 16px;
   --radius-xl: 24px;
 
-  /* Glassmorphism & High End */
+  /* ── Glass ── */
   --glass-bg: rgba(255, 255, 255, 0.7);
   --glass-border: rgba(255, 255, 255, 0.5);
   --glass-blur: 12px;
-  
-  /* Matrix Specific */
+
+  /* ── Matrix ── */
   --matrix-cell-size: 55px;
   --matrix-bg-ok: rgba(16, 185, 129, 0.08);
   --matrix-bg-delayed: rgba(239, 68, 68, 0.08);
@@ -115,14 +132,14 @@ body {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary), #818cf8);
+  background: linear-gradient(135deg, var(--primary), var(--brand-violet));
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   font-weight: 600;
   font-size: 0.9rem;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-brand);
   cursor: pointer;
 }
 
@@ -197,6 +214,7 @@ body {
   justify-content: center;
 }
 
+.icon-pink { background: var(--primary-light); color: var(--primary); }
 .icon-blue { background: var(--primary-light); color: var(--primary); }
 .icon-green { background: var(--success-light); color: var(--success); }
 .icon-orange { background: var(--warning-light); color: var(--warning); }
