@@ -1,11 +1,10 @@
 name: Hourly Data Sync
 
 on:
-  schedule:
-    # A cada 30 min. Crons agendados do GitHub são best-effort (atrasam/pulam sob carga),
-    # então rodamos com folga; o header do painel ainda alerta se os dados ficarem velhos.
-    - cron: '*/30 * * * *'
-  workflow_dispatch: # Allows manual trigger
+  # A cadência de 30 min é garantida por um cron EXTERNO confiável (cron-job.org) que chama
+  # /api/trigger-sync, que dispara este workflow via workflow_dispatch. O schedule nativo do
+  # GitHub foi removido porque é best-effort (atrasa/pula) e geraria syncs redundantes.
+  workflow_dispatch: # disparo manual e via /api/trigger-sync (cron externo)
 
 jobs:
   sync:
