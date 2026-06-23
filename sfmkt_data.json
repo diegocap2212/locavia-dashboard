@@ -6,7 +6,7 @@
       "type": "História",
       "status": "1. Backlog",
       "statusCategory": "TODO",
-      "assignee": null,
+      "assignee": "Izaque Bernardo",
       "created": "2026-06-22T17:35:55.554-0300",
       "resolved": null,
       "sprint": null,
@@ -20,7 +20,7 @@
       "timeInTodoDays": null,
       "dq": {
         "missingResolutionDate": false,
-        "missingAssignee": true,
+        "missingAssignee": false,
         "noStatusTransitions": false,
         "noSprint": true,
         "staleTodo": false,
@@ -1327,7 +1327,7 @@
       }
     }
   ],
-  "synced_at": "2026-06-23T02:31:48.082Z",
+  "synced_at": "2026-06-23T03:01:50.479Z",
   "project": "SFMKT",
   "total_fetched": 47
 }
