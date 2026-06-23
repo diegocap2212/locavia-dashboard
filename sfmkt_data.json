@@ -1297,37 +1297,9 @@
         "suspiciouslyLongLead": true,
         "doneWithoutCycleData": false
       }
-    },
-    {
-      "key": "SFMKT-12",
-      "summary": "[Migração Marketing Cloud] Estruturação Base de Dados no Marketing Cloud",
-      "type": "História",
-      "status": "1. Backlog",
-      "statusCategory": "TODO",
-      "assignee": "Gabriela Reis Braga",
-      "created": "2026-02-23T13:18:55.558-0300",
-      "resolved": null,
-      "sprint": null,
-      "sprintId": null,
-      "sprintState": null,
-      "storyPoints": null,
-      "priority": "Medium",
-      "labels": [],
-      "leadTimeDays": null,
-      "cycleTimeDays": null,
-      "timeInTodoDays": null,
-      "dq": {
-        "missingResolutionDate": false,
-        "missingAssignee": false,
-        "noStatusTransitions": false,
-        "noSprint": true,
-        "staleTodo": true,
-        "suspiciouslyLongLead": false,
-        "doneWithoutCycleData": false
-      }
     }
   ],
-  "synced_at": "2026-06-23T16:02:24.715Z",
+  "synced_at": "2026-06-23T16:32:30.712Z",
   "project": "SFMKT",
-  "total_fetched": 47
+  "total_fetched": 46
 }
