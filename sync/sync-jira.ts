@@ -2,9 +2,13 @@ import 'dotenv/config';
 import fs from 'fs/promises';
 import path from 'path';
 import { z } from 'zod';
+import { put } from '@vercel/blob';
 import { JiraClient } from './jira-client';
 import { mapJiraIssueToDashboardItem } from './field-mapper';
 import { calculateMetrics } from './metrics-calculator';
+
+// Pathname fixo do dataset no Vercel Blob (privado). /api/data lê por este mesmo nome.
+const BLOB_PATHNAME = 'jira-data.json';
 
 // Schema mínimo de sanidade do item normalizado — barra gravar lixo por cima de dado bom.
 const ItemSchema = z.object({
@@ -75,23 +79,32 @@ async function main() {
     // Validação de schema: se os itens normalizados não baterem, ABORTA (não sobrescreve dado bom).
     const parsed = z.array(ItemSchema).safeParse(dashboardItems);
     if (!parsed.success) {
-      console.error("❌ ERRO: dados normalizados inválidos — sync abortado para não corromper data.json.");
+      console.error("❌ ERRO: dados normalizados inválidos — sync abortado para não corromper o dataset.");
       console.error(parsed.error.issues.slice(0, 5));
       process.exit(1);
     }
 
-    // Save to data.json (escrita atômica)
-    const outputPath = path.resolve(process.cwd(), 'src/data.json');
-    await writeAtomic(outputPath, JSON.stringify(dashboardItems, null, 2));
+    const syncedAt = new Date().toISOString();
 
-    // Grava o timestamp real desta sincronização. O header dos dashboards de SM
-    // lê este valor (em vez de inferir a "frescura" a partir de uma issue qualquer),
-    // e ele também serve de heartbeat: se travar em produção enquanto o git mostra
-    // novos commits de sync, é sinal de que o Vercel não está redeployando.
+    // ── Nível 3: o dataset (≈5MB) vive no Vercel Blob (privado), não mais no git. ──
+    // /api/data lê este blob server-side e entrega só com sessão. Sem churn de 5MB no repo.
+    if (!process.env.BLOB_READ_WRITE_TOKEN) {
+      console.error("❌ ERRO: BLOB_READ_WRITE_TOKEN ausente — não dá para gravar o dataset no Blob.");
+      process.exit(1);
+    }
+    await put(BLOB_PATHNAME, JSON.stringify({ items: dashboardItems, syncedAt }), {
+      access: 'private',
+      addRandomSuffix: false,
+      allowOverwrite: true,
+      contentType: 'application/json',
+    });
+    console.log(`☁️  Dataset gravado no Blob (${BLOB_PATHNAME}): ${dashboardItems.length} itens.`);
+
+    // Timestamp do sync (tiny) — mantém o header dos SMs e serve de heartbeat.
     const metaPath = path.resolve(process.cwd(), 'src/data-meta.json');
-    await writeAtomic(metaPath, JSON.stringify({ syncedAt: new Date().toISOString() }, null, 2));
+    await writeAtomic(metaPath, JSON.stringify({ syncedAt }, null, 2));
 
-    console.log(`✅ Sucesso! ${dashboardItems.length} itens salvos em src/data.json`);
+    console.log(`✅ Sucesso! ${dashboardItems.length} itens sincronizados.`);
     
   } catch (error) {
     console.error("ERRO durante a sincronização:", error);

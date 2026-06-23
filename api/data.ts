@@ -1,10 +1,13 @@
-// Endpoint autenticado que serve o dataset do Jira. Antes o data.json era importado no client
-// (ia no bundle público → qualquer um baixava tudo sem login). Agora ele vive SÓ no bundle
-// server-side desta function e só é entregue com sessão válida.
+// Endpoint autenticado que serve o dataset do Jira.
+// Nível 3: o dataset (~5MB) vive no Vercel Blob (privado) — gravado pelo sync. Este endpoint
+// lê o blob server-side e entrega só com sessão. Mantém um fallback para o src/data.json
+// congelado (último commitado) caso o blob falhe/ainda não exista.
 import crypto from 'crypto';
-// Node ESM (runtime do Vercel) exige atributo de import para JSON.
-import data from '../src/data.json' with { type: 'json' };
-import meta from '../src/data-meta.json' with { type: 'json' };
+import { get } from '@vercel/blob';
+import fallbackData from '../src/data.json' with { type: 'json' };
+import fallbackMeta from '../src/data-meta.json' with { type: 'json' };
+
+const BLOB_PATHNAME = 'jira-data.json';
 
 // ── Sessão (inline; a Vercel não empacota imports relativos entre functions) ──
 const SESSION_COOKIE = 'dash_session';
@@ -34,7 +37,6 @@ function parseCookie(header: string | undefined, name: string): string | null {
   }
   return null;
 }
-// Sem gate configurado (dev) → libera, pra não travar o fluxo local.
 function isAuthed(req: any): boolean {
   const secret = process.env.SESSION_SECRET || '';
   if (!secret || !process.env.DASHBOARD_PASSWORD) return true;
@@ -43,9 +45,22 @@ function isAuthed(req: any): boolean {
 }
 // ─────────────────────────────────────────────────────────────────────────────
 
-const syncedAt = (meta as { syncedAt?: string }).syncedAt || null;
-// ETag estável por sync — permite 304 e evita reenviar ~5MB sem mudança.
-const etag = `W/"data-${syncedAt || 'na'}"`;
+interface Dataset { items: unknown[]; syncedAt: string | null }
+
+async function loadFromBlob(): Promise<Dataset | null> {
+  try {
+    const res = await get(BLOB_PATHNAME, { access: 'private' });
+    if (!res || res.statusCode !== 200) return null;
+    const text = await new Response(res.stream).text();
+    const parsed = JSON.parse(text);
+    if (Array.isArray(parsed?.items)) return { items: parsed.items, syncedAt: parsed.syncedAt ?? null };
+    if (Array.isArray(parsed)) return { items: parsed, syncedAt: null };
+    return null;
+  } catch (e) {
+    console.error('Blob read falhou, usando fallback:', e);
+    return null;
+  }
+}
 
 export default async function handler(req: any, res: any) {
   if (req.method !== 'GET') {
@@ -56,11 +71,18 @@ export default async function handler(req: any, res: any) {
     return res.status(401).json({ error: 'Não autenticado.' });
   }
 
+  const blob = await loadFromBlob();
+  const dataset: Dataset = blob ?? {
+    items: fallbackData as unknown[],
+    syncedAt: (fallbackMeta as { syncedAt?: string }).syncedAt ?? null,
+  };
+
+  const etag = `W/"data-${dataset.syncedAt || 'fallback'}-${dataset.items.length}"`;
   res.setHeader('Cache-Control', 'private, max-age=0, must-revalidate');
   res.setHeader('ETag', etag);
   if (req.headers?.['if-none-match'] === etag) {
     return res.status(304).end();
   }
 
-  return res.status(200).json({ items: data, syncedAt });
+  return res.status(200).json(dataset);
 }
