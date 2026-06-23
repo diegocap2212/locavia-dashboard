@@ -2,8 +2,9 @@
 // (ia no bundle público → qualquer um baixava tudo sem login). Agora ele vive SÓ no bundle
 // server-side desta function e só é entregue com sessão válida.
 import crypto from 'crypto';
-import data from '../src/data.json';
-import meta from '../src/data-meta.json';
+// Node ESM (runtime do Vercel) exige atributo de import para JSON.
+import data from '../src/data.json' with { type: 'json' };
+import meta from '../src/data-meta.json' with { type: 'json' };
 
 // ── Sessão (inline; a Vercel não empacota imports relativos entre functions) ──
 const SESSION_COOKIE = 'dash_session';
