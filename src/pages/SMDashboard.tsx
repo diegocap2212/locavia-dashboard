@@ -14,30 +14,37 @@ import { LeadTimeHistogram } from '../components/LeadCycleTimeHistogram';
 import { MetricCommentEditor } from '../components/MetricCommentEditor';
 import { PointsVelocityChart } from '../components/PointsVelocityChart';
 import { PointsCommittedVsDeliveredChart } from '../components/PointsCommittedVsDeliveredChart';
-import { getSemanas, getAutomaticActiveSemana, getSemanaById, semanaIdForDate } from '../config/semanas';
-import { regroupFlow, regroupCFD, GRANULARITY_LABEL, type Granularity } from '../lib/timeBuckets';
+import { getAutomaticActiveSemana, getSemanaById, semanaIdForDate } from '../config/semanas';
 import { RefreshButton } from '../components/RefreshButton';
 import { CheckCircle2, Clock, Activity, Layers, Loader2, TrendingUp, Gauge, Download } from 'lucide-react';
 import { format } from 'date-fns';
-import { DateRangeFilter } from '../components/DateRangeFilter';
 import { getComments, exportComments } from '../services/commentsService';
 import PageHero from '../components/PageHero';
 import Tabs from '../components/Tabs';
+import NavDropdown from '../components/NavDropdown';
 import dataMeta from '../data-meta.json';
 
 interface Props {
   smConfig: SMConfig;
 }
 
-/* pills claras para os controles sobre o hero escuro — legíveis abertas e fechadas */
-const darkSelectWrap: React.CSSProperties = {
-  display: 'flex', background: '#fff', borderRadius: 8,
-  border: '1px solid rgba(255,255,255,0.25)', boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+/* input de data escuro para o range customizado sobre o hero */
+const darkDateInput: React.CSSProperties = {
+  background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.16)',
+  borderRadius: 8, color: '#fff', fontSize: '0.8rem', fontWeight: 600,
+  padding: '6px 10px', outline: 'none', colorScheme: 'dark',
 };
-const darkSelect: React.CSSProperties = {
-  background: 'transparent', border: 'none', color: 'var(--text-main)', fontSize: '0.82rem',
-  fontWeight: 600, padding: '7px 10px', cursor: 'pointer', outline: 'none',
-};
+
+/* presets de período (range único) */
+const PERIOD_PRESETS = [
+  { id: '4w', label: 'Últimas 4 semanas', weeks: 4 },
+  { id: '8w', label: 'Últimas 8 semanas', weeks: 8 },
+  { id: '12w', label: 'Últimas 12 semanas', weeks: 12 },
+  { id: '24w', label: 'Últimas 24 semanas', weeks: 24 },
+  { id: 'all', label: 'Todo o histórico', weeks: 0 },
+  { id: 'custom', label: 'Personalizado…', weeks: -1 },
+];
+const toISO = (ms: number) => new Date(ms).toISOString().slice(0, 10);
 
 /* card branded de gráfico — substitui os divs repetidos bg-white */
 const ChartCard: React.FC<{ title: string; subtitle?: string; height?: number; children: React.ReactNode }> = ({ title, subtitle, height = 420, children }) => (
@@ -57,30 +64,37 @@ const TABS = [
 
 export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
   const [selectedTeam, setSelectedTeam] = useState<string>('ALL');
+  const [selectedRelease, setSelectedRelease] = useState<string>('ALL');
+  const [periodPreset, setPeriodPreset] = useState<string>('8w');
   const [customStartDateStr, setCustomStartDateStr] = useState<string>('');
   const [customEndDateStr, setCustomEndDateStr] = useState<string>('');
-  const [selectedRelease, setSelectedRelease] = useState<string>('ALL');
-  const [selectedSemanaId, setSelectedSemanaId] = useState<string>(() => getAutomaticActiveSemana());
-  const [granularity, setGranularity] = useState<Granularity>('semana');
   const [activeTab, setActiveTab] = useState<string>('fluxo');
   // "Agora" capturado uma vez no mount (inicializador lazy — sem Date.now() no corpo do render).
   const [nowMs] = useState(() => Date.now());
 
-  // Cadência semanal: a semana escolhida define a análise E a janela dos gráficos
-  // (semana + CONTEXT_WEEKS-1 anteriores, para dar contexto de tendência).
-  const CONTEXT_WEEKS = 8;
-  const semanas = getSemanas();
-  const activeSemana = selectedSemanaId !== 'CUSTOM' ? getSemanaById(selectedSemanaId) : undefined;
-  const selIdx = semanas.findIndex(s => s.id === selectedSemanaId);
-  const windowStart = selIdx >= 0 ? semanas[Math.max(0, selIdx - (CONTEXT_WEEKS - 1))].startDate : undefined;
-  const customStart = selectedSemanaId === 'CUSTOM' ? customStartDateStr : windowStart;
-  const customEnd = selectedSemanaId === 'CUSTOM' ? customEndDateStr : activeSemana?.endDate;
+  // ── Período: UM range único (presets ou custom) alimenta a janela dos gráficos e os KPIs ──
+  const preset = PERIOD_PRESETS.find(p => p.id === periodPreset) ?? PERIOD_PRESETS[1];
+  let customStart: string | undefined;
+  let customEnd: string | undefined;
+  if (periodPreset === 'custom') {
+    customStart = customStartDateStr || undefined;
+    customEnd = customEndDateStr || undefined;
+  } else if (preset.weeks === 0) {
+    customStart = '2024-01-01';
+    customEnd = toISO(nowMs);
+  } else {
+    customStart = toISO(nowMs - preset.weeks * 7 * 86400000);
+    customEnd = toISO(nowMs);
+  }
 
-  // Semana à qual a análise/comentário fica atrelada (sempre real, mesmo em modo custom).
-  const analysisWeekId = selectedSemanaId !== 'CUSTOM'
-    ? selectedSemanaId
-    : (customEndDateStr ? semanaIdForDate(customEndDateStr) : getAutomaticActiveSemana());
+  // Decisão LM: a análise (comentário) ancora na SEMANA em que o range TERMINA — mantém o
+  // log semanal e o hash v3_semana sem migração. O range só controla os gráficos.
+  const anchorEnd = customEnd || toISO(nowMs);
+  const analysisWeekId = semanaIdForDate(anchorEnd) || getAutomaticActiveSemana();
   const analysisWeekLabel = getSemanaById(analysisWeekId)?.label;
+  const periodLabel = periodPreset === 'custom'
+    ? (customStart && customEnd ? `${customStart} → ${customEnd}` : 'Personalizado…')
+    : preset.label;
 
   const { data, loading, error, availableReleases } = useSMDashboardData(
     smConfig,
@@ -113,17 +127,13 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
   }
 
   const { items, kpis, weeks, weeklyFlowData, cfdData, cfdCoverage, issueTypeBreakdown, leadTimeHistogram } = data;
-  // Re-agrega as séries semanais conforme a granularidade (funções puras — sem hooks).
-  const flowForCharts = regroupFlow(weeklyFlowData, granularity);
-  const cfdForCharts = regroupCFD(cfdData, granularity);
-  const gLabel = GRANULARITY_LABEL[granularity];
+  // Charts sempre em cadência semanal (a "Visão"/granularidade foi removida).
+  const flowForCharts = weeklyFlowData;
+  const cfdForCharts = cfdData;
 
-  // Throughput e Lead Time são da SEMANA selecionada (último bucket da janela).
-  const selWeekData =
-    weeklyFlowData.find(w => format(w.weekStart, 'yyyy-MM-dd') === analysisWeekId)
-    ?? weeklyFlowData[weeklyFlowData.length - 1];
-  const weekThroughput = selWeekData?.throughput ?? 0;
-  const weekLeadTime = selWeekData?.leadTimeAvg ?? null;
+  // KPIs refletem o PERÍODO selecionado (throughput/leadTime do range; WIP/A Fazer = agora).
+  const weekThroughput = kpis.throughput;
+  const weekLeadTime = kpis.leadTimeAvg;
   // Hora real do último sync (gravada por sync/sync-jira.ts em src/data-meta.json).
   const syncedAt = new Date((dataMeta as { syncedAt: string }).syncedAt);
   const hoursSinceSync = (nowMs - syncedAt.getTime()) / (1000 * 60 * 60);
@@ -172,55 +182,59 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
     <>
       <PageHero eyebrow="Agilista · LM" title={`Dashboard — ${smConfig.name}`} subtitle={subtitle} leading={avatar}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem', alignItems: 'center' }}>
-          <div style={darkSelectWrap}>
-            <select style={darkSelect} value={selectedTeam}
-              onChange={(e) => { setSelectedTeam(e.target.value); setSelectedRelease('ALL'); }} title="Time / squad">
-              <option value="ALL">Time: Visão Geral</option>
-              {smConfig.teams.map(t => <option key={t.carCode} value={t.carCode}>{t.displayName}</option>)}
-            </select>
-          </div>
-
-          {availableReleases && availableReleases.length > 1 && (
-            <div style={darkSelectWrap}>
-              <select style={darkSelect} value={selectedRelease} onChange={(e) => setSelectedRelease(e.target.value)}>
-                {availableReleases.map(rel => (
-                  <option key={rel} value={rel}>{rel === 'ALL' ? 'Todas as Releases' : `Release: ${rel}`}</option>
-                ))}
-              </select>
-            </div>
+          {/* Período — range único (presets + custom) */}
+          <NavDropdown
+            variant="control"
+            menuMinWidth={200}
+            label={`Período: ${periodLabel}`}
+            items={PERIOD_PRESETS.map(p => ({
+              id: p.id, label: p.label, active: periodPreset === p.id,
+              onSelect: () => setPeriodPreset(p.id),
+            }))}
+          />
+          {periodPreset === 'custom' && (
+            <>
+              <input type="date" style={darkDateInput} value={customStartDateStr}
+                onChange={e => setCustomStartDateStr(e.target.value)} title="Início" />
+              <input type="date" style={darkDateInput} value={customEndDateStr}
+                onChange={e => setCustomEndDateStr(e.target.value)} title="Fim" />
+            </>
           )}
 
-          <div style={darkSelectWrap}>
-            <select style={darkSelect} value={selectedSemanaId} onChange={(e) => setSelectedSemanaId(e.target.value)}
-              title="Semana de análise — define o comentário e a janela dos gráficos">
-              <option value="CUSTOM">Período Customizado (Dias)</option>
-              {getSemanas().map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
-            </select>
-          </div>
+          {/* Time */}
+          <NavDropdown
+            variant="control"
+            label={selectedTeam === 'ALL' ? 'Time: Visão Geral' : `Time: ${smConfig.teams.find(t => t.carCode === selectedTeam)?.displayName ?? selectedTeam}`}
+            items={[
+              { id: 'ALL', label: 'Visão Geral', active: selectedTeam === 'ALL', onSelect: () => { setSelectedTeam('ALL'); setSelectedRelease('ALL'); } },
+              ...smConfig.teams.map(t => ({
+                id: t.carCode, label: t.displayName, active: selectedTeam === t.carCode,
+                onSelect: () => { setSelectedTeam(t.carCode); setSelectedRelease('ALL'); },
+              })),
+            ]}
+          />
 
-          <div style={darkSelectWrap}>
-            <select style={darkSelect} value={granularity} onChange={(e) => setGranularity(e.target.value as Granularity)}
-              title="Granularidade dos gráficos temporais">
-              <option value="semana">Visão: Semanal</option>
-              <option value="quinzena">Visão: Quinzenal</option>
-              <option value="mes">Visão: Mensal</option>
-            </select>
-          </div>
-
-          {selectedSemanaId === 'CUSTOM' && (
-            <div style={{ ...darkSelectWrap, padding: '0 6px' }}>
-              <DateRangeFilter
-                startDate={customStartDateStr} endDate={customEndDateStr}
-                onStartDateChange={setCustomStartDateStr} onEndDateChange={setCustomEndDateStr}
-              />
-            </div>
+          {/* Release */}
+          {availableReleases && availableReleases.length > 1 && (
+            <NavDropdown
+              variant="control"
+              label={selectedRelease === 'ALL' ? 'Todas as Releases' : `Release: ${selectedRelease}`}
+              items={availableReleases.map(rel => ({
+                id: rel, label: rel === 'ALL' ? 'Todas as Releases' : rel, active: selectedRelease === rel,
+                onSelect: () => setSelectedRelease(rel),
+              }))}
+            />
           )}
 
           <RefreshButton />
 
           <button
             onClick={async () => exportComments(await getComments())}
-            style={{ ...darkSelect, ...darkSelectWrap, display: 'inline-flex', alignItems: 'center', gap: 6 }}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6, color: '#fff',
+              background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.16)',
+              borderRadius: 8, padding: '7px 12px', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600,
+            }}
             title="Exportar todas as análises qualitativas"
           >
             <Download size={13} /> Exportar Análises
@@ -231,15 +245,15 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
       <div style={{ maxWidth: 1500, margin: '0 auto', padding: '2rem 2.5rem' }}>
         {/* Placar de KPIs consolidado */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: '1rem', marginBottom: '0.75rem' }}>
-          <KPICard title="Throughput" value={weekThroughput} subtext={`entregas · ${analysisWeekLabel ?? 'semana'}`} icon={CheckCircle2} accent="#FF2993" />
-          <KPICard title="Lead Time" value={weekLeadTime !== null ? `${weekLeadTime}d` : '—'} subtext={`média · ${analysisWeekLabel ?? 'semana'}`} icon={Clock} accent="#F59E0B" />
+          <KPICard title="Throughput" value={weekThroughput} subtext="entregas no período" icon={CheckCircle2} accent="#FF2993" />
+          <KPICard title="Lead Time" value={weekLeadTime !== null ? `${weekLeadTime}d` : '—'} subtext="média no período" icon={Clock} accent="#F59E0B" />
           <KPICard title="WIP" value={kpis.wip} subtext="em andamento agora" icon={Activity} accent="#8B0CF6" />
           <KPICard title="A Fazer" value={kpis.aFazer} subtext="backlog restante hoje" icon={Layers} accent="#94A3B8" />
           <KPICard title="Pontos Entregues" value={kpis.pointsDelivered} subtext="no período" icon={TrendingUp} accent="#2BBB92" />
           <KPICard title="Aderência" value={aderencia} subtext="entregue / comprometido" icon={Gauge} accent="#FF2993" />
         </div>
         <p style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
-          <strong>Throughput</strong> e <strong>Lead Time</strong> referem-se à semana selecionada; <strong>WIP</strong> e <strong>A Fazer</strong> são o estado atual.
+          <strong>Throughput</strong>, <strong>Lead Time</strong> e <strong>Pontos</strong> referem-se ao período selecionado; <strong>WIP</strong> e <strong>A Fazer</strong> são o estado atual. A análise é registrada na semana de <strong>{analysisWeekLabel ?? '—'}</strong>.
         </p>
 
         <Tabs tabs={TABS} active={activeTab} onChange={setActiveTab} />
@@ -248,15 +262,15 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
         {activeTab === 'fluxo' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1.5rem' }}>
-              <ChartCard title={`Vazão · ${gLabel}`} subtitle="Entregas (throughput) por tipo de item">
+              <ChartCard title="Vazão" subtitle="Entregas (throughput) por tipo de item, por semana">
                 <VazaoTrendChart data={flowForCharts} />
               </ChartCard>
-              <ChartCard title={`Velocidade · ${gLabel}`} subtitle="Story points concluídos por período">
+              <ChartCard title="Velocidade" subtitle="Story points concluídos por semana">
                 <PointsVelocityChart data={weeks} />
               </ChartCard>
             </div>
 
-            <ChartCard title="Fluxo Acumulado (CFD)" subtitle={`Itens por status ao longo do tempo (${gLabel.toLowerCase()}): A Fazer · Em andamento · Concluído`} height={450}>
+            <ChartCard title="Fluxo Acumulado (CFD)" subtitle="Itens por status ao longo do tempo: A Fazer · Em andamento · Concluído" height={450}>
               <CFDChart data={cfdForCharts} coverage={cfdCoverage} />
             </ChartCard>
 
@@ -290,7 +304,7 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
         {activeTab === 'leadtime' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1.5rem' }}>
-              <ChartCard title={`Lead Time · ${gLabel}`} subtitle="Tempo médio Criado → Resolvido (dias)" height={450}>
+              <ChartCard title="Lead Time" subtitle="Tempo médio Criado → Resolvido (dias), por semana" height={450}>
                 <LeadTimeTrendChart data={flowForCharts} />
               </ChartCard>
               <ChartCard title="Distribuição do Lead Time" subtitle="Histograma de dispersão (rápido → lento)" height={450}>
