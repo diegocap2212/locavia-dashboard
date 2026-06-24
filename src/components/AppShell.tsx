@@ -142,22 +142,6 @@ const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         flexShrink: 0,
         zIndex: 200,
       }}>
-        {/* Brand mark */}
-        <button
-          onClick={() => navigate('/')}
-          aria-label="Início"
-          title="Venice"
-          style={{
-            width: 40, height: 40, borderRadius: 11, border: 'none', cursor: 'pointer',
-            background: 'linear-gradient(135deg, #2BBB92, #8B0CF6)',
-            color: '#fff', fontWeight: 800, fontSize: '1.05rem', letterSpacing: '-0.02em',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 4px 14px 0 rgba(43,187,146,0.35)', marginBottom: '0.4rem',
-          }}
-        >
-          V
-        </button>
-
         <RailItem icon={Rocket} label="Releases" active={isHome} onClick={() => navigate('/')} />
         <RailItem
           icon={Users}
@@ -198,7 +182,7 @@ const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}
             aria-label="Início · Venice"
           >
-            <VeniceBadge size="md" />
+            <VeniceBadge height={24} />
           </button>
 
           <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
