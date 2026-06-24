@@ -23,8 +23,8 @@ export const AuthGate: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
   if (state === 'loading') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--navy)' }}>
+        <Loader2 className="w-10 h-10 animate-spin" style={{ color: 'var(--primary)' }} />
       </div>
     );
   }

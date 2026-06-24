@@ -109,15 +109,15 @@ const Home: React.FC = () => {
                   style={{
                     display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
                     padding: '5px 14px', borderRadius: 999,
-                    border: `1px solid ${active ? '#FF2993' : 'rgba(255,255,255,0.12)'}`,
+                    border: `1px solid ${active ? '#2BBB92' : 'rgba(255,255,255,0.12)'}`,
                     cursor: 'pointer', fontWeight: 700, fontSize: '0.78rem', letterSpacing: '0.03em',
                     transition: 'all 0.15s',
-                    background: active ? 'linear-gradient(92deg, rgba(255,41,147,0.28), rgba(139,12,246,0.28))' : 'rgba(255,255,255,0.05)',
+                    background: active ? 'linear-gradient(92deg, rgba(43,187,146,0.28), rgba(139,12,246,0.28))' : 'rgba(255,255,255,0.05)',
                     color: active ? '#fff' : 'rgba(255,255,255,0.6)',
-                    boxShadow: active ? '0 0 0 1px rgba(255,41,147,0.5), 0 6px 18px -8px rgba(255,41,147,0.7)' : 'none',
+                    boxShadow: active ? '0 0 0 1px rgba(43,187,146,0.5), 0 6px 18px -8px rgba(43,187,146,0.7)' : 'none',
                   }}
                 >
-                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: active ? '#FF2993' : 'rgba(255,255,255,0.3)', display: 'inline-block' }} />
+                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: active ? '#2BBB92' : 'rgba(255,255,255,0.3)', display: 'inline-block' }} />
                   {r.releaseId}
                 </button>
               );
@@ -137,10 +137,10 @@ const Home: React.FC = () => {
               {/* Legend */}
               <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', padding: '0.5rem 0.25rem 0.5rem' }}>
                 {[
-                  { color: '#FF2993', dash: false, label: 'Realizado (a fazer hoje)' },
+                  { color: '#2BBB92', dash: false, label: 'Realizado (a fazer hoje)' },
                   { color: '#FFFFFF', dash: true,  label: 'Cenário otimista (P85)' },
                   { color: '#A052FF', dash: true,  label: 'Cenário pessimista (P15)' },
-                  { color: 'linear-gradient(90deg,rgba(255,41,147,0.55),rgba(139,12,246,0.18))', dash: false, label: 'Faixa de incerteza', band: true },
+                  { color: 'linear-gradient(90deg,rgba(43,187,146,0.55),rgba(139,12,246,0.18))', dash: false, label: 'Faixa de incerteza', band: true },
                 ].map(({ color, dash, label, band }) => (
                   <span key={label} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.76rem', color: 'rgba(255,255,255,0.6)' }}>
                     {band
@@ -173,7 +173,7 @@ const Home: React.FC = () => {
                 fontWeight: 700, fontSize: '0.88rem', padding: '0.8rem 1.3rem',
                 transition: 'all 0.15s', marginTop: '0.75rem',
               }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#FF2993'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 8px 22px -10px rgba(255,41,147,0.8)'; }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#2BBB92'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 8px 22px -10px rgba(43,187,146,0.8)'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--navy-surface)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = 'none'; }}
             >
               <ExternalLink size={15} /> Ver métricas de fluxo de <strong>{selectedId}</strong>
@@ -196,7 +196,7 @@ const Home: React.FC = () => {
                   label: 'Escopo',
                   value: `${rc.summary.done}/${rc.summary.total}`,
                   sub: `${rc.summary.remaining} restantes`,
-                  accent: '#FF2993',
+                  accent: '#2BBB92',
                 },
                 {
                   label: 'Velocidade (otimista)',

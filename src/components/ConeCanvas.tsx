@@ -143,7 +143,7 @@ function drawCone(
     }
 
     const grad = ctx.createLinearGradient(todayX, 0, p15EndX, 0);
-    grad.addColorStop(0, `rgba(255,41,147,${0.42 * bandAlpha})`);
+    grad.addColorStop(0, `rgba(43,187,146,${0.42 * bandAlpha})`);
     grad.addColorStop(0.5, `rgba(139,12,246,${0.22 * bandAlpha})`);
     grad.addColorStop(1, `rgba(139,12,246,0)`);
     ctx.fillStyle = grad;
@@ -217,9 +217,9 @@ function drawCone(
   const reveal = Math.min(p / 0.6, 1);
   const shown = Math.max(1, Math.floor(pastIdxs.length * reveal));
   ctx.save();
-  ctx.shadowColor = 'rgba(255,41,147,0.6)';
+  ctx.shadowColor = 'rgba(43,187,146,0.6)';
   ctx.shadowBlur = 14;
-  ctx.strokeStyle = '#FF2993';
+  ctx.strokeStyle = '#2BBB92';
   ctx.lineWidth = 3;
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
@@ -239,7 +239,7 @@ function drawCone(
     ctx.globalAlpha = markerAlpha;
 
     ctx.setLineDash([2, 3]);
-    ctx.strokeStyle = 'rgba(255,41,147,0.45)';
+    ctx.strokeStyle = 'rgba(43,187,146,0.45)';
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(todayX, padT);
@@ -247,7 +247,7 @@ function drawCone(
     ctx.stroke();
     ctx.setLineDash([]);
 
-    ctx.fillStyle = '#FF2993';
+    ctx.fillStyle = '#2BBB92';
     ctx.beginPath();
     ctx.arc(todayX, todayY, 4.5, 0, Math.PI * 2);
     ctx.fill();
@@ -262,7 +262,7 @@ function drawCone(
       d ? d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }) : '—';
 
     if (summary.remaining > 0) {
-      pill(ctx, todayX - 10, todayY - 6, `faltam ${summary.remaining}`, '#FF2993', 'end', W, H);
+      pill(ctx, todayX - 10, todayY - 6, `faltam ${summary.remaining}`, '#2BBB92', 'end', W, H);
 
       if (summary.confident) {
         // Faixa de incerteza significativa: dois extremos com linguagem clara.

@@ -83,7 +83,7 @@ const ReleaseDetail: React.FC = () => {
           <>
             {/* Placar de KPIs */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.75rem' }}>
-              <KPICard title="Escopo Total" value={metrics.totalItems} subtext="itens no escopo" icon={Users} accent="#FF2993" />
+              <KPICard title="Escopo Total" value={metrics.totalItems} subtext="itens no escopo" icon={Users} accent="#2BBB92" />
               <KPICard title="Entregas" value={metrics.deliveredCount} subtext="concluídas" icon={CheckCircle2} accent="#2BBB92" />
               <KPICard title="WIP" value={metrics.wipCount} subtext="em desenvolvimento" icon={Activity} accent="#8B0CF6" />
               <KPICard title="Lead Time" value={`${metrics.avgLeadTime}d`} subtext="criado → resolvido" icon={Clock} accent="#F59E0B" />

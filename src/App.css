@@ -7,10 +7,10 @@
   --text-secondary: #4b5563;
   --text-muted: #9ca3af;
 
-  /* ── Brand — Blite/Venice ── */
-  --primary: #FF2993;
-  --primary-hover: #E61F7A;
-  --primary-light: rgba(255, 41, 147, 0.10);
+  /* ── Brand — Venice (verde) ── */
+  --primary: #2BBB92;
+  --primary-hover: #1FA37D;
+  --primary-light: rgba(43, 187, 146, 0.10);
   --brand-violet: #8B0CF6;
   --brand-mint: #2BBB92;
 
@@ -18,8 +18,8 @@
   --navy: #0A0F1A;
   --navy-mid: #111B27;
   --navy-surface: #1A2840;
-  --hero-gradient: linear-gradient(135deg, rgba(255,41,147,0.22) 0%, rgba(139,12,246,0.22) 100%);
-  --shadow-brand: 0 4px 14px 0 rgba(255, 41, 147, 0.25);
+  --hero-gradient: linear-gradient(135deg, rgba(43,187,146,0.22) 0%, rgba(139,12,246,0.20) 100%);
+  --shadow-brand: 0 4px 14px 0 rgba(43, 187, 146, 0.28);
 
   /* ── Feedback ── */
   --success: #10b981;

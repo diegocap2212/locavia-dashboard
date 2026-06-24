@@ -4,11 +4,13 @@ import { ArrowLeft, Users, CheckCircle2, Activity, Clock, ChevronRight } from 'l
 import { useTeamReleaseData } from '../hooks/useTeamReleaseData';
 import { KPICard } from '../components/KPICard';
 import PageHero from '../components/PageHero';
+import { teamLabel } from '../config/teamLabels';
 
 const TeamDetail: React.FC = () => {
   const { teamId } = useParams<{ teamId: string }>();
   const navigate = useNavigate();
   const teamName = decodeURIComponent(teamId ?? '');
+  const teamDisplay = teamLabel(teamName);
 
   const { totals, releases, loading } = useTeamReleaseData(teamName);
 
@@ -31,7 +33,7 @@ const TeamDetail: React.FC = () => {
     <>
       <PageHero
         eyebrow="Time · LM"
-        title={teamName}
+        title={teamDisplay}
         subtitle="Entregas do time, organizadas por release"
         leading={backButton}
       />
@@ -41,13 +43,13 @@ const TeamDetail: React.FC = () => {
           <div style={{ padding: '4rem', textAlign: 'center', color: 'var(--text-muted)' }}>Carregando...</div>
         ) : totals.total === 0 ? (
           <div style={{ padding: '4rem 2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-            Nenhum item encontrado para o time <strong>{teamName}</strong>.
+            Nenhum item encontrado para o time <strong>{teamDisplay}</strong>.
           </div>
         ) : (
           <>
             {/* Placar do time */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-              <KPICard title="Escopo Total" value={totals.total} subtext="itens do time" icon={Users} accent="#FF2993" />
+              <KPICard title="Escopo Total" value={totals.total} subtext="itens do time" icon={Users} accent="#2BBB92" />
               <KPICard title="Entregues" value={totals.delivered} subtext="concluídos" icon={CheckCircle2} accent="#2BBB92" />
               <KPICard title="WIP" value={totals.wip} subtext="em andamento" icon={Activity} accent="#8B0CF6" />
               <KPICard title="Lead Time" value={`${totals.avgLeadTime.toFixed(1)}d`} subtext="criado → resolvido" icon={Clock} accent="#F59E0B" />

@@ -1,10 +1,10 @@
 /**
- * Paleta central dos gráficos — marca Blite/Venice.
+ * Paleta central dos gráficos — marca Venice.
  * Substitui os hex hard-coded espalhados pelos componentes de chart.
  * Mantém a semântica de feedback (vermelho = risco, âmbar = andamento).
  */
 // Paleta TRADICIONAL para as séries dos gráficos (azul/verde/âmbar/vermelho/cinza).
-// O magenta da marca fica reservado para o Cone/hero — aqui é só sotaque pontual.
+// O verde da marca (Venice) fica reservado para o Cone/hero — aqui é só sotaque pontual.
 export const CHART = {
   primary: '#3B82F6', // série principal — azul tradicional
   violet: '#8B5CF6',  // pontos/velocidade — violet tradicional

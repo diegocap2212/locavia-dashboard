@@ -145,10 +145,10 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
   const avatar = (
     <div style={{
       width: 44, height: 44, borderRadius: 12,
-      background: 'linear-gradient(135deg, #FF2993, #8B0CF6)',
+      background: 'linear-gradient(135deg, #2BBB92, #8B0CF6)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       color: '#fff', fontWeight: 700, fontSize: '0.95rem', letterSpacing: '0.02em',
-      boxShadow: '0 4px 14px 0 rgba(255,41,147,0.35)',
+      boxShadow: '0 4px 14px 0 rgba(43,187,146,0.35)',
     }}>
       {smConfig.avatar}
     </div>
@@ -232,12 +232,12 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
       <div style={{ maxWidth: 1500, margin: '0 auto', padding: '2rem 2.5rem' }}>
         {/* Placar de KPIs consolidado */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: '1rem', marginBottom: '0.75rem' }}>
-          <KPICard title="Throughput" value={weekThroughput} subtext="entregas no período" icon={CheckCircle2} accent="#FF2993" />
+          <KPICard title="Throughput" value={weekThroughput} subtext="entregas no período" icon={CheckCircle2} accent="#2BBB92" />
           <KPICard title="Lead Time" value={weekLeadTime !== null ? `${weekLeadTime}d` : '—'} subtext="média no período" icon={Clock} accent="#F59E0B" />
           <KPICard title="WIP" value={kpis.wip} subtext="em andamento agora" icon={Activity} accent="#8B0CF6" />
           <KPICard title="A Fazer" value={kpis.aFazer} subtext="backlog restante hoje" icon={Layers} accent="#94A3B8" />
           <KPICard title="Pontos Entregues" value={kpis.pointsDelivered} subtext="no período" icon={TrendingUp} accent="#2BBB92" />
-          <KPICard title="Aderência" value={aderencia} subtext="entregue / comprometido" icon={Gauge} accent="#FF2993" />
+          <KPICard title="Aderência" value={aderencia} subtext="entregue / comprometido" icon={Gauge} accent="#2BBB92" />
         </div>
         <p style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
           <strong>Throughput</strong>, <strong>Lead Time</strong> e <strong>Pontos</strong> referem-se ao período selecionado; <strong>WIP</strong> e <strong>A Fazer</strong> são o estado atual. A análise é registrada na semana de <strong>{analysisWeekLabel ?? '—'}</strong>.

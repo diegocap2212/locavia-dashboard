@@ -6,7 +6,7 @@ interface KPICardProps {
   value: string | number;
   subtext?: string;
   icon?: LucideIcon;
-  /** cor de accent da borda esquerda + ícone (marca). Default Magenta. */
+  /** cor de accent da borda esquerda + ícone (marca). Default verde Venice. */
   accent?: string;
   /** compat legado — ignorado a favor de `accent` */
   iconColorClass?: string;
@@ -16,7 +16,7 @@ interface KPICardProps {
  * KPI card branded — compartilhado por Home, /release/:id e /sm/:id.
  * Valor em mono, borda-accent à esquerda (alinhado ao visual da home).
  */
-export const KPICard: React.FC<KPICardProps> = ({ title, value, subtext, icon: Icon, accent = '#FF2993' }) => (
+export const KPICard: React.FC<KPICardProps> = ({ title, value, subtext, icon: Icon, accent = '#2BBB92' }) => (
   <div
     className="premium-card"
     style={{ padding: '1.2rem 1.4rem', borderLeft: `3px solid ${accent}`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
