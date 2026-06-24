@@ -168,6 +168,7 @@ const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         padding: '0.9rem 0',
         position: 'sticky', top: 0, height: '100vh',
         flexShrink: 0,
+        zIndex: 200,
       }}>
         {/* Brand mark */}
         <button
