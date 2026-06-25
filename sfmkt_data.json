@@ -12,7 +12,7 @@
       "sprint": "SFMKT-SP Sprint 18",
       "sprintId": 21608,
       "sprintState": "active",
-      "storyPoints": null,
+      "storyPoints": 8,
       "priority": "Medium",
       "labels": [],
       "leadTimeDays": null,
@@ -1299,7 +1299,7 @@
       }
     }
   ],
-  "synced_at": "2026-06-25T17:02:17.801Z",
+  "synced_at": "2026-06-25T17:32:02.097Z",
   "project": "SFMKT",
   "total_fetched": 46
 }
