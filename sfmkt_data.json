@@ -4,8 +4,8 @@
       "key": "SFMKT-178",
       "summary": "Integração de Leads - Whatsapp x Blip via API",
       "type": "História",
-      "status": "1. Backlog",
-      "statusCategory": "TODO",
+      "status": "EM DESENVOLVIMENTO",
+      "statusCategory": "IN_PROGRESS",
       "assignee": "Izaque Bernardo",
       "created": "2026-06-24T22:43:13.789-0300",
       "resolved": null,
@@ -17,7 +17,7 @@
       "labels": [],
       "leadTimeDays": null,
       "cycleTimeDays": null,
-      "timeInTodoDays": null,
+      "timeInTodoDays": 0,
       "dq": {
         "missingResolutionDate": false,
         "missingAssignee": false,
@@ -1299,7 +1299,7 @@
       }
     }
   ],
-  "synced_at": "2026-06-25T12:32:10.450Z",
+  "synced_at": "2026-06-25T13:02:18.033Z",
   "project": "SFMKT",
   "total_fetched": 46
 }
