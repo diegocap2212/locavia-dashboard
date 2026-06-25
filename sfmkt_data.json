@@ -1297,37 +1297,9 @@
         "suspiciouslyLongLead": false,
         "doneWithoutCycleData": false
       }
-    },
-    {
-      "key": "SFMKT-23",
-      "summary": "[Migração Marketing Cloud] Documentação sobre integrações",
-      "type": "História",
-      "status": "DESENV CONCLUIDO",
-      "statusCategory": "DONE",
-      "assignee": "Josivan Santos de Freitas",
-      "created": "2026-02-25T09:23:28.553-0300",
-      "resolved": "2026-05-14T09:35:13.754-0300",
-      "sprint": "SFMKT-SP Sprint 14",
-      "sprintId": 19418,
-      "sprintState": "closed",
-      "storyPoints": 3,
-      "priority": "Medium",
-      "labels": [],
-      "leadTimeDays": 78,
-      "cycleTimeDays": 2,
-      "timeInTodoDays": 76,
-      "dq": {
-        "missingResolutionDate": false,
-        "missingAssignee": false,
-        "noStatusTransitions": false,
-        "noSprint": false,
-        "staleTodo": false,
-        "suspiciouslyLongLead": true,
-        "doneWithoutCycleData": false
-      }
     }
   ],
-  "synced_at": "2026-06-25T12:02:14.075Z",
+  "synced_at": "2026-06-25T12:32:10.450Z",
   "project": "SFMKT",
-  "total_fetched": 47
+  "total_fetched": 46
 }
