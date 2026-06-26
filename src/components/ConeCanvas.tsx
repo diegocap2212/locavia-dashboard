@@ -143,9 +143,9 @@ function drawCone(
     }
 
     const grad = ctx.createLinearGradient(todayX, 0, p15EndX, 0);
-    grad.addColorStop(0, `rgba(95,227,137,${0.45 * bandAlpha})`);
-    grad.addColorStop(0.5, `rgba(95,227,137,${0.16 * bandAlpha})`);
-    grad.addColorStop(1, `rgba(95,227,137,0)`);
+    grad.addColorStop(0, `rgba(143,236,171,${0.45 * bandAlpha})`);
+    grad.addColorStop(0.5, `rgba(143,236,171,${0.16 * bandAlpha})`);
+    grad.addColorStop(1, `rgba(143,236,171,0)`);
     ctx.fillStyle = grad;
     ctx.beginPath();
     if (p15Pts.length) {
@@ -217,9 +217,9 @@ function drawCone(
   const reveal = Math.min(p / 0.6, 1);
   const shown = Math.max(1, Math.floor(pastIdxs.length * reveal));
   ctx.save();
-  ctx.shadowColor = 'rgba(95,227,137,0.6)';
+  ctx.shadowColor = 'rgba(143,236,171,0.6)';
   ctx.shadowBlur = 14;
-  ctx.strokeStyle = '#5FE389';
+  ctx.strokeStyle = '#8FECAB';
   ctx.lineWidth = 3;
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
@@ -239,7 +239,7 @@ function drawCone(
     ctx.globalAlpha = markerAlpha;
 
     ctx.setLineDash([2, 3]);
-    ctx.strokeStyle = 'rgba(95,227,137,0.45)';
+    ctx.strokeStyle = 'rgba(143,236,171,0.45)';
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(todayX, padT);
@@ -247,7 +247,7 @@ function drawCone(
     ctx.stroke();
     ctx.setLineDash([]);
 
-    ctx.fillStyle = '#5FE389';
+    ctx.fillStyle = '#8FECAB';
     ctx.beginPath();
     ctx.arc(todayX, todayY, 4.5, 0, Math.PI * 2);
     ctx.fill();
@@ -262,7 +262,7 @@ function drawCone(
       d ? d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }) : '—';
 
     if (summary.remaining > 0) {
-      pill(ctx, todayX - 10, todayY - 6, `faltam ${summary.remaining}`, '#5FE389', 'end', W, H);
+      pill(ctx, todayX - 10, todayY - 6, `faltam ${summary.remaining}`, '#8FECAB', 'end', W, H);
 
       if (summary.confident) {
         // Faixa de incerteza significativa: dois extremos com linguagem clara.
@@ -274,7 +274,7 @@ function drawCone(
         pill(ctx, todayX + 12, padT + 6, `amostra curta — sem faixa de incerteza`, '#F7C365', 'start', W, H);
       }
     } else {
-      pill(ctx, todayX - 10, todayY + 2, `${summary.total} concluídos`, '#5FE389', 'end', W, H);
+      pill(ctx, todayX - 10, todayY + 2, `${summary.total} concluídos`, '#8FECAB', 'end', W, H);
     }
 
     ctx.restore();

@@ -37,9 +37,9 @@ export const LoginScreen: React.FC<Props> = ({ onSuccess }) => {
         <form onSubmit={submit} style={{ width: '100%', maxWidth: 340 }}>
           <div style={{
             width: 46, height: 46, borderRadius: 13, marginBottom: '1.5rem',
-            background: 'linear-gradient(135deg, #5FE389, #15803A)',
+            background: 'linear-gradient(135deg, #8FECAB, #15803A)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#072011', boxShadow: '0 4px 16px 0 rgba(95,227,137,0.35)',
+            color: '#072011', boxShadow: '0 4px 16px 0 rgba(143,236,171,0.35)',
           }}>
             <Lock size={20} />
           </div>
@@ -68,7 +68,7 @@ export const LoginScreen: React.FC<Props> = ({ onSuccess }) => {
               color: '#fff', fontSize: '0.9rem', outline: 'none',
               transition: 'border-color 0.15s, box-shadow 0.15s',
             }}
-            onFocus={e => { e.currentTarget.style.borderColor = '#5FE389'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(95,227,137,0.18)'; }}
+            onFocus={e => { e.currentTarget.style.borderColor = '#8FECAB'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(143,236,171,0.18)'; }}
             onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.14)'; e.currentTarget.style.boxShadow = 'none'; }}
           />
 
@@ -111,7 +111,7 @@ export const LoginScreen: React.FC<Props> = ({ onSuccess }) => {
         {/* glow radial verde neon */}
         <div style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
-          background: 'radial-gradient(ellipse 70% 60% at 60% 45%, rgba(95,227,137,0.24) 0%, rgba(95,227,137,0.08) 55%, transparent 100%)',
+          background: 'radial-gradient(ellipse 70% 60% at 60% 45%, rgba(143,236,171,0.24) 0%, rgba(143,236,171,0.08) 55%, transparent 100%)',
         }} />
         <img
           src="/venice-by-blite.svg"

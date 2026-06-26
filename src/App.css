@@ -1,6 +1,6 @@
 /* ============================================================
    Venice Design System (by blite) — tokens
-   Verde #5FE389 (green-300) como assinatura. Light + Dark.
+   Verde #8FECAB (green-200) como assinatura. Light + Dark.
    Os aliases legados (--primary, --text-main, --bg-color, …)
    apontam para os tokens novos para os componentes existentes
    herdarem o re-skin sem edição linha-a-linha.
@@ -15,7 +15,7 @@
   --sage:#9EB8A0; --forest:#58855C; --deep:#0D3311;
 
   /* ── Accent (assinatura) ── */
-  --accent:#5FE389; --accent-strong:#138A3F;
+  --accent:#8FECAB; --accent-strong:#138A3F;
   --accent-soft:#D8FBE2; --accent-soft-fg:#11602C;
 
   /* ── Botão primário (preto no light) ── */
@@ -29,10 +29,10 @@
 
   /* ── Bordas ── */
   --border-subtle:#E5ECE7; --border-default:#D3DDD6; --border-strong:#B3C0B7;
-  --ring:rgba(95,227,137,.32);
+  --ring:rgba(143,236,171,.32);
 
   /* ── Feedback ── */
-  --ok:#5FE389; --ok-bg:rgba(95,227,137,.14); --ok-fg:#138A3F;
+  --ok:#8FECAB; --ok-bg:rgba(143,236,171,.14); --ok-fg:#138A3F;
   --warn:#E8A317; --warn-bg:rgba(232,163,23,.16); --warn-fg:#8A6000;
   --err:#E5484D; --err-bg:rgba(229,72,77,.12); --err-fg:#C62828;
 
@@ -47,13 +47,13 @@
   --shell-text-muted:rgba(242,247,243,.6);
   --hero-bg:linear-gradient(180deg,#0D3311 0%,#0A2A0E 100%);
   --hero-fg:#F2F7F3;
-  --hero-glow:radial-gradient(ellipse 70% 60% at 30% 50%, rgba(95,227,137,.22) 0%, rgba(95,227,137,.06) 55%, transparent 100%);
+  --hero-glow:radial-gradient(ellipse 70% 60% at 30% 50%, rgba(143,236,171,.22) 0%, rgba(143,236,171,.06) 55%, transparent 100%);
 
   /* ── Elevação ── */
   --shadow-sm: 0 1px 2px 0 rgba(13,51,17,.06);
   --shadow-md: 0 4px 6px -1px rgba(13,51,17,.08), 0 2px 4px -1px rgba(13,51,17,.05);
   --shadow-lg: 0 10px 15px -3px rgba(13,51,17,.10), 0 4px 6px -2px rgba(13,51,17,.05);
-  --shadow-brand: 0 4px 16px 0 rgba(95,227,137,.30);
+  --shadow-brand: 0 4px 16px 0 rgba(143,236,171,.30);
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 24px;
@@ -65,14 +65,14 @@
 
   /* ── Matrix ── */
   --matrix-cell-size: 55px;
-  --matrix-bg-ok: rgba(95,227,137,.10);
+  --matrix-bg-ok: rgba(143,236,171,.10);
   --matrix-bg-delayed: rgba(229,72,77,.10);
-  --matrix-border-ok: rgba(95,227,137,.24);
+  --matrix-border-ok: rgba(143,236,171,.24);
   --matrix-border-delayed: rgba(229,72,77,.22);
 
   /* ── Aliases legados → tokens novos (compat) ── */
   --primary: var(--accent);
-  --primary-hover: var(--green-400);
+  --primary-hover: var(--green-300);
   --primary-light: var(--accent-soft);
   --bg-color: var(--surface);
   --surface-color: var(--surface);
@@ -94,8 +94,8 @@
 
 /* ── Dark mode ── */
 [data-theme="dark"] {
-  --accent:#5FE389; --accent-strong:#6CF09A;
-  --accent-soft:rgba(95,227,137,.16); --accent-soft-fg:#8FF3B0;
+  --accent:#8FECAB; --accent-strong:#6CF09A;
+  --accent-soft:rgba(143,236,171,.16); --accent-soft-fg:#8FF3B0;
 
   --btn-pri-bg:#ffffff; --btn-pri-fg:#090909; --btn-pri-hover:#E4E4E4; --btn-pri-active:#CFCFCF;
 
@@ -105,27 +105,27 @@
   --text-tertiary:rgba(242,247,243,.48); --text-disabled:rgba(242,247,243,.3);
 
   --border-subtle:#1E261E; --border-default:#2B352B; --border-strong:#3E4A3E;
-  --ring:rgba(95,227,137,.36);
+  --ring:rgba(143,236,171,.36);
 
-  --ok:#5FE389; --ok-bg:rgba(95,227,137,.18); --ok-fg:#6CF09A;
+  --ok:#8FECAB; --ok-bg:rgba(143,236,171,.18); --ok-fg:#6CF09A;
   --warn-bg:rgba(232,163,23,.18); --warn-fg:#F0C66B;
   --err-bg:rgba(229,72,77,.18); --err-fg:#FF9B9E;
 
-  --page:radial-gradient(1200px 820px at 16% 118%,rgba(95,227,137,.40) 0%,rgba(95,227,137,0) 56%),radial-gradient(900px 680px at 86% -12%,rgba(95,227,137,.26) 0%,rgba(95,227,137,0) 54%),#090A09;
+  --page:radial-gradient(1200px 820px at 16% 118%,rgba(143,236,171,.40) 0%,rgba(143,236,171,0) 56%),radial-gradient(900px 680px at 86% -12%,rgba(143,236,171,.26) 0%,rgba(143,236,171,0) 54%),#090A09;
   --noise:.22;
 
   --shell-bg:#090A09;
   --shell-border:rgba(255,255,255,0.07);
   --shell-text:#F2F7F3;
   --shell-text-muted:rgba(242,247,243,.55);
-  --hero-bg:radial-gradient(700px 500px at 18% 120%,rgba(95,227,137,.32),transparent 60%),radial-gradient(560px 420px at 84% -12%,rgba(95,227,137,.20),transparent 60%),#090A09;
+  --hero-bg:radial-gradient(700px 500px at 18% 120%,rgba(143,236,171,.32),transparent 60%),radial-gradient(560px 420px at 84% -12%,rgba(143,236,171,.20),transparent 60%),#090A09;
   --hero-fg:#F2F7F3;
-  --hero-glow:radial-gradient(ellipse 70% 60% at 30% 50%, rgba(95,227,137,.20) 0%, rgba(95,227,137,.05) 55%, transparent 100%);
+  --hero-glow:radial-gradient(ellipse 70% 60% at 30% 50%, rgba(143,236,171,.20) 0%, rgba(143,236,171,.05) 55%, transparent 100%);
 
   --shadow-sm: 0 1px 2px 0 rgba(0,0,0,.4);
   --shadow-md: 0 4px 12px 0 rgba(0,0,0,.45);
   --shadow-lg: 0 16px 40px 0 rgba(0,0,0,.55);
-  --shadow-brand: 0 0 24px 0 rgba(95,227,137,.30);
+  --shadow-brand: 0 0 24px 0 rgba(143,236,171,.30);
 
   --glass-bg: rgba(23,29,23,.72);
   --glass-border: rgba(255,255,255,.08);
@@ -232,7 +232,7 @@ body::before {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--green-400), var(--green-700));
+  background: linear-gradient(135deg, var(--green-300), var(--green-700));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -544,7 +544,7 @@ body::before {
 .vds-btn-primary:not(:disabled):hover { background: var(--btn-pri-hover); }
 
 .vds-btn-accent { background: var(--accent); color: #072011; }
-.vds-btn-accent:not(:disabled):hover { background: var(--green-400); }
+.vds-btn-accent:not(:disabled):hover { background: var(--green-300); }
 
 .vds-btn-secondary { background: transparent; color: var(--text-primary); border-color: var(--border-strong); }
 .vds-btn-secondary:not(:disabled):hover { background: var(--surface-2); border-color: var(--text-primary); }
