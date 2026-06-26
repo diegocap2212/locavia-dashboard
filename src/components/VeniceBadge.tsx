@@ -21,7 +21,7 @@ export const VeniceBadge: React.FC<VeniceBadgeProps> = ({ height = 24, framed = 
         ? {
             padding: '0.32rem 0.7rem', borderRadius: 10,
             background: 'rgba(255,255,255,0.04)',
-            border: '1px solid rgba(31,215,95,0.30)',
+            border: '1px solid rgba(95,227,137,0.30)',
           }
         : {}),
       ...style,

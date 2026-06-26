@@ -75,10 +75,10 @@ export function deriveStatus(remaining: number, entregaMelhor: Date | null, entr
   const isLate = !isDelivered && !!entregaPior && entregaPior < now;
   const isAtRisk = !isDelivered && !isLate && !!entregaMelhor && entregaMelhor > new Date(now.getTime() + 60 * 86400000);
 
-  if (isDelivered) return { label: 'Entregue', bg: 'rgba(31,215,95,0.18)', text: '#5FE389', border: 'rgba(31,215,95,0.35)' };
+  if (isDelivered) return { label: 'Entregue', bg: 'rgba(95,227,137,0.18)', text: '#5FE389', border: 'rgba(95,227,137,0.35)' };
   if (isLate) return { label: 'Atrasado', bg: 'rgba(229,72,77,0.18)', text: '#FF9B9E', border: 'rgba(229,72,77,0.35)' };
   if (isAtRisk) return { label: 'Em Risco', bg: 'rgba(232,163,23,0.18)', text: '#F0C66B', border: 'rgba(232,163,23,0.35)' };
-  return { label: 'No Prazo', bg: 'rgba(31,215,95,0.18)', text: '#5FE389', border: 'rgba(31,215,95,0.35)' };
+  return { label: 'No Prazo', bg: 'rgba(95,227,137,0.18)', text: '#5FE389', border: 'rgba(95,227,137,0.35)' };
 }
 
 export default PageHero;
