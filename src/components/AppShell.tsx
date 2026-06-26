@@ -7,6 +7,7 @@ import { teamLabel } from '../config/teamLabels';
 import { fetchData } from '../services/dataService';
 import { logout } from '../services/authService';
 import VeniceBadge from './VeniceBadge';
+import ThemeToggle from './ui/ThemeToggle';
 
 /* ── Botão da sidebar (icon rail) ── */
 const railBtn = (active: boolean): React.CSSProperties => ({
@@ -14,8 +15,8 @@ const railBtn = (active: boolean): React.CSSProperties => ({
   display: 'flex', alignItems: 'center', justifyContent: 'center',
   border: 'none', cursor: 'pointer',
   color: active ? '#fff' : 'rgba(255,255,255,0.55)',
-  background: active ? 'rgba(43,187,146,0.16)' : 'transparent',
-  boxShadow: active ? 'inset 0 0 0 1px rgba(43,187,146,0.45)' : 'none',
+  background: active ? 'rgba(31,215,95,0.16)' : 'transparent',
+  boxShadow: active ? 'inset 0 0 0 1px rgba(31,215,95,0.45)' : 'none',
   transition: 'all 0.15s',
 });
 
@@ -60,10 +61,10 @@ const RailItem: React.FC<RailItemProps> = ({ icon: Icon, label, active, onClick,
           style={{
             position: 'absolute', left: 'calc(100% + 10px)', top: 0, zIndex: 300,
             minWidth: 230, maxHeight: 420, overflowY: 'auto',
-            background: 'linear-gradient(180deg, #16223a 0%, #111B27 100%)',
+            background: 'linear-gradient(180deg, #11281A 0%, #0A1F12 100%)',
             borderRadius: 12,
-            border: '1px solid rgba(43,187,146,0.22)',
-            boxShadow: '0 18px 44px -12px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03), 0 8px 30px -10px rgba(43,187,146,0.35)',
+            border: '1px solid rgba(31,215,95,0.22)',
+            boxShadow: '0 18px 44px -12px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03), 0 8px 30px -10px rgba(31,215,95,0.35)',
             padding: 6,
             backdropFilter: 'blur(8px)',
             WebkitBackdropFilter: 'blur(8px)',
@@ -83,15 +84,15 @@ const RailItem: React.FC<RailItemProps> = ({ icon: Icon, label, active, onClick,
                 fontSize: '0.85rem', fontWeight: item.active ? 700 : 500,
                 color: item.active ? '#fff' : 'rgba(255,255,255,0.72)',
                 background: item.active
-                  ? 'linear-gradient(92deg, rgba(43,187,146,0.30), rgba(139,12,246,0.26))'
+                  ? 'linear-gradient(92deg, rgba(31,215,95,0.30), rgba(31,215,95,0.12))'
                   : 'transparent',
-                border: item.active ? '1px solid rgba(43,187,146,0.45)' : '1px solid transparent',
+                border: item.active ? '1px solid rgba(31,215,95,0.45)' : '1px solid transparent',
                 transition: 'all 0.12s',
               }}
               onMouseEnter={e => { if (!item.active) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.07)'; }}
               onMouseLeave={e => { if (!item.active) (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
             >
-              <span style={{ width: 6, height: 6, borderRadius: '50%', flexShrink: 0, background: item.active ? '#2BBB92' : 'rgba(255,255,255,0.25)' }} />
+              <span style={{ width: 6, height: 6, borderRadius: '50%', flexShrink: 0, background: item.active ? '#1FD75F' : 'rgba(255,255,255,0.25)' }} />
               {item.label}
             </button>
           ))}
@@ -186,6 +187,8 @@ const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           </button>
 
           <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+            {/* Alternar tema */}
+            <ThemeToggle onShell />
             {/* Sair */}
             <button
               onClick={handleLogout}

@@ -22,7 +22,7 @@ const CFDTooltip = ({ active, payload, label }: { active?: boolean; payload?: To
   const ordered = [...payload].reverse();
   const total = payload.reduce((acc, e) => acc + (e.value || 0), 0);
   return (
-    <div style={{ background: '#0e1726', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: 12, minWidth: 210, boxShadow: '0 12px 32px rgba(0,0,0,0.5)' }}>
+    <div style={{ background: '#0A1F12', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: 12, minWidth: 210, boxShadow: '0 12px 32px rgba(0,0,0,0.5)' }}>
       <p style={{ margin: '0 0 8px', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'rgba(255,255,255,0.5)' }}>Semana {label}</p>
       {ordered.map(entry => (
         <div key={entry.dataKey} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '2px 0' }}>

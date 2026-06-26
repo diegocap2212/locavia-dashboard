@@ -27,12 +27,12 @@ interface Props {
  * navy + glow radial Magenta→Violet. Garante coerência visual entre as visões.
  */
 const PageHero: React.FC<Props> = ({ eyebrow, title, subtitle, leading, status, children }) => (
-  <div style={{ background: 'var(--navy)', position: 'relative', padding: '2.25rem 2.5rem 1.75rem' }}>
+  <div style={{ background: 'var(--hero-bg)', position: 'relative', padding: '2.25rem 2.5rem 1.75rem' }}>
     {/* glow radial (confinado ao próprio div via inset:0 — não precisa de overflow:hidden no pai,
         que cortaria os menus de dropdown abertos sobre o hero) */}
     <div style={{
       position: 'absolute', inset: 0, pointerEvents: 'none',
-      background: 'radial-gradient(ellipse 70% 60% at 30% 50%, rgba(43,187,146,0.14) 0%, rgba(139,12,246,0.12) 55%, transparent 100%)',
+      background: 'var(--hero-glow)',
     }} />
 
     <div style={{ maxWidth: 1500, margin: '0 auto', position: 'relative' }}>
@@ -44,7 +44,7 @@ const PageHero: React.FC<Props> = ({ eyebrow, title, subtitle, leading, status, 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
           {leading}
           <div>
-            <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: 800, letterSpacing: '-0.03em', color: '#fff', lineHeight: 1.15 }}>
+            <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--hero-fg)', lineHeight: 1.15 }}>
               {title}
             </h1>
             {subtitle && (
@@ -75,10 +75,10 @@ export function deriveStatus(remaining: number, entregaMelhor: Date | null, entr
   const isLate = !isDelivered && !!entregaPior && entregaPior < now;
   const isAtRisk = !isDelivered && !isLate && !!entregaMelhor && entregaMelhor > new Date(now.getTime() + 60 * 86400000);
 
-  if (isDelivered) return { label: 'Entregue', bg: 'rgba(43,187,146,0.18)', text: '#2BBB92', border: 'rgba(43,187,146,0.35)' };
-  if (isLate) return { label: 'Atrasado', bg: 'rgba(239,68,68,0.18)', text: '#ef4444', border: 'rgba(239,68,68,0.35)' };
-  if (isAtRisk) return { label: 'Em Risco', bg: 'rgba(245,158,11,0.18)', text: '#f59e0b', border: 'rgba(245,158,11,0.35)' };
-  return { label: 'No Prazo', bg: 'rgba(43,187,146,0.18)', text: '#2BBB92', border: 'rgba(43,187,146,0.35)' };
+  if (isDelivered) return { label: 'Entregue', bg: 'rgba(31,215,95,0.18)', text: '#5FE389', border: 'rgba(31,215,95,0.35)' };
+  if (isLate) return { label: 'Atrasado', bg: 'rgba(229,72,77,0.18)', text: '#FF9B9E', border: 'rgba(229,72,77,0.35)' };
+  if (isAtRisk) return { label: 'Em Risco', bg: 'rgba(232,163,23,0.18)', text: '#F0C66B', border: 'rgba(232,163,23,0.35)' };
+  return { label: 'No Prazo', bg: 'rgba(31,215,95,0.18)', text: '#5FE389', border: 'rgba(31,215,95,0.35)' };
 }
 
 export default PageHero;

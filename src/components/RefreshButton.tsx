@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { RefreshCw, Check, AlertTriangle } from 'lucide-react';
 import { triggerRefresh, getRefreshStatus } from '../services/refreshService';
+import Button from './ui/Button';
 
 type Phase = 'idle' | 'starting' | 'running' | 'done' | 'error';
 
@@ -70,24 +71,29 @@ export const RefreshButton: React.FC = () => {
 
   const busy = phase === 'starting' || phase === 'running';
 
+  const leadIcon = phase === 'done'
+    ? <Check className="w-4 h-4" />
+    : phase === 'error'
+      ? <AlertTriangle className="w-4 h-4" />
+      : <RefreshCw className={`w-4 h-4 ${busy ? 'animate-spin' : ''}`} />;
+
   return (
     <div className="flex flex-col items-end shrink-0 min-w-[160px]">
-      <button
+      <Button
+        variant={phase === 'error' ? 'destructive' : 'accent'}
         onClick={onClick}
         disabled={busy}
-        className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-semibold shadow-sm transition-colors w-full justify-center
-          ${busy
-            ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'
-            : 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700'}`}
+        icon={leadIcon}
+        style={{ width: '100%' }}
         title="Dispara a sincronização com o Jira (leva alguns minutos)"
       >
-        {phase === 'done' ? <Check className="w-4 h-4" />
-          : phase === 'error' ? <AlertTriangle className="w-4 h-4 text-rose-500" />
-          : <RefreshCw className={`w-4 h-4 ${busy ? 'animate-spin' : ''}`} />}
         {busy ? 'Sincronizando...' : 'Atualizar agora'}
-      </button>
+      </Button>
       {msg && (
-        <span className={`text-[11px] mt-1 text-right leading-tight max-w-[220px] ${phase === 'error' ? 'text-rose-600' : 'text-slate-500'}`}>
+        <span
+          className="text-[11px] mt-1 text-right leading-tight max-w-[220px]"
+          style={{ color: phase === 'error' ? 'var(--err-fg)' : 'var(--text-tertiary)' }}
+        >
           {msg}
         </span>
       )}

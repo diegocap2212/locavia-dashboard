@@ -16,10 +16,10 @@ interface TooltipProps {
 const PointsTooltip = ({ active, payload, label }: TooltipProps) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white p-3 rounded-xl shadow-lg border border-slate-200 min-w-[160px]">
-      <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-1">Semana {label}</p>
-      <p className="text-sm text-slate-700">
-        Pontos entregues: <span className="font-bold text-violet-600">{payload[0].value ?? 0}</span>
+    <div style={{ background: 'var(--surface)', padding: 12, borderRadius: 12, boxShadow: 'var(--shadow-lg)', border: '1px solid var(--border-subtle)', minWidth: 160 }}>
+      <p style={{ margin: '0 0 4px', fontSize: 11, fontWeight: 700, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Semana {label}</p>
+      <p style={{ margin: 0, fontSize: 14, color: 'var(--text-secondary)' }}>
+        Pontos entregues: <span style={{ fontWeight: 700, color: 'var(--accent-strong)' }}>{payload[0].value ?? 0}</span>
       </p>
     </div>
   );
@@ -41,16 +41,16 @@ export const PointsVelocityChart: React.FC<Props> = ({ data }) => {
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 5 }}>
           <defs>
-            <linearGradient id="barGradViolet" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={CHART.violet} stopOpacity={0.9} />
-              <stop offset="100%" stopColor={CHART.violet} stopOpacity={0.65} />
+            <linearGradient id="barGradGreen" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={CHART.primary} stopOpacity={0.95} />
+              <stop offset="100%" stopColor={CHART.primary} stopOpacity={0.6} />
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={CHART.grid} />
           <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: CHART.axis, fontSize: 11 }} dy={8} />
           <YAxis axisLine={false} tickLine={false} tick={{ fill: CHART.axis, fontSize: 11 }} />
-          <Tooltip content={<PointsTooltip />} cursor={{ fill: '#F1F5F9' }} />
-          <Bar dataKey="Pontos Entregues" fill="url(#barGradViolet)" radius={[4, 4, 0, 0]} maxBarSize={48} />
+          <Tooltip content={<PointsTooltip />} cursor={{ fill: 'rgba(130,146,138,0.12)' }} />
+          <Bar dataKey="Pontos Entregues" fill="url(#barGradGreen)" radius={[4, 4, 0, 0]} maxBarSize={48} />
         </BarChart>
       </ResponsiveContainer>
     </div>

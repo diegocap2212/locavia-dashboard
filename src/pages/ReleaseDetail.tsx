@@ -83,9 +83,9 @@ const ReleaseDetail: React.FC = () => {
           <>
             {/* Placar de KPIs */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.75rem' }}>
-              <KPICard title="Escopo Total" value={metrics.totalItems} subtext="itens no escopo" icon={Users} accent="#2BBB92" />
-              <KPICard title="Entregas" value={metrics.deliveredCount} subtext="concluídas" icon={CheckCircle2} accent="#2BBB92" />
-              <KPICard title="WIP" value={metrics.wipCount} subtext="em desenvolvimento" icon={Activity} accent="#8B0CF6" />
+              <KPICard title="Escopo Total" value={metrics.totalItems} subtext="itens no escopo" icon={Users} accent="var(--accent)" />
+              <KPICard title="Entregas" value={metrics.deliveredCount} subtext="concluídas" icon={CheckCircle2} accent="var(--accent)" />
+              <KPICard title="WIP" value={metrics.wipCount} subtext="em desenvolvimento" icon={Activity} accent="var(--warn)" />
               <KPICard title="Lead Time" value={`${metrics.avgLeadTime}d`} subtext="criado → resolvido" icon={Clock} accent="#F59E0B" />
             </div>
 
@@ -116,7 +116,7 @@ const ReleaseDetail: React.FC = () => {
                   </div>
                   <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Saldo (semana atual)</span>
-                    <span style={{ fontSize: '1.8rem', fontWeight: 800, letterSpacing: '-0.02em', color: lastSaldo > 0 ? 'var(--danger)' : 'var(--brand-mint)' }}>
+                    <span style={{ fontSize: '1.8rem', fontWeight: 800, letterSpacing: '-0.02em', color: lastSaldo > 0 ? 'var(--danger)' : 'var(--accent-strong)' }}>
                       {lastSaldo > 0 ? '+' : ''}{lastSaldo}
                     </span>
                   </div>

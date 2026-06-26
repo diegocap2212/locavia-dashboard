@@ -65,7 +65,7 @@ export const VazaoTrendChart: React.FC<Props> = ({ data }) => {
           <Bar dataKey="História" stackId="tp" fill={CHART.primary} maxBarSize={32} />
           <Bar dataKey="Bug" stackId="tp" fill={CHART.red} maxBarSize={32} />
           <Bar dataKey="Tarefa" stackId="tp" fill={CHART.mint} maxBarSize={32} />
-          <Bar dataKey="Spike" stackId="tp" fill={CHART.violet} maxBarSize={32} />
+          <Bar dataKey="Spike" stackId="tp" fill={CHART.sage} maxBarSize={32} />
           <Bar dataKey="Outros" stackId="tp" fill={CHART.neutral} maxBarSize={32} radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>

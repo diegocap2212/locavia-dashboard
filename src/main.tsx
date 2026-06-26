@@ -4,13 +4,16 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 import { AuthGate } from './components/AuthGate'
+import { ThemeProvider } from './theme/ThemeProvider'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter>
-      <AuthGate>
-        <App />
-      </AuthGate>
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <AuthGate>
+          <App />
+        </AuthGate>
+      </BrowserRouter>
+    </ThemeProvider>
   </StrictMode>,
 )

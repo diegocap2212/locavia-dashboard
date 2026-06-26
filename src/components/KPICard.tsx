@@ -16,7 +16,7 @@ interface KPICardProps {
  * KPI card branded — compartilhado por Home, /release/:id e /sm/:id.
  * Valor em mono, borda-accent à esquerda (alinhado ao visual da home).
  */
-export const KPICard: React.FC<KPICardProps> = ({ title, value, subtext, icon: Icon, accent = '#2BBB92' }) => (
+export const KPICard: React.FC<KPICardProps> = ({ title, value, subtext, icon: Icon, accent = 'var(--accent)' }) => (
   <div
     className="premium-card"
     style={{ padding: '1.2rem 1.4rem', borderLeft: `3px solid ${accent}`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}

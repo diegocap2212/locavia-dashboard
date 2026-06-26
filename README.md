@@ -99,11 +99,15 @@ locavia-dashboard/
 │   ├── pages/
 │   │   ├── BFCEMDashboard.tsx # Dashboard BF/CEM (lazy-loaded)
 │   │   ├── SMDashboard.tsx    # Dashboard por Scrum Master
-│   │   └── PresentationDeck.tsx
+│   │   ├── ReleaseDetail.tsx  # Detalhe de uma release
+│   │   └── TeamDetail.tsx     # Detalhe de um time
 │   ├── hooks/
 │   │   ├── useDashboardData.ts   # Hook principal: dados + filtros + cone
 │   │   └── useSMDashboardData.ts # Hook por SM
+│   ├── theme/
+│   │   └── ThemeProvider.tsx  # Contexto de tema light/dark (Venice) + hook useTheme
 │   ├── components/            # Gráficos e UI reutilizáveis (Recharts)
+│   │   └── ui/                # Primitivos do DS Venice: Button, Input, Badge, ThemeToggle
 │   ├── services/
 │   │   ├── dataService.ts     # Fetch Google Sheets com fallback para data.json
 │   │   └── commentsService.ts # CRUD de análises via /api/comments
@@ -176,6 +180,36 @@ intacto e legível.
 > **Atenção (follow-up conhecido):** o deck `/presentation/:smId` ainda lê comentários na cadência
 > padrão (`quinzena`/v2). Para exibir as novas análises semanais (v3) ele precisa do mesmo tratamento
 > de cadência — fora do escopo desta entrega.
+
+---
+
+## Design System (Venice)
+
+A UI segue o **Design System Venice (by blite)**: tipografia **Inter**, verde neon
+**`#1FD75F`** como cor de marca e **light/dark mode** completos.
+
+- **Tokens** em [`src/index.css`](src/index.css) (fontes + `color-scheme`) e [`src/App.css`](src/App.css):
+  o `:root` define a paleta (escala `--green-*`, `--accent`, superfícies, texto, bordas,
+  feedback `--ok/warn/err`, `--page`, ruído) e `[data-theme="dark"]` faz o override do tema
+  escuro. **Aliases legados** (`--primary`, `--text-main`, `--bg-color`, `--navy`, …) apontam
+  para os tokens novos — componentes que usam `var(--*)` herdam o tema automaticamente.
+- **Tema:** [`ThemeProvider`](src/theme/ThemeProvider.tsx) (envolve a app em
+  [src/main.tsx](src/main.tsx)) seta `data-theme` no `<html>`, persiste em `localStorage`
+  (`venice-theme`) e usa a preferência do SO como default. Um script inline no
+  [index.html](index.html) aplica o tema **antes da pintura** (sem flash). O toggle
+  (sol/lua) fica na topbar via [`ui/ThemeToggle`](src/components/ui/ThemeToggle.tsx).
+- **Primitivos** em [`src/components/ui/`](src/components/ui/): `Button` (variantes
+  primary/accent/secondary/tertiary/destructive), `Input`/`Select`/`Textarea`, `Badge`.
+  As classes base (`.vds-btn*`, `.vds-input`, …) vivem em [src/App.css](src/App.css) para
+  ter estados `:hover/:active/:focus-visible` reais.
+- **Gráficos:** paleta central em [`src/lib/chartColors.ts`](src/lib/chartColors.ts)
+  (verde/forest/sage + neutro; **sem azul/violeta**). `grid`/`axis` usam cinza translúcido
+  para servir light e dark. O **violeta** (`#8B0CF6`) e o verde-teal antigo (`#2BBB92`) foram
+  removidos em favor do neon Venice.
+
+> **Convenção:** prefira `var(--token)` a hex fixo. Ao criar superfícies/cores novas, use os
+> tokens semânticos (`--surface*`, `--text-*`, `--border-*`, `--accent`, `--ok/warn/err`) para
+> manter o suporte a dark mode.
 
 ---
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Lock, Loader2 } from 'lucide-react';
 import { login } from '../services/authService';
+import ThemeToggle from './ui/ThemeToggle';
 
 interface Props {
   onSuccess: () => void;
@@ -27,15 +28,18 @@ export const LoginScreen: React.FC<Props> = ({ onSuccess }) => {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', background: 'var(--navy)', fontFamily: 'Inter, system-ui, sans-serif' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', background: 'var(--shell-bg)', fontFamily: 'Inter, system-ui, sans-serif', position: 'relative' }}>
+      <div style={{ position: 'absolute', top: 18, right: 18, zIndex: 10 }}>
+        <ThemeToggle onShell />
+      </div>
       {/* ── Lado do formulário ── */}
       <div style={{ flex: '0 1 480px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2.5rem' }}>
         <form onSubmit={submit} style={{ width: '100%', maxWidth: 340 }}>
           <div style={{
             width: 46, height: 46, borderRadius: 13, marginBottom: '1.5rem',
-            background: 'linear-gradient(135deg, #2BBB92, #8B0CF6)',
+            background: 'linear-gradient(135deg, #1FD75F, #15803A)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#fff', boxShadow: '0 4px 14px 0 rgba(43,187,146,0.35)',
+            color: '#072011', boxShadow: '0 4px 16px 0 rgba(31,215,95,0.35)',
           }}>
             <Lock size={20} />
           </div>
@@ -64,7 +68,7 @@ export const LoginScreen: React.FC<Props> = ({ onSuccess }) => {
               color: '#fff', fontSize: '0.9rem', outline: 'none',
               transition: 'border-color 0.15s, box-shadow 0.15s',
             }}
-            onFocus={e => { e.currentTarget.style.borderColor = '#2BBB92'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(43,187,146,0.18)'; }}
+            onFocus={e => { e.currentTarget.style.borderColor = '#1FD75F'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(31,215,95,0.18)'; }}
             onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.14)'; e.currentTarget.style.boxShadow = 'none'; }}
           />
 
@@ -102,12 +106,12 @@ export const LoginScreen: React.FC<Props> = ({ onSuccess }) => {
         flex: 1, position: 'relative', overflow: 'hidden',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         borderLeft: '1px solid rgba(255,255,255,0.06)',
-        background: 'linear-gradient(180deg, #0d1422 0%, #0A0F1A 100%)',
+        background: 'linear-gradient(180deg, #0F2A16 0%, #090A09 100%)',
       }}>
-        {/* glow radial verde→violet */}
+        {/* glow radial verde neon */}
         <div style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
-          background: 'radial-gradient(ellipse 70% 60% at 60% 45%, rgba(43,187,146,0.22) 0%, rgba(139,12,246,0.14) 55%, transparent 100%)',
+          background: 'radial-gradient(ellipse 70% 60% at 60% 45%, rgba(31,215,95,0.24) 0%, rgba(31,215,95,0.08) 55%, transparent 100%)',
         }} />
         <img
           src="/venice-by-blite.svg"

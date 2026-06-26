@@ -143,9 +143,9 @@ function drawCone(
     }
 
     const grad = ctx.createLinearGradient(todayX, 0, p15EndX, 0);
-    grad.addColorStop(0, `rgba(43,187,146,${0.42 * bandAlpha})`);
-    grad.addColorStop(0.5, `rgba(139,12,246,${0.22 * bandAlpha})`);
-    grad.addColorStop(1, `rgba(139,12,246,0)`);
+    grad.addColorStop(0, `rgba(31,215,95,${0.45 * bandAlpha})`);
+    grad.addColorStop(0.5, `rgba(31,215,95,${0.16 * bandAlpha})`);
+    grad.addColorStop(1, `rgba(31,215,95,0)`);
     ctx.fillStyle = grad;
     ctx.beginPath();
     if (p15Pts.length) {
@@ -171,7 +171,7 @@ function drawCone(
     ctx.save();
     ctx.globalAlpha = p15LineAlpha;
     ctx.setLineDash([3, 4]);
-    ctx.strokeStyle = 'rgba(160,82,255,0.7)';
+    ctx.strokeStyle = 'rgba(240,198,107,0.8)';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
     let started = false;
@@ -217,9 +217,9 @@ function drawCone(
   const reveal = Math.min(p / 0.6, 1);
   const shown = Math.max(1, Math.floor(pastIdxs.length * reveal));
   ctx.save();
-  ctx.shadowColor = 'rgba(43,187,146,0.6)';
+  ctx.shadowColor = 'rgba(31,215,95,0.6)';
   ctx.shadowBlur = 14;
-  ctx.strokeStyle = '#2BBB92';
+  ctx.strokeStyle = '#1FD75F';
   ctx.lineWidth = 3;
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
@@ -239,7 +239,7 @@ function drawCone(
     ctx.globalAlpha = markerAlpha;
 
     ctx.setLineDash([2, 3]);
-    ctx.strokeStyle = 'rgba(43,187,146,0.45)';
+    ctx.strokeStyle = 'rgba(31,215,95,0.45)';
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(todayX, padT);
@@ -247,7 +247,7 @@ function drawCone(
     ctx.stroke();
     ctx.setLineDash([]);
 
-    ctx.fillStyle = '#2BBB92';
+    ctx.fillStyle = '#1FD75F';
     ctx.beginPath();
     ctx.arc(todayX, todayY, 4.5, 0, Math.PI * 2);
     ctx.fill();
@@ -262,19 +262,19 @@ function drawCone(
       d ? d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }) : '—';
 
     if (summary.remaining > 0) {
-      pill(ctx, todayX - 10, todayY - 6, `faltam ${summary.remaining}`, '#2BBB92', 'end', W, H);
+      pill(ctx, todayX - 10, todayY - 6, `faltam ${summary.remaining}`, '#1FD75F', 'end', W, H);
 
       if (summary.confident) {
         // Faixa de incerteza significativa: dois extremos com linguagem clara.
         pill(ctx, p85EndX, p85EndY - 16, `Otimista · ${fmt(summary.entregaMelhor)}`, '#FFFFFF', 'mid', W, H);
-        pill(ctx, p15EndX, p15EndY + 16, `Pessimista · ${fmt(summary.entregaPior)}`, '#A052FF', 'mid', W, H);
+        pill(ctx, p15EndX, p15EndY + 16, `Pessimista · ${fmt(summary.entregaPior)}`, '#F0C66B', 'mid', W, H);
       } else {
         // Amostra curta / sem dispersão: uma projeção só + aviso (evita P15==P85 enganoso).
         pill(ctx, p85EndX, p85EndY - 16, `Previsão · ${fmt(summary.entregaMelhor)}`, '#FFFFFF', 'mid', W, H);
         pill(ctx, todayX + 12, padT + 6, `amostra curta — sem faixa de incerteza`, '#F7C365', 'start', W, H);
       }
     } else {
-      pill(ctx, todayX - 10, todayY + 2, `${summary.total} concluídos`, '#2BBB92', 'end', W, H);
+      pill(ctx, todayX - 10, todayY + 2, `${summary.total} concluídos`, '#1FD75F', 'end', W, H);
     }
 
     ctx.restore();

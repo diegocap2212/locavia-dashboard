@@ -106,7 +106,7 @@ export const LeadTimeCycleTimeScatter: React.FC<Props> = ({ items }) => {
             <ZAxis range={[60, 60]} />
             <Tooltip content={<CustomTooltip />} cursor={{strokeDasharray: '3 3'}} />
             
-            <Scatter name="Lead Time" data={chartData} fill="#3B82F6" opacity={0.8} />
+            <Scatter name="Lead Time" data={chartData} fill="#15B14C" opacity={0.8} />
           </ScatterChart>
         </ResponsiveContainer>
       </div>

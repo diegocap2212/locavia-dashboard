@@ -1,40 +1,42 @@
 /**
- * Paleta central dos gráficos — marca Venice.
- * Substitui os hex hard-coded espalhados pelos componentes de chart.
- * Mantém a semântica de feedback (vermelho = risco, âmbar = andamento).
+ * Paleta central dos gráficos — Design System Venice (by blite).
+ * Verde neon como assinatura; séries em tons de verde/forest/sage + neutro.
+ * Mantém a semântica de feedback (vermelho = risco/bug, âmbar = andamento).
+ *
+ * grid/axis usam cinza translúcido neutro → legível tanto em cards claros
+ * (light) quanto escuros (dark), sem precisar thre+ar o tema em cada chart.
  */
-// Paleta TRADICIONAL para as séries dos gráficos (azul/verde/âmbar/vermelho/cinza).
-// O verde da marca (Venice) fica reservado para o Cone/hero — aqui é só sotaque pontual.
 export const CHART = {
-  primary: '#3B82F6', // série principal — azul tradicional
-  violet: '#8B5CF6',  // pontos/velocidade — violet tradicional
-  mint: '#22C55E',    // entregue/concluído/sucesso — verde
-  amber: '#F59E0B',   // em andamento/aviso
-  red: '#EF4444',     // bug/risco
-  neutral: '#94A3B8', // série neutra/criadas
-  grid: '#E2E8F0',    // grade
-  axis: '#94A3B8',    // ticks dos eixos
+  primary: '#1FD75F', // série principal — verde Venice
+  forest: '#58855C',  // série de apoio escura
+  sage: '#9EB8A0',    // série de apoio clara (ex.: Spike, antes violeta)
+  mint: '#5FE389',    // entregue/concluído/sucesso — verde claro
+  amber: '#E8A317',   // em andamento/aviso
+  red: '#E5484D',     // bug/risco
+  neutral: '#82928A', // série neutra/criadas
+  grid: 'rgba(130,146,138,0.22)', // grade (neutro translúcido)
+  axis: 'rgba(130,146,138,0.85)', // ticks dos eixos
 } as const;
 
 /** Cores por tipo de item (usado em Vazão e no donut de entrega por tipo). */
 export const TYPE_COLORS: Record<string, string> = {
-  'História': CHART.primary,
+  'História': '#15803A', // verde escuro
   'Bug': CHART.red,
-  'Tarefa': CHART.mint,
-  'Spike': CHART.violet,
+  'Tarefa': '#5FE389',   // verde claro
+  'Spike': CHART.sage,   // sage (antes violeta)
   'Outros': CHART.neutral,
 };
 
-// ── Tema ESCURO (navy do header) para o card de destaque (CFD) ──
+// ── Tema ESCURO branded para o card de destaque (CFD) ──
 export const CHART_DARK = {
-  bg: '#0A0F1A',
-  surface: 'linear-gradient(180deg, #16223a 0%, #0e1726 100%)',
+  bg: '#0A1F12',
+  surface: 'linear-gradient(180deg, #11281A 0%, #0A1F12 100%)',
   grid: 'rgba(255,255,255,0.08)',
   axis: 'rgba(255,255,255,0.55)',
   text: 'rgba(255,255,255,0.92)',
   textMuted: 'rgba(255,255,255,0.55)',
-  // bandas vivas sobre o navy
-  done: '#22D3A5',   // concluído (mint vibrante)
-  wip: '#FBBF24',    // em andamento (âmbar vibrante)
-  todo: '#60A5FA',   // a fazer (azul claro)
+  // bandas vivas sobre o fundo escuro
+  done: '#2BE86B',   // concluído (verde neon)
+  wip: '#F0C66B',    // em andamento (âmbar)
+  todo: '#9EB8A0',   // a fazer (sage)
 } as const;

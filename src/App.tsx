@@ -109,15 +109,15 @@ const Home: React.FC = () => {
                   style={{
                     display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
                     padding: '5px 14px', borderRadius: 999,
-                    border: `1px solid ${active ? '#2BBB92' : 'rgba(255,255,255,0.12)'}`,
+                    border: `1px solid ${active ? '#1FD75F' : 'rgba(255,255,255,0.12)'}`,
                     cursor: 'pointer', fontWeight: 700, fontSize: '0.78rem', letterSpacing: '0.03em',
                     transition: 'all 0.15s',
-                    background: active ? 'linear-gradient(92deg, rgba(43,187,146,0.28), rgba(139,12,246,0.28))' : 'rgba(255,255,255,0.05)',
+                    background: active ? 'linear-gradient(92deg, rgba(31,215,95,0.30), rgba(31,215,95,0.12))' : 'rgba(255,255,255,0.05)',
                     color: active ? '#fff' : 'rgba(255,255,255,0.6)',
-                    boxShadow: active ? '0 0 0 1px rgba(43,187,146,0.5), 0 6px 18px -8px rgba(43,187,146,0.7)' : 'none',
+                    boxShadow: active ? '0 0 0 1px rgba(31,215,95,0.5), 0 6px 18px -8px rgba(31,215,95,0.7)' : 'none',
                   }}
                 >
-                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: active ? '#2BBB92' : 'rgba(255,255,255,0.3)', display: 'inline-block' }} />
+                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: active ? '#1FD75F' : 'rgba(255,255,255,0.3)', display: 'inline-block' }} />
                   {r.releaseId}
                 </button>
               );
@@ -137,10 +137,10 @@ const Home: React.FC = () => {
               {/* Legend */}
               <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', padding: '0.5rem 0.25rem 0.5rem' }}>
                 {[
-                  { color: '#2BBB92', dash: false, label: 'Realizado (a fazer hoje)' },
+                  { color: '#1FD75F', dash: false, label: 'Realizado (a fazer hoje)' },
                   { color: '#FFFFFF', dash: true,  label: 'Cenário otimista (P85)' },
-                  { color: '#A052FF', dash: true,  label: 'Cenário pessimista (P15)' },
-                  { color: 'linear-gradient(90deg,rgba(43,187,146,0.55),rgba(139,12,246,0.18))', dash: false, label: 'Faixa de incerteza', band: true },
+                  { color: '#F0C66B', dash: true,  label: 'Cenário pessimista (P15)' },
+                  { color: 'linear-gradient(90deg,rgba(31,215,95,0.55),rgba(31,215,95,0.10))', dash: false, label: 'Faixa de incerteza', band: true },
                 ].map(({ color, dash, label, band }) => (
                   <span key={label} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.76rem', color: 'rgba(255,255,255,0.6)' }}>
                     {band
@@ -173,8 +173,8 @@ const Home: React.FC = () => {
                 fontWeight: 700, fontSize: '0.88rem', padding: '0.8rem 1.3rem',
                 transition: 'all 0.15s', marginTop: '0.75rem',
               }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#2BBB92'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 8px 22px -10px rgba(43,187,146,0.8)'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--navy-surface)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = 'none'; }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#1FD75F'; (e.currentTarget as HTMLButtonElement).style.color = '#072011'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 8px 22px -10px rgba(31,215,95,0.8)'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--navy-surface)'; (e.currentTarget as HTMLButtonElement).style.color = '#fff'; (e.currentTarget as HTMLButtonElement).style.boxShadow = 'none'; }}
             >
               <ExternalLink size={15} /> Ver métricas de fluxo de <strong>{selectedId}</strong>
             </button>
@@ -196,13 +196,13 @@ const Home: React.FC = () => {
                   label: 'Escopo',
                   value: `${rc.summary.done}/${rc.summary.total}`,
                   sub: `${rc.summary.remaining} restantes`,
-                  accent: '#2BBB92',
+                  accent: 'var(--accent)',
                 },
                 {
                   label: 'Velocidade (otimista)',
                   value: `${rc.summary.velBest.toFixed(1)}`,
                   sub: 'itens/semana · P85 (padrão LM)',
-                  accent: '#8B0CF6',
+                  accent: 'var(--forest)',
                 },
                 {
                   label: 'Projeção de Entrega',
@@ -212,13 +212,13 @@ const Home: React.FC = () => {
                     : rc.summary.confident
                       ? `otimista → pessimista: até ${fmtDate(rc.summary.entregaPior)}`
                       : 'previsão única (amostra curta)',
-                  accent: '#2BBB92',
+                  accent: 'var(--accent)',
                 },
                 {
                   label: 'Tendência (mediana)',
                   value: `${rc.summary.velTrend.toFixed(1)}`,
                   sub: 'itens/semana · P50',
-                  accent: '#9ca3af',
+                  accent: 'var(--text-tertiary)',
                 },
               ].map(({ label, value, sub, accent }) => (
                 <motion.div key={label} variants={fadeUp}>
@@ -238,7 +238,7 @@ const Home: React.FC = () => {
                   const pct = s.total > 0 ? Math.round((s.done / s.total) * 100) : 0;
                   const rLate = !!s.entregaPior && s.entregaPior < now && s.remaining > 0;
                   const rRisk = !rLate && !!s.entregaMelhor && s.entregaMelhor > new Date(now.getTime() + 60 * 86400000) && s.remaining > 0;
-                  const accent = rLate ? '#ef4444' : rRisk ? '#f59e0b' : '#2BBB92';
+                  const accent = rLate ? 'var(--err)' : rRisk ? 'var(--warn)' : 'var(--accent)';
 
                   return (
                     <div
@@ -263,7 +263,7 @@ const Home: React.FC = () => {
                         </div>
                         <span style={{
                           fontSize: '0.7rem', fontWeight: 700, padding: '2px 8px', borderRadius: 999,
-                          background: rLate ? 'rgba(239,68,68,0.1)' : rRisk ? 'rgba(245,158,11,0.1)' : 'rgba(43,187,146,0.1)',
+                          background: rLate ? 'var(--err-bg)' : rRisk ? 'var(--warn-bg)' : 'var(--ok-bg)',
                           color: accent,
                         }}>
                           {rLate ? 'Atrasado' : rRisk ? 'Em Risco' : s.remaining === 0 ? 'Entregue' : 'No Prazo'}
@@ -272,7 +272,7 @@ const Home: React.FC = () => {
 
                       {/* Progress bar */}
                       <div style={{ background: 'var(--bg-color)', borderRadius: 999, height: 5, marginBottom: '0.75rem', overflow: 'hidden' }}>
-                        <div style={{ height: '100%', width: `${pct}%`, background: `linear-gradient(90deg, var(--primary), var(--brand-violet))`, borderRadius: 999, transition: 'width 0.5s ease' }} />
+                        <div style={{ height: '100%', width: `${pct}%`, background: `linear-gradient(90deg, var(--green-400), var(--green-700))`, borderRadius: 999, transition: 'width 0.5s ease' }} />
                       </div>
 
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 500 }}>

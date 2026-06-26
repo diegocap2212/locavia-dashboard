@@ -49,9 +49,9 @@ const TeamDetail: React.FC = () => {
           <>
             {/* Placar do time */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-              <KPICard title="Escopo Total" value={totals.total} subtext="itens do time" icon={Users} accent="#2BBB92" />
-              <KPICard title="Entregues" value={totals.delivered} subtext="concluídos" icon={CheckCircle2} accent="#2BBB92" />
-              <KPICard title="WIP" value={totals.wip} subtext="em andamento" icon={Activity} accent="#8B0CF6" />
+              <KPICard title="Escopo Total" value={totals.total} subtext="itens do time" icon={Users} accent="var(--accent)" />
+              <KPICard title="Entregues" value={totals.delivered} subtext="concluídos" icon={CheckCircle2} accent="var(--accent)" />
+              <KPICard title="WIP" value={totals.wip} subtext="em andamento" icon={Activity} accent="var(--warn)" />
               <KPICard title="Lead Time" value={`${totals.avgLeadTime.toFixed(1)}d`} subtext="criado → resolvido" icon={Clock} accent="#F59E0B" />
             </div>
 
@@ -89,7 +89,7 @@ const TeamDetail: React.FC = () => {
 
                     {/* Progresso */}
                     <div style={{ background: 'var(--bg-color)', borderRadius: 999, height: 6, marginBottom: '0.6rem', overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${pct}%`, background: 'linear-gradient(90deg, var(--primary), var(--brand-violet))', borderRadius: 999 }} />
+                      <div style={{ height: '100%', width: `${pct}%`, background: 'linear-gradient(90deg, var(--green-400), var(--green-700))', borderRadius: 999 }} />
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 500, marginBottom: '0.75rem' }}>
                       <span>{r.delivered}/{r.total} entregues ({pct}%)</span>
@@ -102,7 +102,7 @@ const TeamDetail: React.FC = () => {
                         <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: 2 }}>itens</div>
                       </div>
                       <div>
-                        <div style={{ fontFamily: 'monospace', fontSize: '1.1rem', fontWeight: 700, color: 'var(--brand-mint)', lineHeight: 1 }}>{r.avgLeadTime.toFixed(1)}d</div>
+                        <div style={{ fontFamily: 'monospace', fontSize: '1.1rem', fontWeight: 700, color: 'var(--accent-strong)', lineHeight: 1 }}>{r.avgLeadTime.toFixed(1)}d</div>
                         <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: 2 }}>lead time</div>
                       </div>
                     </div>
