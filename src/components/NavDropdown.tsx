@@ -41,7 +41,7 @@ const NavDropdown: React.FC<Props> = ({ label, items, active, variant = 'nav', m
     ? {
         display: 'inline-flex', alignItems: 'center', gap: 6,
         color: '#fff', background: 'rgba(255,255,255,0.08)',
-        border: `1px solid ${open ? 'rgba(143,236,171,0.5)' : 'rgba(255,255,255,0.16)'}`,
+        border: `1px solid ${open ? 'rgba(43,232,107,0.5)' : 'rgba(255,255,255,0.16)'}`,
         cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600,
         padding: '7px 12px', borderRadius: 8, transition: 'all 0.15s', whiteSpace: 'nowrap',
       }
@@ -69,8 +69,8 @@ const NavDropdown: React.FC<Props> = ({ label, items, active, variant = 'nav', m
             minWidth: menuMinWidth, maxHeight: 380, overflowY: 'auto',
             background: 'linear-gradient(180deg, #11281A 0%, #0A1F12 100%)',
             borderRadius: 12,
-            border: '1px solid rgba(143,236,171,0.22)',
-            boxShadow: '0 18px 44px -12px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03), 0 8px 30px -10px rgba(143,236,171,0.35)',
+            border: '1px solid rgba(43,232,107,0.22)',
+            boxShadow: '0 18px 44px -12px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03), 0 8px 30px -10px rgba(43,232,107,0.35)',
             padding: 6,
             backdropFilter: 'blur(8px)',
             WebkitBackdropFilter: 'blur(8px)',
@@ -87,9 +87,9 @@ const NavDropdown: React.FC<Props> = ({ label, items, active, variant = 'nav', m
                 fontSize: '0.85rem', fontWeight: item.active ? 700 : 500,
                 color: item.active ? '#fff' : 'rgba(255,255,255,0.72)',
                 background: item.active
-                  ? 'linear-gradient(92deg, rgba(143,236,171,0.30), rgba(143,236,171,0.12))'
+                  ? 'linear-gradient(92deg, rgba(43,232,107,0.30), rgba(43,232,107,0.12))'
                   : 'transparent',
-                border: item.active ? '1px solid rgba(143,236,171,0.45)' : '1px solid transparent',
+                border: item.active ? '1px solid rgba(43,232,107,0.45)' : '1px solid transparent',
                 transition: 'all 0.12s',
               }}
               onMouseEnter={e => { if (!item.active) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.07)'; }}
@@ -97,7 +97,7 @@ const NavDropdown: React.FC<Props> = ({ label, items, active, variant = 'nav', m
             >
               <span style={{
                 width: 6, height: 6, borderRadius: '50%', flexShrink: 0,
-                background: item.active ? '#8FECAB' : 'rgba(255,255,255,0.25)',
+                background: item.active ? '#2BE86B' : 'rgba(255,255,255,0.25)',
               }} />
               {item.label}
             </button>

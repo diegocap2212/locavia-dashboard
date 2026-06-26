@@ -15,8 +15,8 @@ const railBtn = (active: boolean): React.CSSProperties => ({
   display: 'flex', alignItems: 'center', justifyContent: 'center',
   border: 'none', cursor: 'pointer',
   color: active ? '#fff' : 'rgba(255,255,255,0.55)',
-  background: active ? 'rgba(143,236,171,0.16)' : 'transparent',
-  boxShadow: active ? 'inset 0 0 0 1px rgba(143,236,171,0.45)' : 'none',
+  background: active ? 'rgba(43,232,107,0.16)' : 'transparent',
+  boxShadow: active ? 'inset 0 0 0 1px rgba(43,232,107,0.45)' : 'none',
   transition: 'all 0.15s',
 });
 
@@ -63,8 +63,8 @@ const RailItem: React.FC<RailItemProps> = ({ icon: Icon, label, active, onClick,
             minWidth: 230, maxHeight: 420, overflowY: 'auto',
             background: 'linear-gradient(180deg, #11281A 0%, #0A1F12 100%)',
             borderRadius: 12,
-            border: '1px solid rgba(143,236,171,0.22)',
-            boxShadow: '0 18px 44px -12px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03), 0 8px 30px -10px rgba(143,236,171,0.35)',
+            border: '1px solid rgba(43,232,107,0.22)',
+            boxShadow: '0 18px 44px -12px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03), 0 8px 30px -10px rgba(43,232,107,0.35)',
             padding: 6,
             backdropFilter: 'blur(8px)',
             WebkitBackdropFilter: 'blur(8px)',
@@ -84,15 +84,15 @@ const RailItem: React.FC<RailItemProps> = ({ icon: Icon, label, active, onClick,
                 fontSize: '0.85rem', fontWeight: item.active ? 700 : 500,
                 color: item.active ? '#fff' : 'rgba(255,255,255,0.72)',
                 background: item.active
-                  ? 'linear-gradient(92deg, rgba(143,236,171,0.30), rgba(143,236,171,0.12))'
+                  ? 'linear-gradient(92deg, rgba(43,232,107,0.30), rgba(43,232,107,0.12))'
                   : 'transparent',
-                border: item.active ? '1px solid rgba(143,236,171,0.45)' : '1px solid transparent',
+                border: item.active ? '1px solid rgba(43,232,107,0.45)' : '1px solid transparent',
                 transition: 'all 0.12s',
               }}
               onMouseEnter={e => { if (!item.active) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.07)'; }}
               onMouseLeave={e => { if (!item.active) (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
             >
-              <span style={{ width: 6, height: 6, borderRadius: '50%', flexShrink: 0, background: item.active ? '#8FECAB' : 'rgba(255,255,255,0.25)' }} />
+              <span style={{ width: 6, height: 6, borderRadius: '50%', flexShrink: 0, background: item.active ? '#2BE86B' : 'rgba(255,255,255,0.25)' }} />
               {item.label}
             </button>
           ))}
