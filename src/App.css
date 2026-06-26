@@ -40,14 +40,16 @@
   --page:linear-gradient(180deg,#FFFFFF 0%,#F1FBF4 58%,#E6F9EC 100%);
   --noise:.5;
 
-  /* ── Shell (sidebar / topbar / hero) — theme-aware ── */
-  --shell-bg:#0D3311;
-  --shell-border:rgba(255,255,255,0.08);
-  --shell-text:#F2F7F3;
-  --shell-text-muted:rgba(242,247,243,.6);
-  --hero-bg:linear-gradient(180deg,#0D3311 0%,#0A2A0E 100%);
-  --hero-fg:#F2F7F3;
-  --hero-glow:radial-gradient(ellipse 70% 60% at 30% 50%, rgba(43,232,107,.22) 0%, rgba(43,232,107,.06) 55%, transparent 100%);
+  /* ── Shell (sidebar / topbar / hero) — chrome CLARO do DS, theme-aware ──
+     Os --shell-* referenciam tokens de superfície/texto, então viram
+     near-black automaticamente no dark mode (sem override por tema). */
+  --shell-bg: var(--surface-2);
+  --shell-border: var(--border-subtle);
+  --shell-text: var(--text-secondary);
+  --shell-text-muted: var(--text-tertiary);
+  --hero-bg: linear-gradient(180deg, var(--surface) 0%, var(--accent-soft) 100%);
+  --hero-fg: var(--text-primary);
+  --hero-glow: radial-gradient(ellipse 70% 60% at 30% 50%, rgba(43,232,107,.10) 0%, transparent 60%);
 
   /* ── Elevação ── */
   --shadow-sm: 0 1px 2px 0 rgba(13,51,17,.06);
@@ -86,10 +88,10 @@
   --warning-light: var(--warn-bg);
   --danger: var(--err);
   --danger-light: var(--err-bg);
-  /* navy legado → shell (mantém componentes antigos funcionando) */
-  --navy: var(--shell-bg);
-  --navy-mid: #0A2A0E;
-  --navy-surface: #11602C;
+  /* navy legado → superfícies claras (DS) */
+  --navy: var(--surface-2);
+  --navy-mid: var(--surface-3);
+  --navy-surface: var(--surface-2);
 }
 
 /* ── Dark mode ── */
@@ -114,13 +116,10 @@
   --page:radial-gradient(1200px 820px at 16% 118%,rgba(43,232,107,.40) 0%,rgba(43,232,107,0) 56%),radial-gradient(900px 680px at 86% -12%,rgba(43,232,107,.26) 0%,rgba(43,232,107,0) 54%),#090A09;
   --noise:.22;
 
-  --shell-bg:#090A09;
-  --shell-border:rgba(255,255,255,0.07);
-  --shell-text:#F2F7F3;
-  --shell-text-muted:rgba(242,247,243,.55);
-  --hero-bg:radial-gradient(700px 500px at 18% 120%,rgba(43,232,107,.32),transparent 60%),radial-gradient(560px 420px at 84% -12%,rgba(43,232,107,.20),transparent 60%),#090A09;
-  --hero-fg:#F2F7F3;
-  --hero-glow:radial-gradient(ellipse 70% 60% at 30% 50%, rgba(43,232,107,.20) 0%, rgba(43,232,107,.05) 55%, transparent 100%);
+  /* shell e hero-fg herdam via tokens de surface/texto (flip automatico).
+     Só o gradiente do hero muda no dark: deep glow near-black do DS. */
+  --hero-bg:radial-gradient(700px 500px at 18% 120%,rgba(43,232,107,.30),transparent 60%),radial-gradient(560px 420px at 84% -12%,rgba(43,232,107,.18),transparent 60%),#0A0D0A;
+  --hero-glow:radial-gradient(ellipse 70% 60% at 30% 50%, rgba(43,232,107,.16) 0%, transparent 60%);
 
   --shadow-sm: 0 1px 2px 0 rgba(0,0,0,.4);
   --shadow-md: 0 4px 12px 0 rgba(0,0,0,.45);
@@ -129,9 +128,6 @@
 
   --glass-bg: rgba(23,29,23,.72);
   --glass-border: rgba(255,255,255,.08);
-
-  --navy-mid: #0A2A0E;
-  --navy-surface: #11602C;
 }
 
 body {
@@ -589,3 +585,11 @@ body::before {
 .vds-help { font-size: 12px; color: var(--text-tertiary); }
 .vds-help-error { color: var(--err-fg); }
 .vds-select { appearance: none; -webkit-appearance: none; padding-right: 38px; cursor: pointer; }
+
+/* ── Header translúcido do DS ── */
+.vds-topbar {
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-subtle);
+}

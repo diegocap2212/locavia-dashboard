@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Lock, Loader2 } from 'lucide-react';
+import { Lock } from 'lucide-react';
 import { login } from '../services/authService';
 import ThemeToggle from './ui/ThemeToggle';
+import Button from './ui/Button';
+import { Input } from './ui/Input';
 
 interface Props {
   onSuccess: () => void;
@@ -28,95 +30,71 @@ export const LoginScreen: React.FC<Props> = ({ onSuccess }) => {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', background: 'var(--shell-bg)', fontFamily: 'Inter, system-ui, sans-serif', position: 'relative' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', background: 'var(--page)', fontFamily: 'Inter, system-ui, sans-serif', position: 'relative' }}>
       <div style={{ position: 'absolute', top: 18, right: 18, zIndex: 10 }}>
-        <ThemeToggle onShell />
+        <ThemeToggle />
       </div>
+
       {/* ── Lado do formulário ── */}
       <div style={{ flex: '0 1 480px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2.5rem' }}>
         <form onSubmit={submit} style={{ width: '100%', maxWidth: 340 }}>
           <div style={{
             width: 46, height: 46, borderRadius: 13, marginBottom: '1.5rem',
-            background: 'linear-gradient(135deg, #2BE86B, #15803A)',
+            background: 'linear-gradient(135deg, #5FE389, #15803A)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#072011', boxShadow: '0 4px 16px 0 rgba(43,232,107,0.35)',
+            color: '#072011', boxShadow: 'var(--shadow-brand)',
           }}>
             <Lock size={20} />
           </div>
 
-          <h1 style={{ margin: '0 0 0.4rem', fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-0.03em', color: '#fff' }}>
+          <h1 style={{ margin: '0 0 0.4rem', fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>
             Bem-vindo(a)
           </h1>
-          <p style={{ margin: '0 0 1.75rem', fontSize: '0.9rem', color: 'rgba(255,255,255,0.5)' }}>
+          <p style={{ margin: '0 0 1.75rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
             Dashboard de Métricas LM · acesso restrito
           </p>
 
-          <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', marginBottom: '0.5rem' }}>
-            Senha
-          </label>
-          <input
+          <Input
+            label="Senha"
             type="password"
             value={password}
             onChange={e => setPassword(e.target.value)}
             placeholder="••••••••"
             autoFocus
-            style={{
-              width: '100%', boxSizing: 'border-box',
-              padding: '0.75rem 0.9rem', borderRadius: 10,
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.14)',
-              color: '#fff', fontSize: '0.9rem', outline: 'none',
-              transition: 'border-color 0.15s, box-shadow 0.15s',
-            }}
-            onFocus={e => { e.currentTarget.style.borderColor = '#2BE86B'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(43,232,107,0.18)'; }}
-            onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.14)'; e.currentTarget.style.boxShadow = 'none'; }}
+            error={error || undefined}
           />
 
-          {error && (
-            <p style={{ margin: '0.75rem 0 0', fontSize: '0.82rem', color: '#fca5a5' }}>{error}</p>
-          )}
-
-          <button
+          <Button
             type="submit"
-            disabled={busy || !password}
-            style={{
-              marginTop: '1.25rem', width: '100%',
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-              padding: '0.75rem 1rem', borderRadius: 10, border: 'none',
-              fontSize: '0.9rem', fontWeight: 700, fontFamily: 'inherit',
-              cursor: busy || !password ? 'not-allowed' : 'pointer',
-              color: busy || !password ? 'rgba(255,255,255,0.5)' : '#062a20',
-              background: busy || !password ? 'rgba(255,255,255,0.08)' : 'var(--primary)',
-              boxShadow: busy || !password ? 'none' : 'var(--shadow-brand)',
-              transition: 'all 0.15s',
-            }}
+            variant="accent"
+            loading={busy}
+            disabled={!password}
+            style={{ marginTop: '1.25rem', width: '100%' }}
           >
-            {busy && <Loader2 size={16} className="animate-spin" />}
             {busy ? 'Entrando...' : 'Entrar'}
-          </button>
+          </Button>
 
-          <p style={{ margin: '1.5rem 0 0', fontSize: '0.72rem', color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>
+          <p style={{ margin: '1.5rem 0 0', fontSize: '0.72rem', color: 'var(--text-tertiary)', lineHeight: 1.5 }}>
             Acesso protegido. Em caso de dúvida, fale com o time Venice.
           </p>
         </form>
       </div>
 
-      {/* ── Lado hero (marca Venice) ── */}
+      {/* ── Lado hero (marca Venice) — painel verde de acento ── */}
       <div style={{
         flex: 1, position: 'relative', overflow: 'hidden',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        borderLeft: '1px solid rgba(255,255,255,0.06)',
-        background: 'linear-gradient(180deg, #0F2A16 0%, #090A09 100%)',
+        borderLeft: '1px solid var(--border-subtle)',
+        background: 'linear-gradient(160deg, #5FE389 0%, #2BE86B 55%, #15B14C 100%)',
       }}>
-        {/* glow radial verde neon */}
         <div style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
-          background: 'radial-gradient(ellipse 70% 60% at 60% 45%, rgba(43,232,107,0.24) 0%, rgba(43,232,107,0.08) 55%, transparent 100%)',
+          background: 'radial-gradient(ellipse 60% 50% at 60% 42%, rgba(255,255,255,0.30) 0%, transparent 60%)',
         }} />
         <img
           src="/venice-by-blite.svg"
           alt="Venice by blite"
-          style={{ position: 'relative', width: 'min(58%, 380px)', filter: 'brightness(0) invert(1)' }}
+          style={{ position: 'relative', width: 'min(58%, 380px)', filter: 'brightness(0)' }}
         />
       </div>
     </div>

@@ -19,9 +19,9 @@ const TeamDetail: React.FC = () => {
       onClick={() => navigate('/')}
       style={{
         display: 'inline-flex', alignItems: 'center', gap: 6,
-        background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.16)',
+        background: 'var(--surface)', border: '1px solid var(--border-default)',
         borderRadius: 9, padding: '8px 12px', cursor: 'pointer',
-        fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.85)',
+        fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)',
       }}
       title="Voltar"
     >

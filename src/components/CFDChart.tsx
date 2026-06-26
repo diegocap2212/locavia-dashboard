@@ -22,20 +22,20 @@ const CFDTooltip = ({ active, payload, label }: { active?: boolean; payload?: To
   const ordered = [...payload].reverse();
   const total = payload.reduce((acc, e) => acc + (e.value || 0), 0);
   return (
-    <div style={{ background: '#0A1F12', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: 12, minWidth: 210, boxShadow: '0 12px 32px rgba(0,0,0,0.5)' }}>
-      <p style={{ margin: '0 0 8px', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'rgba(255,255,255,0.5)' }}>Semana {label}</p>
+    <div style={{ background: 'var(--surface)', border: '1px solid var(--border-subtle)', borderRadius: 12, padding: 12, minWidth: 210, boxShadow: 'var(--shadow-lg)' }}>
+      <p style={{ margin: '0 0 8px', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--text-tertiary)' }}>Semana {label}</p>
       {ordered.map(entry => (
         <div key={entry.dataKey} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '2px 0' }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'rgba(255,255,255,0.75)' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--text-secondary)' }}>
             <span style={{ width: 10, height: 10, borderRadius: '50%', background: entry.color, display: 'inline-block' }} />
             {entry.name}
           </span>
-          <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{entry.value}</span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>{entry.value}</span>
         </div>
       ))}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 8, marginTop: 4, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-        <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.55)' }}>Total (escopo)</span>
-        <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{total}</span>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 8, marginTop: 4, borderTop: '1px solid var(--border-subtle)' }}>
+        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-tertiary)' }}>Total (escopo)</span>
+        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>{total}</span>
       </div>
     </div>
   );

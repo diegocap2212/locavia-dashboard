@@ -4,9 +4,33 @@ import type { ReleaseConeData } from '../hooks/useDashboardData';
 interface Props {
   coneData: ReleaseConeData;
   height?: number;
+  /** tema atual — define a paleta do cone (claro/escuro). Default 'dark'. */
+  theme?: 'light' | 'dark';
 }
 
 const MONO = `"Cascadia Code","Cascadia Mono",Consolas,ui-monospace,"SF Mono",monospace`;
+
+/** Paletas do cone por tema — o canvas precisa de cores concretas (não var()). */
+interface ConePal {
+  grid: string; axis: string;
+  realized: string; realizedGlow: string;
+  p85: string; p15: string;
+  bandRGB: string; marker: string; dot: string;
+}
+const PALETTES: Record<'light' | 'dark', ConePal> = {
+  dark: {
+    grid: 'rgba(255,255,255,0.07)', axis: 'rgba(255,255,255,0.45)',
+    realized: '#2BE86B', realizedGlow: 'rgba(43,232,107,0.6)',
+    p85: 'rgba(255,255,255,0.92)', p15: 'rgba(240,198,107,0.85)',
+    bandRGB: '43,232,107', marker: 'rgba(43,232,107,0.45)', dot: '#2BE86B',
+  },
+  light: {
+    grid: 'rgba(11,20,13,0.10)', axis: 'rgba(11,20,13,0.50)',
+    realized: '#15B14C', realizedGlow: 'rgba(21,177,76,0.35)',
+    p85: 'rgba(11,20,13,0.55)', p15: '#C98A00',
+    bandRGB: '21,177,76', marker: 'rgba(21,177,76,0.5)', dot: '#15B14C',
+  },
+};
 
 function pill(
   ctx: CanvasRenderingContext2D,
@@ -46,6 +70,7 @@ function drawCone(
   W: number, H: number,
   coneData: ReleaseConeData,
   p: number, // 0..1 animation progress
+  pal: ConePal,
 ) {
   const { chartData, bLabel, wLabel, summary } = coneData;
   if (!chartData.length) return;
@@ -73,10 +98,10 @@ function drawCone(
   for (let g = 0; g <= 4; g++) {
     const val = (yMax / 1.05) * g / 4;
     const y = yAt(val);
-    ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+    ctx.strokeStyle = pal.grid;
     ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
-    ctx.fillStyle = 'rgba(255,255,255,0.45)';
+    ctx.fillStyle = pal.axis;
     ctx.textAlign = 'right';
     ctx.fillText(String(Math.round(val)), padL - 7, y);
   }
@@ -88,7 +113,7 @@ function drawCone(
     const d = chartData[i];
     if (!d?.fullDate) continue;
     const lbl = (d.fullDate as Date).toLocaleDateString('pt-BR', { month: 'short' });
-    ctx.fillStyle = 'rgba(255,255,255,0.45)';
+    ctx.fillStyle = pal.axis;
     ctx.fillText(lbl, xAt(i), H - padB + 16);
   }
 
@@ -143,9 +168,9 @@ function drawCone(
     }
 
     const grad = ctx.createLinearGradient(todayX, 0, p15EndX, 0);
-    grad.addColorStop(0, `rgba(43,232,107,${0.45 * bandAlpha})`);
-    grad.addColorStop(0.5, `rgba(43,232,107,${0.16 * bandAlpha})`);
-    grad.addColorStop(1, `rgba(43,232,107,0)`);
+    grad.addColorStop(0, `rgba(${pal.bandRGB},${0.45 * bandAlpha})`);
+    grad.addColorStop(0.5, `rgba(${pal.bandRGB},${0.16 * bandAlpha})`);
+    grad.addColorStop(1, `rgba(${pal.bandRGB},0)`);
     ctx.fillStyle = grad;
     ctx.beginPath();
     if (p15Pts.length) {
@@ -171,7 +196,7 @@ function drawCone(
     ctx.save();
     ctx.globalAlpha = p15LineAlpha;
     ctx.setLineDash([3, 4]);
-    ctx.strokeStyle = 'rgba(240,198,107,0.8)';
+    ctx.strokeStyle = pal.p15;
     ctx.lineWidth = 1.5;
     ctx.beginPath();
     let started = false;
@@ -192,7 +217,7 @@ function drawCone(
     ctx.save();
     ctx.globalAlpha = p85LineAlpha;
     ctx.setLineDash([6, 4]);
-    ctx.strokeStyle = 'rgba(255,255,255,0.92)';
+    ctx.strokeStyle = pal.p85;
     ctx.lineWidth = 2;
     ctx.beginPath();
     let started = false;
@@ -206,7 +231,7 @@ function drawCone(
     ctx.stroke();
     ctx.setLineDash([]);
     // dot at P85 end
-    ctx.fillStyle = '#fff';
+    ctx.fillStyle = pal.p85;
     ctx.beginPath();
     ctx.arc(p85EndX, p85EndY, 3.5, 0, Math.PI * 2);
     ctx.fill();
@@ -217,9 +242,9 @@ function drawCone(
   const reveal = Math.min(p / 0.6, 1);
   const shown = Math.max(1, Math.floor(pastIdxs.length * reveal));
   ctx.save();
-  ctx.shadowColor = 'rgba(43,232,107,0.6)';
+  ctx.shadowColor = pal.realizedGlow;
   ctx.shadowBlur = 14;
-  ctx.strokeStyle = '#2BE86B';
+  ctx.strokeStyle = pal.realized;
   ctx.lineWidth = 3;
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
@@ -239,7 +264,7 @@ function drawCone(
     ctx.globalAlpha = markerAlpha;
 
     ctx.setLineDash([2, 3]);
-    ctx.strokeStyle = 'rgba(43,232,107,0.45)';
+    ctx.strokeStyle = pal.marker;
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(todayX, padT);
@@ -247,13 +272,13 @@ function drawCone(
     ctx.stroke();
     ctx.setLineDash([]);
 
-    ctx.fillStyle = '#2BE86B';
+    ctx.fillStyle = pal.dot;
     ctx.beginPath();
     ctx.arc(todayX, todayY, 4.5, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.font = `10px ${MONO}`;
-    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.fillStyle = pal.axis;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('hoje', todayX, padT - 10);
@@ -281,10 +306,11 @@ function drawCone(
   }
 }
 
-const ConeCanvas: React.FC<Props> = ({ coneData, height = 340 }) => {
+const ConeCanvas: React.FC<Props> = ({ coneData, height = 340, theme = 'dark' }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number>(0);
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const pal = PALETTES[theme];
 
   const paint = useCallback((progress: number) => {
     const cv = canvasRef.current;
@@ -297,9 +323,9 @@ const ConeCanvas: React.FC<Props> = ({ coneData, height = 340 }) => {
     ctx.clearRect(0, 0, cv.width, cv.height);
     ctx.save();
     ctx.scale(dpr, dpr);
-    drawCone(ctx, W, H, coneData, progress);
+    drawCone(ctx, W, H, coneData, progress, pal);
     ctx.restore();
-  }, [coneData]);
+  }, [coneData, pal]);
 
   const resize = useCallback(() => {
     const cv = canvasRef.current;

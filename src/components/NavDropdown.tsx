@@ -40,15 +40,16 @@ const NavDropdown: React.FC<Props> = ({ label, items, active, variant = 'nav', m
   const triggerStyle: React.CSSProperties = variant === 'control'
     ? {
         display: 'inline-flex', alignItems: 'center', gap: 6,
-        color: '#fff', background: 'rgba(255,255,255,0.08)',
-        border: `1px solid ${open ? 'rgba(43,232,107,0.5)' : 'rgba(255,255,255,0.16)'}`,
+        color: 'var(--text-primary)', background: 'var(--surface)',
+        border: `1px solid ${open ? 'var(--accent)' : 'var(--border-default)'}`,
+        boxShadow: open ? '0 0 0 3px var(--ring)' : 'none',
         cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600,
         padding: '7px 12px', borderRadius: 8, transition: 'all 0.15s', whiteSpace: 'nowrap',
       }
     : {
         display: 'inline-flex', alignItems: 'center', gap: 5,
-        color: active || open ? '#fff' : 'rgba(255,255,255,0.6)',
-        background: active ? 'rgba(255,255,255,0.1)' : 'transparent',
+        color: active || open ? 'var(--text-primary)' : 'var(--text-secondary)',
+        background: active ? 'var(--surface-2)' : 'transparent',
         border: 'none', cursor: 'pointer',
         fontSize: '0.82rem', fontWeight: 600, padding: '0.4rem 0.85rem',
         borderRadius: 8, transition: 'all 0.15s',
@@ -67,13 +68,11 @@ const NavDropdown: React.FC<Props> = ({ label, items, active, variant = 'nav', m
           style={{
             position: 'absolute', top: 'calc(100% + 8px)', left: 0, zIndex: 200,
             minWidth: menuMinWidth, maxHeight: 380, overflowY: 'auto',
-            background: 'linear-gradient(180deg, #11281A 0%, #0A1F12 100%)',
+            background: 'var(--surface)',
             borderRadius: 12,
-            border: '1px solid rgba(43,232,107,0.22)',
-            boxShadow: '0 18px 44px -12px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03), 0 8px 30px -10px rgba(43,232,107,0.35)',
+            border: '1px solid var(--border-subtle)',
+            boxShadow: 'var(--shadow-lg)',
             padding: 6,
-            backdropFilter: 'blur(8px)',
-            WebkitBackdropFilter: 'blur(8px)',
           }}
         >
           {items.map(item => (
@@ -85,19 +84,17 @@ const NavDropdown: React.FC<Props> = ({ label, items, active, variant = 'nav', m
                 display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left',
                 padding: '8px 12px', borderRadius: 8, cursor: 'pointer',
                 fontSize: '0.85rem', fontWeight: item.active ? 700 : 500,
-                color: item.active ? '#fff' : 'rgba(255,255,255,0.72)',
-                background: item.active
-                  ? 'linear-gradient(92deg, rgba(43,232,107,0.30), rgba(43,232,107,0.12))'
-                  : 'transparent',
-                border: item.active ? '1px solid rgba(43,232,107,0.45)' : '1px solid transparent',
+                color: item.active ? 'var(--accent-strong)' : 'var(--text-secondary)',
+                background: item.active ? 'var(--accent-soft)' : 'transparent',
+                border: '1px solid transparent',
                 transition: 'all 0.12s',
               }}
-              onMouseEnter={e => { if (!item.active) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.07)'; }}
+              onMouseEnter={e => { if (!item.active) (e.currentTarget as HTMLButtonElement).style.background = 'var(--surface-2)'; }}
               onMouseLeave={e => { if (!item.active) (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
             >
               <span style={{
                 width: 6, height: 6, borderRadius: '50%', flexShrink: 0,
-                background: item.active ? '#2BE86B' : 'rgba(255,255,255,0.25)',
+                background: item.active ? 'var(--accent)' : 'var(--border-strong)',
               }} />
               {item.label}
             </button>

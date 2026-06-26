@@ -185,8 +185,9 @@ intacto e legível.
 
 ## Design System (Venice)
 
-A UI segue o **Design System Venice (by blite)**: tipografia **Inter**, verde neon
-**`#1FD75F`** como cor de marca e **light/dark mode** completos.
+A UI segue o **Design System Venice (by blite)**: tipografia **Inter**, verde
+**`#2BE86B`** como cor de marca e **light/dark mode** completos. O **chrome é claro**
+(superfícies + header translúcido), com o verde **apenas como acento** — fiel ao DS.
 
 - **Tokens** em [`src/index.css`](src/index.css) (fontes + `color-scheme`) e [`src/App.css`](src/App.css):
   o `:root` define a paleta (escala `--green-*`, `--accent`, superfícies, texto, bordas,
@@ -202,10 +203,16 @@ A UI segue o **Design System Venice (by blite)**: tipografia **Inter**, verde ne
   primary/accent/secondary/tertiary/destructive), `Input`/`Select`/`Textarea`, `Badge`.
   As classes base (`.vds-btn*`, `.vds-input`, …) vivem em [src/App.css](src/App.css) para
   ter estados `:hover/:active/:focus-visible` reais.
+- **Chrome (sidebar/topbar/hero):** superfícies claras via tokens `--shell-*`/`--hero-*`
+  (que herdam de `--surface*`/`--text-*`, então viram near-black no dark). Header translúcido
+  `.vds-topbar` (`color-mix` + blur). Nada de "shell escuro" — o verde aparece só em acentos
+  (nav ativo, pills, KPIs, cone). [`AppShell`](src/components/AppShell.tsx),
+  [`PageHero`](src/components/PageHero.tsx), [`NavDropdown`](src/components/NavDropdown.tsx).
 - **Gráficos:** paleta central em [`src/lib/chartColors.ts`](src/lib/chartColors.ts)
   (verde/forest/sage + neutro; **sem azul/violeta**). `grid`/`axis` usam cinza translúcido
-  para servir light e dark. O **violeta** (`#8B0CF6`) e o verde-teal antigo (`#2BBB92`) foram
-  removidos em favor do neon Venice.
+  para servir light e dark. O **`ConeCanvas`** é **theme-aware** (recebe `theme` e troca a
+  paleta light/dark) e o **CFD** usa card claro com `dark={theme==='dark'}`. O violeta e o
+  verde-teal antigo (`#2BBB92`) foram removidos em favor do verde Venice.
 
 > **Convenção:** prefira `var(--token)` a hex fixo. Ao criar superfícies/cores novas, use os
 > tokens semânticos (`--surface*`, `--text-*`, `--border-*`, `--accent`, `--ok/warn/err`) para

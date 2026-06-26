@@ -78,7 +78,7 @@ const TemporalDeliveryMatrix: React.FC<MatrixProps> = ({ data }) => {
             const completion = row.totalItems > 0 ? Math.round(((row.totalItems - (lastCell?.execucao || 0)) / row.totalItems) * 100) : 0;
 
             return (
-              <div key={i} style={{ height: '55px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', padding: '0 0.75rem', gap: '0.75rem', background: i % 2 === 0 ? '#fff' : '#fcfcfc' }}>
+              <div key={i} style={{ height: '55px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', padding: '0 0.75rem', gap: '0.75rem', background: i % 2 === 0 ? 'var(--surface)' : 'var(--surface-2)' }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {row.groupName}
@@ -133,7 +133,7 @@ const TemporalDeliveryMatrix: React.FC<MatrixProps> = ({ data }) => {
                   fontSize: '0.65rem',
                   fontWeight: 800,
                   color: isDeadlineWeek ? '#d97706' : (isCurrentWeek ? 'var(--primary)' : (week.date <= today ? 'var(--text-main)' : 'var(--text-muted)')),
-                  background: isDeadlineWeek ? 'rgba(245, 158, 11, 0.1)' : (isCurrentWeek ? 'var(--primary-light)' : (week.date <= today ? '#fff' : '#f9fafb')),
+                  background: isDeadlineWeek ? 'var(--warn-bg)' : (isCurrentWeek ? 'var(--primary-light)' : (week.date <= today ? 'var(--surface)' : 'var(--surface-2)')),
                   borderTop: isDeadlineWeek ? '4px solid #f59e0b' : (isCurrentWeek ? '4px solid var(--primary)' : 'none'),
                   gap: '2px'
                 }}>
@@ -147,7 +147,7 @@ const TemporalDeliveryMatrix: React.FC<MatrixProps> = ({ data }) => {
                   const cell = row.cells[wIndex];
                   const isTeamDeadline = row.deadline >= week.date && row.deadline < new Date(week.date.getTime() + 7 * 86400000);
                   
-                  let bgColor = '#fff';
+                  let bgColor = 'var(--surface)';
                   let textColor = 'var(--text-main)';
                   let statusText = '';
                   let indicatorSize = 0;

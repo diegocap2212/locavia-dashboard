@@ -9,6 +9,8 @@ import AppShell from './components/AppShell';
 import ConeCanvas from './components/ConeCanvas';
 import PageHero, { deriveStatus } from './components/PageHero';
 import { KPICard } from './components/KPICard';
+import Button from './components/ui/Button';
+import { useTheme } from './theme/ThemeProvider';
 import releaseConfig from './config/release-config.json';
 import './App.css';
 
@@ -52,6 +54,7 @@ const SMDashboardWrapper = () => {
    ──────────────────────────────────────────── */
 const Home: React.FC = () => {
   const navigate = useNavigate();
+  const { theme } = useTheme();
   const { loading, releaseCones } = useDashboardData('locavia');
 
   const [selectedId, setSelectedId] = useState<string>(activeReleases[0]?.id ?? '');
@@ -85,8 +88,9 @@ const Home: React.FC = () => {
             Locavia ·
             <span style={{
               display: 'inline-flex', alignItems: 'center',
-              background: 'rgba(255,255,255,0.92)', borderRadius: 6,
-              padding: '3px 7px', boxShadow: '0 1px 3px rgba(0,0,0,0.25)',
+              background: 'var(--surface)', borderRadius: 6,
+              border: '1px solid var(--border-subtle)',
+              padding: '3px 7px', boxShadow: 'var(--shadow-sm)',
             }}>
               <img src="/lm-logo.svg" alt="LM" style={{ height: 14, display: 'block' }} />
             </span>
@@ -99,7 +103,7 @@ const Home: React.FC = () => {
         <div style={{ position: 'relative' }}>
           {/* Flat release selector */}
           <div style={{ display: 'flex', gap: '0.375rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '1.5rem' }}>
-            <span style={{ fontFamily: 'monospace', fontSize: '0.62rem', letterSpacing: '0.18em', color: 'rgba(255,255,255,0.38)', marginRight: '0.25rem', fontWeight: 700 }}>RELEASES</span>
+            <span style={{ fontFamily: 'monospace', fontSize: '0.62rem', letterSpacing: '0.18em', color: 'var(--text-tertiary)', marginRight: '0.25rem', fontWeight: 700 }}>RELEASES</span>
             {releaseCones.map(r => {
               const active = selectedId === r.releaseId;
               return (
@@ -109,40 +113,41 @@ const Home: React.FC = () => {
                   style={{
                     display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
                     padding: '5px 14px', borderRadius: 999,
-                    border: `1px solid ${active ? '#2BE86B' : 'rgba(255,255,255,0.12)'}`,
+                    border: `1px solid ${active ? 'var(--accent)' : 'var(--border-default)'}`,
                     cursor: 'pointer', fontWeight: 700, fontSize: '0.78rem', letterSpacing: '0.03em',
                     transition: 'all 0.15s',
-                    background: active ? 'linear-gradient(92deg, rgba(43,232,107,0.30), rgba(43,232,107,0.12))' : 'rgba(255,255,255,0.05)',
-                    color: active ? '#fff' : 'rgba(255,255,255,0.6)',
-                    boxShadow: active ? '0 0 0 1px rgba(43,232,107,0.5), 0 6px 18px -8px rgba(43,232,107,0.7)' : 'none',
+                    background: active ? 'var(--accent-soft)' : 'var(--surface)',
+                    color: active ? 'var(--accent-strong)' : 'var(--text-secondary)',
+                    boxShadow: active ? 'var(--shadow-sm)' : 'none',
                   }}
                 >
-                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: active ? '#2BE86B' : 'rgba(255,255,255,0.3)', display: 'inline-block' }} />
+                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: active ? 'var(--accent)' : 'var(--border-strong)', display: 'inline-block' }} />
                   {r.releaseId}
                 </button>
               );
             })}
           </div>
 
-          {/* Cone canvas — dark card inside hero */}
+          {/* Cone canvas — card claro (surface) no hero */}
           {rc && rc.chartData.length > 0 && (
             <div style={{
               borderRadius: 16,
-              background: 'linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))',
-              border: '1px solid rgba(255,255,255,0.08)',
+              background: 'var(--surface)',
+              border: '1px solid var(--border-subtle)',
+              boxShadow: 'var(--shadow-sm)',
               padding: '0.75rem 0.75rem 0.25rem',
               marginBottom: '0.25rem',
             }}>
-              <ConeCanvas coneData={rc} height={340} />
+              <ConeCanvas coneData={rc} height={340} theme={theme} />
               {/* Legend */}
               <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', padding: '0.5rem 0.25rem 0.5rem' }}>
                 {[
-                  { color: '#2BE86B', dash: false, label: 'Realizado (a fazer hoje)' },
-                  { color: '#FFFFFF', dash: true,  label: 'Cenário otimista (P85)' },
-                  { color: '#F0C66B', dash: true,  label: 'Cenário pessimista (P15)' },
-                  { color: 'linear-gradient(90deg,rgba(43,232,107,0.55),rgba(43,232,107,0.10))', dash: false, label: 'Faixa de incerteza', band: true },
+                  { color: 'var(--accent-strong)', dash: false, label: 'Realizado (a fazer hoje)' },
+                  { color: 'var(--text-secondary)', dash: true,  label: 'Cenário otimista (P85)' },
+                  { color: 'var(--warn)', dash: true,  label: 'Cenário pessimista (P15)' },
+                  { color: 'linear-gradient(90deg,rgba(43,232,107,0.55),rgba(43,232,107,0.12))', dash: false, label: 'Faixa de incerteza', band: true },
                 ].map(({ color, dash, label, band }) => (
-                  <span key={label} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.76rem', color: 'rgba(255,255,255,0.6)' }}>
+                  <span key={label} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.76rem', color: 'var(--text-secondary)' }}>
                     {band
                       ? <span style={{ width: 22, height: 12, borderRadius: 3, background: color, display: 'inline-block' }} />
                       : <span style={{ width: 22, height: 0, borderTop: `3px ${dash ? 'dashed' : 'solid'} ${color}`, borderRadius: 2, display: 'inline-block' }} />
@@ -152,11 +157,11 @@ const Home: React.FC = () => {
                 ))}
               </div>
               {/* Explicação curta */}
-              <p style={{ margin: 0, padding: '0 0.25rem 0.6rem', fontSize: '0.72rem', color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>
-                A faixa mostra a <strong style={{ color: 'rgba(255,255,255,0.7)' }}>incerteza da entrega</strong>: quanto mais aberta, menos previsível.
+              <p style={{ margin: 0, padding: '0 0.25rem 0.6rem', fontSize: '0.72rem', color: 'var(--text-tertiary)', lineHeight: 1.5 }}>
+                A faixa mostra a <strong style={{ color: 'var(--text-secondary)' }}>incerteza da entrega</strong>: quanto mais aberta, menos previsível.
                 Otimista = ritmo dos melhores períodos (P85); pessimista = ritmo dos piores (P15).
                 {rc.summary.remaining > 0 && !rc.summary.confident && (
-                  <span style={{ color: '#f7c365' }}> · Poucas semanas de dados ({rc.summary.weeksWithData}) — faixa de incerteza ainda indisponível.</span>
+                  <span style={{ color: 'var(--warn-fg)' }}> · Poucas semanas de dados ({rc.summary.weeksWithData}) — faixa de incerteza ainda indisponível.</span>
                 )}
               </p>
             </div>
@@ -164,20 +169,14 @@ const Home: React.FC = () => {
 
           {/* Drill-down link */}
           {rc && (
-            <button
+            <Button
+              variant="secondary"
               onClick={() => navigate(`/release/${selectedId}`)}
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: '0.6rem',
-                background: 'var(--navy-surface)', color: '#fff',
-                border: 'none', borderRadius: 11, cursor: 'pointer',
-                fontWeight: 700, fontSize: '0.88rem', padding: '0.8rem 1.3rem',
-                transition: 'all 0.15s', marginTop: '0.75rem',
-              }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#2BE86B'; (e.currentTarget as HTMLButtonElement).style.color = '#072011'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 8px 22px -10px rgba(43,232,107,0.8)'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--navy-surface)'; (e.currentTarget as HTMLButtonElement).style.color = '#fff'; (e.currentTarget as HTMLButtonElement).style.boxShadow = 'none'; }}
+              icon={<ExternalLink size={15} />}
+              style={{ marginTop: '0.75rem' }}
             >
-              <ExternalLink size={15} /> Ver métricas de fluxo de <strong>{selectedId}</strong>
-            </button>
+              Ver métricas de fluxo de&nbsp;<strong>{selectedId}</strong>
+            </Button>
           )}
         </div>
       </PageHero>

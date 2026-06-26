@@ -21,17 +21,18 @@ import { format } from 'date-fns';
 import PageHero from '../components/PageHero';
 import Tabs from '../components/Tabs';
 import NavDropdown from '../components/NavDropdown';
+import { useTheme } from '../theme/ThemeProvider';
 import dataMeta from '../data-meta.json';
 
 interface Props {
   smConfig: SMConfig;
 }
 
-/* input de data escuro para o range customizado sobre o hero */
-const darkDateInput: React.CSSProperties = {
-  background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.16)',
-  borderRadius: 8, color: '#fff', fontSize: '0.8rem', fontWeight: 600,
-  padding: '6px 10px', outline: 'none', colorScheme: 'dark',
+/* input de data (range customizado sobre o hero claro) */
+const dateInput: React.CSSProperties = {
+  background: 'var(--surface)', border: '1px solid var(--border-default)',
+  borderRadius: 8, color: 'var(--text-primary)', fontSize: '0.8rem', fontWeight: 600,
+  padding: '6px 10px', outline: 'none',
 };
 
 /* presets de período (range único) */
@@ -62,6 +63,7 @@ const TABS = [
 ];
 
 export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
+  const { theme } = useTheme();
   const [selectedTeam, setSelectedTeam] = useState<string>('ALL');
   const [selectedRelease, setSelectedRelease] = useState<string>('ALL');
   const [periodPreset, setPeriodPreset] = useState<string>('8w');
@@ -193,9 +195,9 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
           />
           {periodPreset === 'custom' && (
             <>
-              <input type="date" style={darkDateInput} value={customStartDateStr}
+              <input type="date" style={dateInput} value={customStartDateStr}
                 onChange={e => setCustomStartDateStr(e.target.value)} title="Início" />
-              <input type="date" style={darkDateInput} value={customEndDateStr}
+              <input type="date" style={dateInput} value={customEndDateStr}
                 onChange={e => setCustomEndDateStr(e.target.value)} title="Fim" />
             </>
           )}
@@ -257,22 +259,18 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
               </ChartCard>
             </div>
 
-            {/* CFD em destaque — card escuro branded com bandas vivas */}
-            <div style={{
-              background: 'linear-gradient(180deg, #11281A 0%, #0A1F12 100%)',
-              borderRadius: 'var(--radius-lg)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              boxShadow: '0 18px 44px -18px rgba(0,0,0,0.55)',
+            {/* CFD em destaque — card claro (DS); bandas adaptam ao tema */}
+            <div className="premium-card" style={{
               padding: '1.5rem', display: 'flex', flexDirection: 'column', height: 460,
             }}>
-              <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, color: '#fff', letterSpacing: '-0.01em' }}>
+              <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-main)', letterSpacing: '-0.01em' }}>
                 Fluxo Acumulado (CFD)
               </h3>
-              <p style={{ margin: '0.25rem 0 1rem', fontSize: '0.82rem', color: 'rgba(255,255,255,0.55)' }}>
+              <p style={{ margin: '0.25rem 0 1rem', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
                 Itens por status ao longo do tempo: A Fazer · Em andamento · Concluído
               </p>
               <div style={{ flex: 1, minHeight: 0 }}>
-                <CFDChart data={cfdForCharts} coverage={cfdCoverage} dark />
+                <CFDChart data={cfdForCharts} coverage={cfdCoverage} dark={theme === 'dark'} />
               </div>
             </div>
 
