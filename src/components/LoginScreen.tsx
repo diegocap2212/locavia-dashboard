@@ -40,9 +40,9 @@ export const LoginScreen: React.FC<Props> = ({ onSuccess }) => {
         <form onSubmit={submit} style={{ width: '100%', maxWidth: 340 }}>
           <div style={{
             width: 46, height: 46, borderRadius: 13, marginBottom: '1.5rem',
-            background: 'linear-gradient(135deg, var(--green-400), var(--green-700))',
+            background: 'linear-gradient(135deg, #5FE389, #15803A)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#ffffff', boxShadow: 'var(--shadow-brand)',
+            color: '#072011', boxShadow: 'var(--shadow-brand)',
           }}>
             <Lock size={20} />
           </div>
@@ -85,7 +85,7 @@ export const LoginScreen: React.FC<Props> = ({ onSuccess }) => {
         flex: 1, position: 'relative', overflow: 'hidden',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         borderLeft: '1px solid var(--border-subtle)',
-        background: 'linear-gradient(160deg, #A8E6B8 0%, #7BB88A 55%, #3D6B4F 100%)',
+        background: 'linear-gradient(160deg, #5FE389 0%, #2BE86B 55%, #15B14C 100%)',
       }}>
         <div style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',

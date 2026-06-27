@@ -147,10 +147,10 @@ export const SMDashboard: React.FC<Props> = ({ smConfig }) => {
   const avatar = (
     <div style={{
       width: 44, height: 44, borderRadius: 12,
-      background: 'linear-gradient(135deg, var(--green-500), var(--green-800))',
+      background: 'linear-gradient(135deg, #2BE86B, #15803A)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      color: '#ffffff', fontWeight: 700, fontSize: '0.95rem', letterSpacing: '0.02em',
-      boxShadow: '0 4px 16px 0 rgba(61,107,79,0.35)',
+      color: '#072011', fontWeight: 700, fontSize: '0.95rem', letterSpacing: '0.02em',
+      boxShadow: '0 4px 16px 0 rgba(43,232,107,0.35)',
     }}>
       {smConfig.avatar}
     </div>

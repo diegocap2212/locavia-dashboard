@@ -20,15 +20,15 @@ interface ConePal {
 const PALETTES: Record<'light' | 'dark', ConePal> = {
   dark: {
     grid: 'rgba(255,255,255,0.07)', axis: 'rgba(255,255,255,0.45)',
-    realized: '#A8E6B8', realizedGlow: 'rgba(168,230,184,0.55)',
+    realized: '#2BE86B', realizedGlow: 'rgba(43,232,107,0.6)',
     p85: 'rgba(255,255,255,0.92)', p15: 'rgba(240,198,107,0.85)',
-    bandRGB: '168,230,184', marker: 'rgba(168,230,184,0.45)', dot: '#A8E6B8',
+    bandRGB: '43,232,107', marker: 'rgba(43,232,107,0.45)', dot: '#2BE86B',
   },
   light: {
-    grid: 'rgba(10,15,26,0.10)', axis: 'rgba(10,15,26,0.50)',
-    realized: '#3D6B4F', realizedGlow: 'rgba(61,107,79,0.32)',
-    p85: 'rgba(10,15,26,0.55)', p15: '#C98A00',
-    bandRGB: '61,107,79', marker: 'rgba(61,107,79,0.5)', dot: '#3D6B4F',
+    grid: 'rgba(11,20,13,0.10)', axis: 'rgba(11,20,13,0.50)',
+    realized: '#15B14C', realizedGlow: 'rgba(21,177,76,0.35)',
+    p85: 'rgba(11,20,13,0.55)', p15: '#C98A00',
+    bandRGB: '21,177,76', marker: 'rgba(21,177,76,0.5)', dot: '#15B14C',
   },
 };
 
@@ -287,7 +287,7 @@ function drawCone(
       d ? d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }) : '—';
 
     if (summary.remaining > 0) {
-      pill(ctx, todayX - 10, todayY - 6, `faltam ${summary.remaining}`, pal.dot, 'end', W, H);
+      pill(ctx, todayX - 10, todayY - 6, `faltam ${summary.remaining}`, '#2BE86B', 'end', W, H);
 
       if (summary.confident) {
         // Faixa de incerteza significativa: dois extremos com linguagem clara.
@@ -299,7 +299,7 @@ function drawCone(
         pill(ctx, todayX + 12, padT + 6, `amostra curta — sem faixa de incerteza`, '#F7C365', 'start', W, H);
       }
     } else {
-      pill(ctx, todayX - 10, todayY + 2, `${summary.total} concluídos`, pal.dot, 'end', W, H);
+      pill(ctx, todayX - 10, todayY + 2, `${summary.total} concluídos`, '#2BE86B', 'end', W, H);
     }
 
     ctx.restore();
