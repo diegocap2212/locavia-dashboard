@@ -79,17 +79,19 @@ export const LoginScreen: React.FC<Props> = ({ onSuccess }) => {
         </p>
       </div>
 
-      {/* ── Lado hero (marca Venice) — "V" de vidro sobre preto ── */}
+      {/* ── Lado hero (marca Venice) — "V" de vidro sobre #121212 ──
+         Enquadramento fiel ao mock do Figma (frame Login 2:13, 1440x745, bg #121212):
+         a imagem 1183x1126 fica em x=548,y=-149 → sangra topo/direita/base.
+         Reproduzido em % relativas ao painel. */}
       <div style={{
-        flex: 1, position: 'relative', overflow: 'hidden', background: '#000',
-        borderLeft: '1px solid var(--border-subtle)',
+        flex: 1, position: 'relative', overflow: 'hidden', background: '#121212',
       }}>
         <img
           src="/venice-v-glass.png"
           alt="Venice"
           style={{
-            position: 'absolute', top: '50%', right: '-6%', height: '108%',
-            width: 'auto', transform: 'translateY(-50%)', objectFit: 'contain',
+            position: 'absolute', top: '-20%', left: '-6.2%',
+            width: '140.8%', height: '151.1%', objectFit: 'fill',
             pointerEvents: 'none', userSelect: 'none',
           }}
         />
