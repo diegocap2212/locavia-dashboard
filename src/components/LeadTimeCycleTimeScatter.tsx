@@ -86,7 +86,7 @@ export const LeadTimeCycleTimeScatter: React.FC<Props> = ({ items }) => {
     <div className="flex flex-col h-full w-full">
       <div className="flex justify-end mb-4">
         <select 
-          className="text-sm border-slate-200 rounded-lg text-slate-600 focus:ring-blue-500 focus:border-blue-500"
+          className="vds-select text-sm"
           value={filterWeek}
           onChange={(e) => setFilterWeek(e.target.value)}
         >

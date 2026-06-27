@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import { Lock } from 'lucide-react';
 import { login } from '../services/authService';
-import ThemeToggle from './ui/ThemeToggle';
 import Button from './ui/Button';
 import { Input } from './ui/Input';
 
@@ -30,30 +28,31 @@ export const LoginScreen: React.FC<Props> = ({ onSuccess }) => {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', background: 'var(--page)', fontFamily: 'Inter, system-ui, sans-serif', position: 'relative' }}>
-      <div style={{ position: 'absolute', top: 18, right: 18, zIndex: 10 }}>
-        <ThemeToggle />
-      </div>
-
+    // data-theme="dark" força o tema escuro só na tela de entrada (fiel ao DS),
+    // independente do tema global — os tokens cascateiam para Input/Button.
+    <div
+      data-theme="dark"
+      style={{
+        minHeight: '100vh', display: 'flex', background: '#0A0A0A',
+        color: 'var(--text-primary)', fontFamily: 'Inter, system-ui, sans-serif',
+      }}
+    >
       {/* ── Lado do formulário ── */}
-      <div style={{ flex: '0 1 480px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2.5rem' }}>
-        <form onSubmit={submit} style={{ width: '100%', maxWidth: 340 }}>
-          <div style={{
-            width: 46, height: 46, borderRadius: 13, marginBottom: '1.5rem',
-            background: 'linear-gradient(135deg, #5FE389, #15803A)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#072011', boxShadow: 'var(--shadow-brand)',
-          }}>
-            <Lock size={20} />
-          </div>
+      <div style={{ flex: '0 1 520px', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '3rem clamp(2rem, 5vw, 4.5rem)' }}>
+        <img
+          src="/venice-by-blite.svg"
+          alt="Venice by blite"
+          style={{ width: 150, marginBottom: '2.75rem', filter: 'brightness(0) invert(1)' }}
+        />
 
-          <h1 style={{ margin: '0 0 0.4rem', fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>
-            Bem-vindo(a)
-          </h1>
-          <p style={{ margin: '0 0 1.75rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-            Dashboard de Métricas LM · acesso restrito
-          </p>
+        <h1 style={{ margin: '0 0 0.4rem', fontSize: '2rem', fontWeight: 700, letterSpacing: '-0.03em', color: '#fff' }}>
+          Bem-vindo(a)
+        </h1>
+        <p style={{ margin: '0 0 2rem', fontSize: '0.95rem', color: 'var(--text-secondary)' }}>
+          Digite sua senha para acessar o dashboard
+        </p>
 
+        <form onSubmit={submit}>
           <Input
             label="Senha"
             type="password"
@@ -69,32 +68,30 @@ export const LoginScreen: React.FC<Props> = ({ onSuccess }) => {
             variant="accent"
             loading={busy}
             disabled={!password}
-            style={{ marginTop: '1.25rem', width: '100%' }}
+            style={{ marginTop: '1.25rem', width: '100%', boxShadow: '0 8px 28px rgba(43,232,107,0.35)' }}
           >
             {busy ? 'Entrando...' : 'Entrar'}
           </Button>
-
-          <p style={{ margin: '1.5rem 0 0', fontSize: '0.72rem', color: 'var(--text-tertiary)', lineHeight: 1.5 }}>
-            Acesso protegido. Em caso de dúvida, fale com o time Venice.
-          </p>
         </form>
+
+        <p style={{ margin: '1.5rem 0 0', fontSize: '0.72rem', color: 'var(--text-tertiary)', lineHeight: 1.5 }}>
+          Acesso protegido. Em caso de dúvida, fale com o time Venice.
+        </p>
       </div>
 
-      {/* ── Lado hero (marca Venice) — painel verde de acento ── */}
+      {/* ── Lado hero (marca Venice) — "V" de vidro sobre preto ── */}
       <div style={{
-        flex: 1, position: 'relative', overflow: 'hidden',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        flex: 1, position: 'relative', overflow: 'hidden', background: '#000',
         borderLeft: '1px solid var(--border-subtle)',
-        background: 'linear-gradient(160deg, #5FE389 0%, #2BE86B 55%, #15B14C 100%)',
       }}>
-        <div style={{
-          position: 'absolute', inset: 0, pointerEvents: 'none',
-          background: 'radial-gradient(ellipse 60% 50% at 60% 42%, rgba(255,255,255,0.30) 0%, transparent 60%)',
-        }} />
         <img
-          src="/venice-by-blite.svg"
-          alt="Venice by blite"
-          style={{ position: 'relative', width: 'min(58%, 380px)', filter: 'brightness(0)' }}
+          src="/venice-v-glass.png"
+          alt="Venice"
+          style={{
+            position: 'absolute', top: '50%', right: '-6%', height: '108%',
+            width: 'auto', transform: 'translateY(-50%)', objectFit: 'contain',
+            pointerEvents: 'none', userSelect: 'none',
+          }}
         />
       </div>
     </div>

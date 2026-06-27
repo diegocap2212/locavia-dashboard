@@ -74,7 +74,7 @@ const BFCEMDashboard: React.FC = () => {
     return (
       <div className="flex h-screen items-center justify-center bg-slate-50">
         <div className="flex flex-col items-center">
-          <div className="h-12 w-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4" />
+          <div className="h-12 w-12 border-4 border-t-transparent rounded-full animate-spin mb-4" style={{ borderColor: 'var(--accent)', borderTopColor: 'transparent' }} />
           <p className="text-slate-600 font-medium">Carregando métricas...</p>
         </div>
       </div>
