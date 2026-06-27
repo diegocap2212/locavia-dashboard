@@ -79,12 +79,14 @@ export const LoginScreen: React.FC<Props> = ({ onSuccess }) => {
         </p>
       </div>
 
-      {/* ── Lado hero (marca Venice) — "V" de vidro sobre #121212 ──
-         Enquadramento fiel ao mock do Figma (frame Login 2:13, 1440x745, bg #121212):
-         a imagem 1183x1126 fica em x=548,y=-149 → sangra topo/direita/base.
-         Reproduzido em % relativas ao painel. */}
+      {/* ── Lado hero (marca Venice) — "V" de vidro sobre PRETO ──
+         Fiel ao Figma (frame "Venice By Blite_Darck Bg" 2:137, fill #000):
+         o render do "V" (1183x1126 em x=548,y=-149) é composto com blend
+         HARD_LIGHT, o que apaga o backdrop cinza do render e mantém só o
+         vidro brilhando sobre o preto. Enquadramento em % relativas ao painel. */}
       <div style={{
-        flex: 1, position: 'relative', overflow: 'hidden', background: '#121212',
+        flex: 1, position: 'relative', overflow: 'hidden', background: '#000',
+        isolation: 'isolate',
       }}>
         <img
           src="/venice-v-glass.png"
@@ -92,6 +94,7 @@ export const LoginScreen: React.FC<Props> = ({ onSuccess }) => {
           style={{
             position: 'absolute', top: '-20%', left: '-6.2%',
             width: '140.8%', height: '151.1%', objectFit: 'fill',
+            mixBlendMode: 'hard-light',
             pointerEvents: 'none', userSelect: 'none',
           }}
         />
