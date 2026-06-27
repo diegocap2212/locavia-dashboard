@@ -1,42 +1,46 @@
 /**
  * Paleta central dos gráficos — Design System Venice (by blite).
- * Verde neon como assinatura; séries em tons de verde/forest/sage + neutro.
- * Mantém a semântica de feedback (vermelho = risco/bug, âmbar = andamento).
+ * Fiel ao Figma "Venice - DS - Sistemas": séries Eco Green + roxo/magenta
+ * de data-viz (Chart/*). Mantém a semântica de feedback (vermelho = risco/bug,
+ * âmbar = andamento).
  *
- * grid/axis usam cinza translúcido neutro → legível tanto em cards claros
+ * grid/axis usam neutro slate translúcido → legível tanto em cards claros
  * (light) quanto escuros (dark), sem precisar thre+ar o tema em cada chart.
  */
 export const CHART = {
-  primary: '#1FD75F', // série principal — verde Venice
-  forest: '#58855C',  // série de apoio escura
-  sage: '#9EB8A0',    // série de apoio clara (ex.: Spike, antes violeta)
-  mint: '#5FE389',    // entregue/concluído/sucesso — verde claro
-  amber: '#E8A317',   // em andamento/aviso
-  red: '#E5484D',     // bug/risco
-  neutral: '#82928A', // série neutra/criadas
-  grid: 'rgba(130,146,138,0.22)', // grade (neutro translúcido)
-  axis: 'rgba(130,146,138,0.85)', // ticks dos eixos
+  primary: '#3D6B4F', // série principal — Forest Green (brand)
+  forest: '#59926F',  // série de apoio escura — Green 600
+  sage: '#7BB88A',    // série de apoio clara — Green 500
+  mint: '#A8E6B8',    // entregue/concluído — Green 300
+  amber: '#F59E0B',   // em andamento/aviso — Warning
+  red: '#EF4444',     // bug/risco — Error
+  neutral: '#64748B', // série neutra/criadas — Neutral 500
+  violet: '#8B5CF6',  // série data-viz roxa (Figma Chart)
+  magenta: '#FF2993', // série data-viz magenta (Figma Chart)
+  teal: '#2BB892',    // série teal de apoio
+  grid: 'rgba(100,116,139,0.20)', // grade (neutro slate translúcido)
+  axis: 'rgba(100,116,139,0.85)', // ticks dos eixos
 } as const;
 
 /** Cores por tipo de item (usado em Vazão e no donut de entrega por tipo). */
 export const TYPE_COLORS: Record<string, string> = {
-  'História': '#15803A', // verde escuro
+  'História': '#3D6B4F', // Forest Green (brand)
   'Bug': CHART.red,
-  'Tarefa': '#5FE389',   // verde claro
-  'Spike': CHART.sage,   // sage (antes violeta)
+  'Tarefa': '#7BB88A',   // verde claro — Green 500
+  'Spike': CHART.violet, // roxo de data-viz
   'Outros': CHART.neutral,
 };
 
 // ── Tema ESCURO branded para o card de destaque (CFD) ──
 export const CHART_DARK = {
-  bg: '#0A1F12',
-  surface: 'linear-gradient(180deg, #11281A 0%, #0A1F12 100%)',
+  bg: '#0A0F1A',
+  surface: 'linear-gradient(180deg, #111827 0%, #0A0F1A 100%)',
   grid: 'rgba(255,255,255,0.08)',
   axis: 'rgba(255,255,255,0.55)',
   text: 'rgba(255,255,255,0.92)',
   textMuted: 'rgba(255,255,255,0.55)',
   // bandas vivas sobre o fundo escuro
-  done: '#2BE86B',   // concluído (verde neon)
+  done: '#A8E6B8',   // concluído — Green 300
   wip: '#F0C66B',    // em andamento (âmbar)
-  todo: '#9EB8A0',   // a fazer (sage)
+  todo: '#7BB88A',   // a fazer — Green 500
 } as const;

@@ -145,7 +145,7 @@ const Home: React.FC = () => {
                   { color: 'var(--accent-strong)', dash: false, label: 'Realizado (a fazer hoje)' },
                   { color: 'var(--text-secondary)', dash: true,  label: 'Cenário otimista (P85)' },
                   { color: 'var(--warn)', dash: true,  label: 'Cenário pessimista (P15)' },
-                  { color: 'linear-gradient(90deg,rgba(43,232,107,0.55),rgba(43,232,107,0.12))', dash: false, label: 'Faixa de incerteza', band: true },
+                  { color: 'linear-gradient(90deg,rgba(61,107,79,0.55),rgba(61,107,79,0.12))', dash: false, label: 'Faixa de incerteza', band: true },
                 ].map(({ color, dash, label, band }) => (
                   <span key={label} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.76rem', color: 'var(--text-secondary)' }}>
                     {band
