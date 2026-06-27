@@ -33,7 +33,9 @@ export const LoginScreen: React.FC<Props> = ({ onSuccess }) => {
     <div
       data-theme="dark"
       style={{
-        minHeight: '100vh', display: 'flex', background: '#0A0A0A',
+        // Fundo único #000 nos dois lados: o hard-light do "V" leva o backdrop
+        // do render exatamente a #000, então os painéis batem sem emenda.
+        minHeight: '100vh', display: 'flex', background: '#000',
         color: 'var(--text-primary)', fontFamily: 'Inter, system-ui, sans-serif',
       }}
     >
