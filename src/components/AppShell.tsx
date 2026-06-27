@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Rocket, Users, Car, LogOut } from 'lucide-react';
+import { Rocket, Users, Car, CalendarDays, FolderKanban, LogOut } from 'lucide-react';
 import { SM_CONFIGS } from '../config/sm-config';
+import { PROJECTS } from '../config/projects';
 import { deriveTeams } from '../config/teams';
 import { teamLabel } from '../config/teamLabels';
 import { fetchData } from '../services/dataService';
@@ -109,6 +110,10 @@ const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const activeTeamId = location.pathname.startsWith('/time/')
     ? decodeURIComponent(location.pathname.split('/time/')[1])
     : null;
+  const isReleaseDates = location.pathname.startsWith('/datas-releases');
+  const activeProjectId = location.pathname.startsWith('/projetos')
+    ? (decodeURIComponent(location.pathname.split('/projetos/')[1] || '') || PROJECTS[0]?.id || null)
+    : null;
 
   // Lista de times derivada de /api/data (memoizado em dataService) — não embute o data.json.
   const [allTeams, setAllTeams] = useState<string[]>([]);
@@ -160,6 +165,18 @@ const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             label: teamLabel(team),
             active: activeTeamId === team,
             onSelect: () => navigate(`/time/${encodeURIComponent(team)}`),
+          }))}
+        />
+        <RailItem icon={CalendarDays} label="Datas das Releases" active={isReleaseDates} onClick={() => navigate('/datas-releases')} />
+        <RailItem
+          icon={FolderKanban}
+          label="Projetos"
+          active={!!activeProjectId}
+          items={PROJECTS.map(p => ({
+            id: p.id,
+            label: p.name,
+            active: activeProjectId === p.id,
+            onSelect: () => navigate(`/projetos/${p.id}`),
           }))}
         />
       </aside>

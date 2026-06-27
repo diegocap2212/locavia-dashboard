@@ -239,9 +239,39 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
     loadData();
   }, []);
 
-  const dashboardState = useMemo(() => {
-    const rawItems = normalizeJqlData(data);
+  // Normalização + mapeamento p/ ConeItem dependem SÓ de `data` (não dos filtros).
+  // Memoizados aqui uma vez e reusados por dashboardState e releaseCones — antes o mesmo
+  // .map() sobre ~4.9k itens rodava duas vezes (e a cada troca de filtro no dashboardState).
+  const rawItems = useMemo(() => normalizeJqlData(data), [data]);
 
+  const allTypedItems = useMemo((): ConeItem[] => rawItems.map(item => {
+    const labels = (item.Labels || []) as string[];
+    const team = item.Team || null;
+    const jornadas: string[] = [];
+    if (labels.includes('COMPRAS') || (team && team.includes('Compras'))) jornadas.push('COMPRAS');
+    if (labels.includes('ESTOQUE') || (team && team.includes('Estoque'))) jornadas.push('ESTOQUE');
+    if (labels.includes('MOB') || (team && team.includes('Mobilização'))) jornadas.push('MOB');
+    if (labels.includes('LAKE-DOMINIO') || (team && team.includes('BI')) || (team && team.includes('Relatórios'))) jornadas.push('LAKE-DOMINIO');
+    const createdDate = excelToJSDate(item.Created) || new Date();
+    const resolvedDate = excelToJSDate(item.Resolved);
+    const committedDate = item.CommitmentDate ? excelToJSDate(item.CommitmentDate as string) : null;
+    const startDateVal = item.StartDate ? excelToJSDate(item.StartDate as string) : null;
+    return {
+      key: item.Key,
+      type: item.Type,
+      status: item.Status,
+      team,
+      jornadas,
+      releases: item.Release ? [item.Release] : [],
+      created: createdDate,
+      committed: committedDate,
+      startDate: startDateVal,
+      resolved: resolvedDate,
+      flagged: labels.includes('IMPEDIDO') || labels.includes('Impediment') ? 'Impediment' : null,
+    };
+  }), [rawItems]);
+
+  const dashboardState = useMemo(() => {
     // Pre-filter by cone type
     const coneReleases = coneType === 'locavia' ? LOCAVIA_RELEASES : BF_CEM_RELEASES;
     const coneItems = rawItems.filter(i =>
@@ -344,37 +374,8 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
       }
     }
 
-    // Map rawItems to ConeItem[]
-    const typedConeItems: ConeItem[] = rawItems.map(item => {
-      const labels = (item.Labels || []) as string[];
-      const team = item.Team || null;
-      
-      const jornadas: string[] = [];
-      if (labels.includes('COMPRAS') || (team && team.includes('Compras'))) jornadas.push('COMPRAS');
-      if (labels.includes('ESTOQUE') || (team && team.includes('Estoque'))) jornadas.push('ESTOQUE');
-      if (labels.includes('MOB') || (team && team.includes('Mobilização'))) jornadas.push('MOB');
-      if (labels.includes('LAKE-DOMINIO') || (team && team.includes('BI')) || (team && team.includes('Relatórios'))) jornadas.push('LAKE-DOMINIO');
-
-      const createdDate = excelToJSDate(item.Created) || new Date();
-      const resolvedDate = excelToJSDate(item.Resolved);
-      
-      const committedDate = item.CommitmentDate ? excelToJSDate(item.CommitmentDate as string) : null;
-      const startDateVal = item.StartDate ? excelToJSDate(item.StartDate as string) : null;
-
-      return {
-        key: item.Key,
-        type: item.Type,
-        status: item.Status,
-        team: team,
-        jornadas: jornadas,
-        releases: item.Release ? [item.Release] : [],
-        created: createdDate,
-        committed: committedDate,
-        startDate: startDateVal,
-        resolved: resolvedDate,
-        flagged: labels.includes('IMPEDIDO') || labels.includes('Impediment') ? 'Impediment' : null
-      };
-    });
+    // ConeItem[] já mapeado uma vez (memo compartilhado allTypedItems)
+    const typedConeItems = allTypedItems;
 
     const params: ConeParams = {
       generation: coneType === 'locavia' ? 'gen1' : 'gen2',
@@ -596,42 +597,13 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
       releases: releasesList,
       temporalMatrixData
     };
-  }, [data, selectedTeams, selectedReleases, startDate, endDate, coneType]);
+  }, [rawItems, allTypedItems, selectedTeams, selectedReleases, startDate, endDate, coneType]);
 
   const releaseCones = useMemo((): ReleaseConeData[] => {
-    if (!data.length) return [];
+    if (!allTypedItems.length) return [];
 
-    const rawItems = normalizeJqlData(data);
     const today = new Date();
     const farFuture = new Date(today.getTime() + 2 * 365 * 86400000);
-
-    // Map ALL items to ConeItem[] once — computeCone filters by release internally
-    const allTypedItems: ConeItem[] = rawItems.map(item => {
-      const labels = (item.Labels || []) as string[];
-      const team = item.Team || null;
-      const jornadas: string[] = [];
-      if (labels.includes('COMPRAS') || (team && team.includes('Compras'))) jornadas.push('COMPRAS');
-      if (labels.includes('ESTOQUE') || (team && team.includes('Estoque'))) jornadas.push('ESTOQUE');
-      if (labels.includes('MOB') || (team && team.includes('Mobilização'))) jornadas.push('MOB');
-      if (labels.includes('LAKE-DOMINIO') || (team && team.includes('BI')) || (team && team.includes('Relatórios'))) jornadas.push('LAKE-DOMINIO');
-      const createdDate = excelToJSDate(item.Created) || new Date();
-      const resolvedDate = excelToJSDate(item.Resolved);
-      const committedDate = item.CommitmentDate ? excelToJSDate(item.CommitmentDate as string) : null;
-      const startDateVal = item.StartDate ? excelToJSDate(item.StartDate as string) : null;
-      return {
-        key: item.Key,
-        type: item.Type,
-        status: item.Status,
-        team,
-        jornadas,
-        releases: item.Release ? [item.Release] : [],
-        created: createdDate,
-        committed: committedDate,
-        startDate: startDateVal,
-        resolved: resolvedDate,
-        flagged: labels.includes('IMPEDIDO') || labels.includes('Impediment') ? 'Impediment' : null
-      };
-    });
 
     // Source of truth: active releases from config (excludes DEFAULT and inactive entries)
     const activeReleases = releaseConfig.releases.filter(r => r.active !== false && r.id !== 'DEFAULT');
@@ -669,7 +641,10 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
         stepDays: 7,
         requiredVelocity: 1,
         percentileWindow,
-        dataRef: today
+        dataRef: today,
+        // Bootstrap: abre melhor/pior cenário mesmo com poucas semanas, para TODA release
+        // ter cone (não só as maduras). O dashboard principal segue no método percentil auditado.
+        bandMethod: 'bootstrap',
       };
 
       // Pass ALL items — computeCone filters by release via matchesScope
@@ -699,11 +674,13 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
       const total = activeItems.length;
       const remaining = total - done;
 
-      // Confiança da faixa: precisa de amostra suficiente E P85≠P15 com datas distintas.
+      // Confiança da faixa: com o bootstrap, a faixa existe sempre que há dispersão real
+      // (≥2 semanas com dado E P85≠P15 com datas distintas). Sem dispersão (ex.: throughput
+      // constante), a faixa colapsa honestamente numa linha só — aí cai no aviso de amostra curta.
       const weeksWithData = result.weeks.filter(wk => wk.concluido !== null).length;
       const datesDiffer = !!result.entregaMelhor && !!result.entregaPior
         && result.entregaMelhor.getTime() !== result.entregaPior.getTime();
-      const confident = remaining > 0 && weeksWithData >= 3 && velBest !== velWorst && datesDiffer;
+      const confident = remaining > 0 && weeksWithData >= 2 && velBest !== velWorst && datesDiffer;
 
       return [{
         releaseId,
@@ -726,7 +703,7 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
         }
       }];
     });
-  }, [data]);
+  }, [allTypedItems]);
 
   return {
     ...dashboardState,

@@ -17,6 +17,8 @@ Dashboard de métricas Agile para as equipes de software automotivo da Locavia. 
 | `/sm/gabriela` | Dashboard individual — SM Gabriela (TAOS, GOL, SFMktplace) |
 | `/sm/rafael` | Dashboard individual — SM Rafael (OPTIMUS, NIVUS, JETTA) |
 | `/sm/ed` | Dashboard individual — SM Ed (SCANIA, PARATI) |
+| `/datas-releases` | Datas das releases — início/meta editáveis pela LM (persistidas no Redis) |
+| `/projetos/:projectId?` | Acompanhamento vivo de projetos de escopo fechado (status editável por fase) |
 | `/presentation/:smId` | Deck executivo de apresentação |
 
 ---
@@ -100,6 +102,8 @@ locavia-dashboard/
 │   │   ├── BFCEMDashboard.tsx # Dashboard BF/CEM (lazy-loaded)
 │   │   ├── SMDashboard.tsx    # Dashboard por Scrum Master
 │   │   ├── ReleaseDetail.tsx  # Detalhe de uma release
+│   │   ├── ReleaseDates.tsx   # Datas das releases (início/meta editáveis) — /datas-releases
+│   │   ├── ProjectTracking.tsx # Acompanhamento vivo de projetos — /projetos/:id
 │   │   └── TeamDetail.tsx     # Detalhe de um time
 │   ├── hooks/
 │   │   ├── useDashboardData.ts   # Hook principal: dados + filtros + cone
@@ -110,7 +114,9 @@ locavia-dashboard/
 │   │   └── ui/                # Primitivos do DS Venice: Button, Input, Badge, ThemeToggle
 │   ├── services/
 │   │   ├── dataService.ts     # Fetch Google Sheets com fallback para data.json
-│   │   └── commentsService.ts # CRUD de análises via /api/comments
+│   │   ├── commentsService.ts # CRUD de análises via /api/comments
+│   │   ├── releaseDatesService.ts # GET/POST datas de release via /api/release-dates
+│   │   └── projectStatusService.ts # GET/POST andamento de projetos via /api/project-status
 │   ├── config/                # Configurações de SM, quinzenas, semanas, releases
 │   ├── types/                 # Interfaces TypeScript
 │   ├── cone/                  # Algoritmo de cálculo CONE (computeCone.ts)
@@ -121,6 +127,9 @@ locavia-dashboard/
 │
 ├── api/
 │   ├── comments.ts            # Vercel serverless: GET/POST análises no Redis (roteia hash por cadência)
+│   ├── data.ts                # Serve o dataset (Blob privado + fallback) — cache em memória + ETag/304
+│   ├── release-dates.ts       # GET/POST datas de release no Redis (hash locavia_release_dates_v1)
+│   ├── project-status.ts      # GET/POST andamento de projetos no Redis (hash locavia_project_status_v1)
 │   ├── login.ts               # Gate de login (senha única) — sessão por cookie HttpOnly
 │   └── refresh.ts             # Dispara o sync do Jira sob demanda (workflow_dispatch) + status
 │   # (lógica de sessão HMAC é inline em cada function — a Vercel não empacota imports
@@ -348,6 +357,43 @@ npx playwright test tests/comments-e2e.spec.ts --config=playwright.local.config.
 > Security Checkpoint que bloqueia browsers automatizados. Use sempre o `playwright.local.config.ts`.
 
 ---
+
+## Cone — Faixa de Incerteza (bootstrap)
+
+O motor do cone ([`src/cone/computeCone.ts`](src/cone/computeCone.ts)) deriva o melhor/pior cenário
+(`velBest`/`velWorst`) por um de dois métodos, via `ConeParams.bandMethod`:
+
+- **`'percentile'` (default):** `PERCENTILE_CONT` direto da amostra recente, piso 1, arredondado.
+  É o método **auditado célula-a-célula contra o Excel** — usado pelo dashboard principal
+  (`dashboardState` em [`useDashboardData.ts`](src/hooks/useDashboardData.ts)). **Não alterar.**
+- **`'bootstrap'`:** reamostragem Monte Carlo **determinística** (PRNG `mulberry32` semeado a partir
+  da própria amostra → estável entre renders, não pisca) do throughput observado. Estima a
+  distribuição da velocidade média e tira P85/P50/P15. Com **poucas** semanas a variância natural
+  **abre** a faixa; com **muitas**, ela estreita. Piso baixo (0.1, não 1) para não colapsar a faixa
+  de times lentos (<1 item/semana). Usado **só no cone executivo da home** (`releaseCones`), para que
+  **toda release** tenha melhor/pior cenário — não só as maduras. A faixa só some quando não há
+  dispersão real (ex.: throughput constante), aí cai no aviso honesto de "amostra curta".
+
+## Datas das Releases (editáveis)
+
+A página `/datas-releases` ([`src/pages/ReleaseDates.tsx`](src/pages/ReleaseDates.tsx)) permite à LM
+registrar **início (kickoff)** e **data-alvo (meta)** de cada release. Persiste no Redis via
+[`api/release-dates.ts`](api/release-dates.ts) (hash `locavia_release_dates_v1`, campo = `releaseId`,
+HSET atômico por release). A home lê essas datas ([`releaseDatesService.ts`](src/services/releaseDatesService.ts))
+e usa a **meta** (com fallback no `deadline` do `release-config.json`) para o status dos cards:
+**Atrasado** quando nem o otimista alcança a meta; **Em Risco** quando o pessimista a estoura.
+O endpoint é protegido pelo mesmo gate de sessão das demais APIs.
+
+## Projetos (acompanhamento vivo)
+
+A página `/projetos/:projectId?` ([`src/pages/ProjectTracking.tsx`](src/pages/ProjectTracking.tsx))
+mostra o andamento de projetos de escopo fechado em tempo real. A **estrutura** das fases é estática
+em [`src/config/projects.ts`](src/config/projects.ts) (hoje: **Governança de Dados**, roadmap de 5 fases
++ trilha contínua de capacitação); o **andamento** (status, progresso %, observação, responsável) é
+editável por fase e vive no Redis ([`api/project-status.ts`](api/project-status.ts), hash
+`locavia_project_status_v1`, campo `projectId:phaseId`, HSET atômico). A página é "viva": faz refetch ao
+focar a aba e por polling leve (~45s), então quem abre vê o estado atual sem recarregar. O item
+**Projetos** na sidebar é um flyout que escala para múltiplos projetos. Endpoint protegido pelo gate de sessão.
 
 ## Governança e Boas Práticas
 

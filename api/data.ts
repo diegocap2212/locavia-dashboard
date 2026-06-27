@@ -62,6 +62,24 @@ async function loadFromBlob(): Promise<Dataset | null> {
   }
 }
 
+// Cache em memória do lambda quente: o dataset (~5MB) só muda quando o sync roda (≤30 min),
+// então reler+parsear o blob a cada request é desperdício. Mantém o último Dataset por TTL curto
+// para invocações quentes responderem sem tocar o Blob de novo.
+const CACHE_TTL_MS = 60_000;
+let cached: { dataset: Dataset; at: number } | null = null;
+
+async function getDataset(): Promise<Dataset> {
+  const now = Date.now();
+  if (cached && now - cached.at < CACHE_TTL_MS) return cached.dataset;
+  const blob = await loadFromBlob();
+  const dataset: Dataset = blob ?? {
+    items: fallbackData as unknown[],
+    syncedAt: (fallbackMeta as { syncedAt?: string }).syncedAt ?? null,
+  };
+  cached = { dataset, at: now };
+  return dataset;
+}
+
 export default async function handler(req: any, res: any) {
   if (req.method !== 'GET') {
     res.setHeader('Allow', 'GET');
@@ -71,14 +89,12 @@ export default async function handler(req: any, res: any) {
     return res.status(401).json({ error: 'Não autenticado.' });
   }
 
-  const blob = await loadFromBlob();
-  const dataset: Dataset = blob ?? {
-    items: fallbackData as unknown[],
-    syncedAt: (fallbackMeta as { syncedAt?: string }).syncedAt ?? null,
-  };
+  const dataset = await getDataset();
 
   const etag = `W/"data-${dataset.syncedAt || 'fallback'}-${dataset.items.length}"`;
-  res.setHeader('Cache-Control', 'private, max-age=0, must-revalidate');
+  // O dataset só muda quando o sync roda (≤30 min). Um max-age curto deixa o browser
+  // reusar entre navegações/reloads sem round-trip; o ETag cobre a revalidação após expirar.
+  res.setHeader('Cache-Control', 'private, max-age=300, stale-while-revalidate=900');
   res.setHeader('ETag', etag);
   if (req.headers?.['if-none-match'] === etag) {
     return res.status(304).end();

@@ -40,6 +40,16 @@ export interface ConeParams {
   // velocidade
   requiredVelocity: number;    // C9 — número fixo digitado à mão
   percentileWindow: number;    // N semanas (8 padrão; 10 em algumas abas BAF)
+  /**
+   * Como derivar a faixa (velBest/velWorst):
+   * - 'percentile' (default): PERCENTILE_CONT direto da amostra recente, piso 1, arredondado.
+   *   É o método AUDITADO contra o Excel — não mexer no caminho do dashboard principal.
+   * - 'bootstrap': reamostragem (Monte Carlo determinístico) do throughput observado para
+   *   estimar a distribuição da velocidade média. Com poucas semanas, a variância natural do
+   *   bootstrap abre a faixa (P85≠P15); com muitas semanas ela se estreita. Usado no cone
+   *   executivo da home para que TODA release tenha melhor/pior cenário, não só as maduras.
+   */
+  bandMethod?: 'percentile' | 'bootstrap';
   // Regra 5: "hoje" congelado para auditar contra um print do Excel
   dataRef: Date;
 }
@@ -105,6 +115,65 @@ function velocityFromThroughput(throughput: number[], p: number, windowN: number
   const recent = throughput.slice(-windowN);     // últimas N com dado real
   const pc = percentileCont(recent, p);
   return Math.round(pc < 1 ? 1 : pc);            // IF(<1,1,..) + ROUND(..,0)
+}
+
+/** PRNG determinístico (mulberry32) — bootstrap reproduzível entre renders, sem Math.random. */
+function mulberry32(seed: number): () => number {
+  let a = seed >>> 0;
+  return () => {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/**
+ * Faixa de velocidade via bootstrap (Monte Carlo determinístico) do throughput recente.
+ * Reamostra as semanas com reposição N_trials vezes, calcula a média de cada trial e tira
+ * P85/P50/P15 da distribuição das médias. Amostra curta → médias muito variáveis → faixa larga;
+ * amostra longa → faixa estreita. Piso 1; mantém fração (a projeção cruza zero entre semanas).
+ * Seed derivada da própria amostra → resultado estável a cada render (não pisca).
+ */
+function bootstrapVelocityBand(
+  throughput: number[],
+  windowN: number,
+): { best: number; worst: number; trend: number } {
+  const recent = throughput.slice(-windowN);
+  // Piso baixo (não 1): times lentos entregam <1/semana e o piso-1 colapsaria a faixa
+  // (P85 e P15 cairiam ambos para 1). 0.1 evita divisão-por-zero/projeção infinita sem mentir
+  // sobre o ritmo. (O método percentil auditado segue com piso 1 em velocityFromThroughput.)
+  const floorEps = (x: number) => (x < 0.1 ? 0.1 : x);
+  if (recent.length === 0) return { best: 0.1, worst: 0.1, trend: 0.1 };
+  if (recent.length === 1) {
+    const v = floorEps(recent[0]);
+    return { best: v, worst: v, trend: v };
+  }
+
+  // seed determinística a partir dos valores da amostra
+  let seed = (recent.length * 2654435761) >>> 0;
+  for (let i = 0; i < recent.length; i++) {
+    seed = (seed ^ (Math.round(recent[i] * 1000) * (i + 1))) >>> 0;
+  }
+  const rng = mulberry32(seed);
+
+  const TRIALS = 2000;
+  const n = recent.length;
+  const means = new Array<number>(TRIALS);
+  for (let t = 0; t < TRIALS; t++) {
+    let sum = 0;
+    for (let i = 0; i < n; i++) sum += recent[Math.floor(rng() * n)];
+    means[t] = sum / n;
+  }
+  means.sort((a, b) => a - b);
+
+  // arredonda a 1 casa para casar com a exibição (.toFixed(1)) sem colapsar valores próximos
+  const round1 = (x: number) => Math.round(x * 10) / 10;
+  return {
+    best: floorEps(round1(percentileCont(means, 0.85))),   // ritmo alto → otimista
+    worst: floorEps(round1(percentileCont(means, 0.15))),  // ritmo baixo → pessimista
+    trend: floorEps(round1(percentileCont(means, 0.50))),
+  };
 }
 
 // ----------------------- Filtro de recorte -----------------------
@@ -224,9 +293,15 @@ export function computeCone(items: ConeItem[], p: ConeParams): ConeResult {
   }
 
   // ---- velocidades (Regra 4) ----
-  const velBest = velocityFromThroughput(throughput, 0.85, p.percentileWindow);
-  const velWorst = velocityFromThroughput(throughput, 0.15, p.percentileWindow);
-  const velTrend = velocityFromThroughput(throughput, 0.50, p.percentileWindow);
+  let velBest: number, velWorst: number, velTrend: number;
+  if (p.bandMethod === 'bootstrap') {
+    const band = bootstrapVelocityBand(throughput, p.percentileWindow);
+    velBest = band.best; velWorst = band.worst; velTrend = band.trend;
+  } else {
+    velBest = velocityFromThroughput(throughput, 0.85, p.percentileWindow);
+    velWorst = velocityFromThroughput(throughput, 0.15, p.percentileWindow);
+    velTrend = velocityFromThroughput(throughput, 0.50, p.percentileWindow);
+  }
 
   // ---- transbordo e burndown recursivos (Regra 2) ----
   let prevC: number | null = backlogInicial;
