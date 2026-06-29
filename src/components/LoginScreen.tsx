@@ -91,12 +91,12 @@ export const LoginScreen: React.FC<Props> = ({ onSuccess }) => {
       </div>
 
       {/* ── Lado hero (marca Venice) — "V" de vidro ──
-         O painel da marca é SEMPRE escuro (#000), nos dois temas: o "V" de vidro (PNG)
-         só funciona com HARD_LIGHT sobre preto (apaga o backdrop cinza do render). Assim o V
-         fica idêntico no claro e no escuro. Só o painel do formulário (esquerdo) acompanha o tema. */}
+         O PNG já tem alpha (fundo transparente). No DARK o vidro é escuro e precisa do
+         HARD_LIGHT sobre #000 para brilhar. No LIGHT, fundo branco e render normal (sem blend
+         nem opacity) — o alpha nativo recorta o V, que aparece como cristal escuro sobre o branco. */}
       <div style={{
         flex: 1, position: 'relative', overflow: 'hidden',
-        background: '#000', isolation: 'isolate',
+        background: dark ? '#000' : '#fff', isolation: 'isolate',
       }}>
         <img
           src="/venice-v-glass.png"
@@ -104,7 +104,7 @@ export const LoginScreen: React.FC<Props> = ({ onSuccess }) => {
           style={{
             position: 'absolute', top: '-20%', left: '-6.2%',
             width: '140.8%', height: '151.1%', objectFit: 'fill',
-            mixBlendMode: 'hard-light',
+            mixBlendMode: dark ? 'hard-light' : 'normal',
             pointerEvents: 'none', userSelect: 'none',
           }}
         />
