@@ -91,23 +91,35 @@ export const LoginScreen: React.FC<Props> = ({ onSuccess }) => {
       </div>
 
       {/* ── Lado hero (marca Venice) — "V" de vidro ──
-         O PNG já tem alpha (fundo transparente). No DARK o vidro é escuro e precisa do
-         HARD_LIGHT sobre #000 para brilhar. No LIGHT, fundo branco e render normal (sem blend
-         nem opacity) — o alpha nativo recorta o V, que aparece como cristal escuro sobre o branco. */}
+         DARK: render original (#000) com HARD_LIGHT (o vidro escuro brilha sobre o preto),
+         enquadrado em bleed. LIGHT: usa o asset recortado (venice-v-cut.png — fundo removido
+         por flood-fill), o cristal centralizado e flutuando no branco. */}
       <div style={{
         flex: 1, position: 'relative', overflow: 'hidden',
         background: dark ? '#000' : '#fff', isolation: 'isolate',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
-        <img
-          src="/venice-v-glass.png"
-          alt="Venice"
-          style={{
-            position: 'absolute', top: '-20%', left: '-6.2%',
-            width: '140.8%', height: '151.1%', objectFit: 'fill',
-            mixBlendMode: dark ? 'hard-light' : 'normal',
-            pointerEvents: 'none', userSelect: 'none',
-          }}
-        />
+        {dark ? (
+          <img
+            src="/venice-v-glass.png"
+            alt="Venice"
+            style={{
+              position: 'absolute', top: '-20%', left: '-6.2%',
+              width: '140.8%', height: '151.1%', objectFit: 'fill',
+              mixBlendMode: 'hard-light',
+              pointerEvents: 'none', userSelect: 'none',
+            }}
+          />
+        ) : (
+          <img
+            src="/venice-v-cut.png"
+            alt="Venice"
+            style={{
+              maxWidth: '78%', maxHeight: '78%', objectFit: 'contain',
+              pointerEvents: 'none', userSelect: 'none',
+            }}
+          />
+        )}
       </div>
     </div>
   );
