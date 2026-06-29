@@ -7,13 +7,11 @@
     <meta name="google" content="notranslate" />
     <title>Dashboard Locavia</title>
     <script>
-      /* Aplica o tema (Venice) antes da pintura para evitar flash. */
+      /* Aplica o tema (Venice) antes da pintura para evitar flash. Padrão: CLARO. */
       (function () {
         try {
           var t = localStorage.getItem('venice-theme');
-          if (t !== 'light' && t !== 'dark') {
-            t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-          }
+          if (t !== 'light' && t !== 'dark') t = 'light';
           document.documentElement.setAttribute('data-theme', t);
           document.documentElement.style.colorScheme = t;
         } catch (e) { /* noop */ }

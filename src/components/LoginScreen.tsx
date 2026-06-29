@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { login } from '../services/authService';
-import { useTheme } from '../theme/ThemeProvider';
 import Button from './ui/Button';
-import ThemeToggle from './ui/ThemeToggle';
 import { Input } from './ui/Input';
 
 interface Props {
@@ -10,8 +8,6 @@ interface Props {
 }
 
 export const LoginScreen: React.FC<Props> = ({ onSuccess }) => {
-  const { theme } = useTheme();
-  const dark = theme !== 'light';
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -31,29 +27,23 @@ export const LoginScreen: React.FC<Props> = ({ onSuccess }) => {
     }
   };
 
-  // O login segue o tema global (sem data-theme forçado): dark e light.
-  // O "V" de vidro é o MESMO asset nos dois — no dark via HARD_LIGHT sobre #000
-  // (apaga o backdrop cinza do render); no light, sobre o painel claro com
-  // blend MULTIPLY + opacidade (best-effort, ajustável visualmente).
   return (
+    // O login é SEMPRE escuro (padrão fixo), independente do tema do app: data-theme="dark"
+    // força os tokens em escuro e o "V" de vidro (hard-light sobre #000) brilha. O claro/escuro
+    // do app vale só nas páginas internas.
     <div
+      data-theme="dark"
       style={{
-        minHeight: '100vh', display: 'flex', position: 'relative',
-        background: dark ? '#000' : '#fff',
+        minHeight: '100vh', display: 'flex', background: '#000',
         color: 'var(--text-primary)', fontFamily: 'Inter, system-ui, sans-serif',
       }}
     >
-      {/* Alternar tema (igual ao da topbar) */}
-      <div style={{ position: 'absolute', top: 20, right: 24, zIndex: 10 }}>
-        <ThemeToggle />
-      </div>
-
       {/* ── Lado do formulário ── */}
       <div style={{ flex: '0 1 520px', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '3rem clamp(2rem, 5vw, 4.5rem)' }}>
         <img
           src="/venice-by-blite.svg"
           alt="Venice by blite"
-          style={{ width: 150, marginBottom: '2.75rem', filter: dark ? 'brightness(0) invert(1)' : 'brightness(0)' }}
+          style={{ width: 150, marginBottom: '2.75rem', filter: 'brightness(0) invert(1)' }}
         />
 
         <h1 style={{ margin: '0 0 0.4rem', fontFamily: 'var(--font-serif)', fontSize: '3rem', fontWeight: 500, letterSpacing: '-0.01em', color: 'var(--text-primary)' }}>
@@ -90,21 +80,20 @@ export const LoginScreen: React.FC<Props> = ({ onSuccess }) => {
         </p>
       </div>
 
-      {/* ── Lado hero (marca Venice) — "V" de vidro ──
-         Mesmo enquadramento (bleed) nos dois temas. DARK: render original sobre #000 com
-         HARD_LIGHT (o vidro escuro brilha no preto). LIGHT: asset recortado (venice-v-cut.png —
-         só o fundo FORA do V foi removido; o V fica intacto, preto por dentro) sobre branco. */}
+      {/* ── Lado hero (marca Venice) — "V" de vidro sobre PRETO ──
+         O render do "V" é composto com blend HARD_LIGHT, que apaga o backdrop do render e
+         mantém só o vidro brilhando sobre o preto. Enquadramento em % relativas ao painel. */}
       <div style={{
-        flex: 1, position: 'relative', overflow: 'hidden',
-        background: dark ? '#000' : '#fff', isolation: 'isolate',
+        flex: 1, position: 'relative', overflow: 'hidden', background: '#000',
+        isolation: 'isolate',
       }}>
         <img
-          src={dark ? '/venice-v-glass.png' : '/venice-v-cut.png'}
+          src="/venice-v-glass.png"
           alt="Venice"
           style={{
             position: 'absolute', top: '-20%', left: '-6.2%',
             width: '140.8%', height: '151.1%', objectFit: 'fill',
-            mixBlendMode: dark ? 'hard-light' : 'normal',
+            mixBlendMode: 'hard-light',
             pointerEvents: 'none', userSelect: 'none',
           }}
         />

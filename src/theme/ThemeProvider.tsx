@@ -12,12 +12,12 @@ const STORAGE_KEY = 'venice-theme';
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
-/** Lê a preferência salva; se não houver, segue o sistema operacional. */
+/** Lê a preferência salva; se não houver, o padrão é CLARO (não segue o SO). */
 function getInitialTheme(): Theme {
   if (typeof window === 'undefined') return 'light';
   const saved = window.localStorage.getItem(STORAGE_KEY);
   if (saved === 'light' || saved === 'dark') return saved;
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  return 'light';
 }
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
