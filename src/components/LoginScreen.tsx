@@ -90,35 +90,24 @@ export const LoginScreen: React.FC<Props> = ({ onSuccess }) => {
         </p>
       </div>
 
-      {/* ── Lado hero (marca Venice) ──
-         Dark: "V" de vidro (PNG) com HARD_LIGHT sobre #000 (apaga o backdrop do render).
-         Light: o vidro não funciona sobre fundo claro — usa-se a letra "V" serif gigante
-         tom-sobre-tom (fiel ao mockup), sobre painel #EAF4EE com glow + hachura. */}
+      {/* ── Lado hero (marca Venice) — "V" de vidro ──
+         O painel da marca é SEMPRE escuro (#000), nos dois temas: o "V" de vidro (PNG)
+         só funciona com HARD_LIGHT sobre preto (apaga o backdrop cinza do render). Assim o V
+         fica idêntico no claro e no escuro. Só o painel do formulário (esquerdo) acompanha o tema. */}
       <div style={{
         flex: 1, position: 'relative', overflow: 'hidden',
-        background: dark ? '#000' : '#EAF4EE',
-        isolation: 'isolate',
+        background: '#000', isolation: 'isolate',
       }}>
-        {dark ? (
-          <img
-            src="/venice-v-glass.png"
-            alt="Venice"
-            style={{
-              position: 'absolute', top: '-20%', left: '-6.2%',
-              width: '140.8%', height: '151.1%', objectFit: 'fill',
-              mixBlendMode: 'hard-light',
-              pointerEvents: 'none', userSelect: 'none',
-            }}
-          />
-        ) : (
-          <>
-            <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'radial-gradient(120% 90% at 78% 50%, rgba(19,138,63,.12) 0%, rgba(19,138,63,0) 55%)' }} />
-            <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'repeating-linear-gradient(135deg, rgba(16,20,15,.025) 0 2px, transparent 2px 22px)' }} />
-            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
-              <span style={{ fontFamily: 'var(--font-serif)', fontWeight: 400, fontSize: 'clamp(220px, 32vw, 360px)', lineHeight: 1, color: 'rgba(16,20,15,.06)', userSelect: 'none' }}>V</span>
-            </div>
-          </>
-        )}
+        <img
+          src="/venice-v-glass.png"
+          alt="Venice"
+          style={{
+            position: 'absolute', top: '-20%', left: '-6.2%',
+            width: '140.8%', height: '151.1%', objectFit: 'fill',
+            mixBlendMode: 'hard-light',
+            pointerEvents: 'none', userSelect: 'none',
+          }}
+        />
       </div>
     </div>
   );
