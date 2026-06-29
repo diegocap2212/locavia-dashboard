@@ -18,7 +18,7 @@ Dashboard de métricas Agile para as equipes de software automotivo da Locavia. 
 | `/sm/rafael` | Dashboard individual — SM Rafael (OPTIMUS, NIVUS, JETTA) |
 | `/sm/ed` | Dashboard individual — SM Ed (SCANIA, PARATI) |
 | `/datas-releases` | Datas das releases — início/meta editáveis pela LM (persistidas no Redis) |
-| `/projetos/:projectId?` | Acompanhamento vivo de projetos de escopo fechado (status editável por fase) |
+| `/api-docs` | Documentação interativa da API (Swagger UI / OpenAPI 3.1), atrás do login |
 | `/presentation/:smId` | Deck executivo de apresentação |
 
 ---
@@ -103,7 +103,7 @@ locavia-dashboard/
 │   │   ├── SMDashboard.tsx    # Dashboard por Scrum Master
 │   │   ├── ReleaseDetail.tsx  # Detalhe de uma release
 │   │   ├── ReleaseDates.tsx   # Datas das releases (início/meta editáveis) — /datas-releases
-│   │   ├── ProjectTracking.tsx # Acompanhamento vivo de projetos — /projetos/:id
+│   │   ├── ApiDocs.tsx        # Swagger UI (OpenAPI 3.1) — /api-docs (lazy, atrás do login)
 │   │   └── TeamDetail.tsx     # Detalhe de um time
 │   ├── hooks/
 │   │   ├── useDashboardData.ts   # Hook principal: dados + filtros + cone
@@ -115,10 +115,10 @@ locavia-dashboard/
 │   ├── services/
 │   │   ├── dataService.ts     # Fetch Google Sheets com fallback para data.json
 │   │   ├── commentsService.ts # CRUD de análises via /api/comments
-│   │   ├── releaseDatesService.ts # GET/POST datas de release via /api/release-dates
-│   │   └── projectStatusService.ts # GET/POST andamento de projetos via /api/project-status
+│   │   └── releaseDatesService.ts # GET/POST datas de release via /api/release-dates
 │   ├── config/                # Configurações de SM, quinzenas, semanas, releases
 │   ├── types/                 # Interfaces TypeScript
+│   ├── api-docs/openapi.ts    # Spec OpenAPI 3.1 (consumida por pages/ApiDocs.tsx)
 │   ├── cone/                  # Algoritmo de cálculo CONE (computeCone.ts)
 │   ├── cfd/                   # CFD (Cumulative Flow Diagram) — computeCFD.ts (transform isolado)
 │   ├── lib/                   # Utilitários puros (timeBuckets.ts — granularidade dos gráficos)
@@ -129,7 +129,6 @@ locavia-dashboard/
 │   ├── comments.ts            # Vercel serverless: GET/POST análises no Redis (roteia hash por cadência)
 │   ├── data.ts                # Serve o dataset (Blob privado + fallback) — cache em memória + ETag/304
 │   ├── release-dates.ts       # GET/POST datas de release no Redis (hash locavia_release_dates_v1)
-│   ├── project-status.ts      # GET/POST andamento de projetos no Redis (hash locavia_project_status_v1)
 │   ├── login.ts               # Gate de login (senha única) — sessão por cookie HttpOnly
 │   └── refresh.ts             # Dispara o sync do Jira sob demanda (workflow_dispatch) + status
 │   # (lógica de sessão HMAC é inline em cada function — a Vercel não empacota imports
@@ -384,16 +383,16 @@ e usa a **meta** (com fallback no `deadline` do `release-config.json`) para o st
 **Atrasado** quando nem o otimista alcança a meta; **Em Risco** quando o pessimista a estoura.
 O endpoint é protegido pelo mesmo gate de sessão das demais APIs.
 
-## Projetos (acompanhamento vivo)
+## Documentação da API (Swagger / OpenAPI)
 
-A página `/projetos/:projectId?` ([`src/pages/ProjectTracking.tsx`](src/pages/ProjectTracking.tsx))
-mostra o andamento de projetos de escopo fechado em tempo real. A **estrutura** das fases é estática
-em [`src/config/projects.ts`](src/config/projects.ts) (hoje: **Governança de Dados**, roadmap de 5 fases
-+ trilha contínua de capacitação); o **andamento** (status, progresso %, observação, responsável) é
-editável por fase e vive no Redis ([`api/project-status.ts`](api/project-status.ts), hash
-`locavia_project_status_v1`, campo `projectId:phaseId`, HSET atômico). A página é "viva": faz refetch ao
-focar a aba e por polling leve (~45s), então quem abre vê o estado atual sem recarregar. O item
-**Projetos** na sidebar é um flyout que escala para múltiplos projetos. Endpoint protegido pelo gate de sessão.
+A rota `/api-docs` ([`src/pages/ApiDocs.tsx`](src/pages/ApiDocs.tsx)) renderiza o **Swagger UI** a partir
+de uma spec **OpenAPI 3.1** mantida à mão em [`src/api-docs/openapi.ts`](src/api-docs/openapi.ts) (objeto
+TS passado direto ao Swagger UI — **sem arquivo público**, então a doc fica **atrás do gate de login**).
+Documenta os endpoints reais: `/api/login`, `/api/data`, `/api/comments`, `/api/release-dates`,
+`/api/refresh` e `/api/trigger-sync`, com o securityScheme do cookie `dash_session`. A página é
+**lazy-loaded** (usa `swagger-ui-dist`, ~1MB) → sai num chunk separado, sem inflar o bundle principal.
+Acesso pela topbar (botão **API**). **Ao alterar um endpoint em `api/*`, atualize o contrato em
+`openapi.ts`.**
 
 ## Governança e Boas Práticas
 

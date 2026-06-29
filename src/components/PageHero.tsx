@@ -44,7 +44,7 @@ const PageHero: React.FC<Props> = ({ eyebrow, title, subtitle, leading, status, 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
           {leading}
           <div>
-            <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--hero-fg)', lineHeight: 1.15 }}>
+            <h1 style={{ margin: 0, fontFamily: 'var(--font-serif)', fontSize: '2.5rem', fontWeight: 500, letterSpacing: '-0.01em', color: 'var(--hero-fg)', lineHeight: 1.1 }}>
               {title}
             </h1>
             {subtitle && (

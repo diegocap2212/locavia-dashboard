@@ -14,6 +14,9 @@
   /* ── Tons de apoio ── */
   --sage:#9EB8A0; --forest:#58855C; --deep:#0D3311;
 
+  /* ── Tipografia ── */
+  --font-serif: 'Newsreader', Georgia, 'Times New Roman', serif;
+
   /* ── Accent (assinatura) ── */
   --accent:#2BE86B; --accent-strong:#138A3F;
   --accent-soft:#D8FBE2; --accent-soft-fg:#11602C;
@@ -36,20 +39,20 @@
   --warn:#E8A317; --warn-bg:rgba(232,163,23,.16); --warn-fg:#8A6000;
   --err:#E5484D; --err-bg:rgba(229,72,77,.12); --err-fg:#C62828;
 
-  /* ── Página (fundo) + ruído ── */
-  --page:linear-gradient(180deg,#FFFFFF 0%,#F1FBF4 58%,#E6F9EC 100%);
-  --noise:.5;
+  /* ── Página (fundo) — chrome PLANO do DS (sem gradiente verde nem ruído) ── */
+  --page:var(--surface-2);
+  --noise:0;
 
-  /* ── Shell (sidebar / topbar / hero) — chrome CLARO do DS, theme-aware ──
-     Os --shell-* referenciam tokens de superfície/texto, então viram
-     near-black automaticamente no dark mode (sem override por tema). */
-  --shell-bg: var(--surface-2);
+  /* ── Shell (sidebar / topbar / hero) — chrome plano e sóbrio ──
+     Rail e topbar usam --shell-bg (branco no light, near-black no dark);
+     o hero fica plano (mesmo fundo do conteúdo), sem faixa verde nem glow. */
+  --shell-bg: var(--surface);
   --shell-border: var(--border-subtle);
   --shell-text: var(--text-secondary);
   --shell-text-muted: var(--text-tertiary);
-  --hero-bg: linear-gradient(180deg, var(--surface) 0%, var(--accent-soft) 100%);
+  --hero-bg: var(--surface-2);
   --hero-fg: var(--text-primary);
-  --hero-glow: radial-gradient(ellipse 70% 60% at 30% 50%, rgba(43,232,107,.10) 0%, transparent 60%);
+  --hero-glow: none;
 
   /* ── Elevação ── */
   --shadow-sm: 0 1px 2px 0 rgba(13,51,17,.06);
@@ -101,7 +104,9 @@
 
   --btn-pri-bg:#ffffff; --btn-pri-fg:#090909; --btn-pri-hover:#E4E4E4; --btn-pri-active:#CFCFCF;
 
-  --surface:#101410; --surface-2:#171D17; --surface-3:#202820;
+  /* cards = --surface (#101813); fundo/hero = #072011 (--page/--hero-bg abaixo); rail/topbar = #0B140D.
+     surface-2/3 continuam sendo os tons de ELEVAÇÃO/hover (ascendentes), NÃO o fundo da página. */
+  --surface:#101813; --surface-2:#171D17; --surface-3:#202820;
 
   --text-primary:#F2F7F3; --text-secondary:rgba(242,247,243,.72);
   --text-tertiary:rgba(242,247,243,.48); --text-disabled:rgba(242,247,243,.3);
@@ -113,13 +118,12 @@
   --warn-bg:rgba(232,163,23,.18); --warn-fg:#F0C66B;
   --err-bg:rgba(229,72,77,.18); --err-fg:#FF9B9E;
 
-  --page:radial-gradient(1200px 820px at 16% 118%,rgba(43,232,107,.40) 0%,rgba(43,232,107,0) 56%),radial-gradient(900px 680px at 86% -12%,rgba(43,232,107,.26) 0%,rgba(43,232,107,0) 54%),#090A09;
-  --noise:.22;
-
-  /* shell e hero-fg herdam via tokens de surface/texto (flip automatico).
-     Só o gradiente do hero muda no dark: deep glow near-black do DS. */
-  --hero-bg:radial-gradient(700px 500px at 18% 120%,rgba(43,232,107,.30),transparent 60%),radial-gradient(560px 420px at 84% -12%,rgba(43,232,107,.18),transparent 60%),#0A0D0A;
-  --hero-glow:radial-gradient(ellipse 70% 60% at 30% 50%, rgba(43,232,107,.16) 0%, transparent 60%);
+  /* chrome plano no dark: fundo/hero achatados em #072011, rail/topbar #0B140D, sem glow */
+  --page:#072011;
+  --noise:0;
+  --shell-bg:#0B140D;
+  --hero-bg:#072011;
+  --hero-glow:none;
 
   --shadow-sm: 0 1px 2px 0 rgba(0,0,0,.4);
   --shadow-md: 0 4px 12px 0 rgba(0,0,0,.45);
@@ -244,7 +248,7 @@ body::before {
   background: var(--surface-color);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
+  box-shadow: none; /* chrome plano: cards só com borda; elevação só no hover */
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   overflow: hidden;
 }
@@ -588,8 +592,6 @@ body::before {
 
 /* ── Header translúcido do DS ── */
 .vds-topbar {
-  background: color-mix(in srgb, var(--surface) 72%, transparent);
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border-subtle);
+  background: var(--shell-bg);
+  border-bottom: 1px solid var(--shell-border);
 }

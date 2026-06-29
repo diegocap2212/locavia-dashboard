@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { login } from '../services/authService';
+import { useTheme } from '../theme/ThemeProvider';
 import Button from './ui/Button';
 import { Input } from './ui/Input';
 
@@ -8,6 +9,8 @@ interface Props {
 }
 
 export const LoginScreen: React.FC<Props> = ({ onSuccess }) => {
+  const { theme } = useTheme();
+  const dark = theme !== 'light';
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -27,15 +30,15 @@ export const LoginScreen: React.FC<Props> = ({ onSuccess }) => {
     }
   };
 
+  // O login segue o tema global (sem data-theme forçado): dark e light.
+  // O "V" de vidro é o MESMO asset nos dois — no dark via HARD_LIGHT sobre #000
+  // (apaga o backdrop cinza do render); no light, sobre o painel claro com
+  // blend MULTIPLY + opacidade (best-effort, ajustável visualmente).
   return (
-    // data-theme="dark" força o tema escuro só na tela de entrada (fiel ao DS),
-    // independente do tema global — os tokens cascateiam para Input/Button.
     <div
-      data-theme="dark"
       style={{
-        // Fundo único #000 nos dois lados: o hard-light do "V" leva o backdrop
-        // do render exatamente a #000, então os painéis batem sem emenda.
-        minHeight: '100vh', display: 'flex', background: '#000',
+        minHeight: '100vh', display: 'flex',
+        background: dark ? '#000' : '#fff',
         color: 'var(--text-primary)', fontFamily: 'Inter, system-ui, sans-serif',
       }}
     >
@@ -44,10 +47,10 @@ export const LoginScreen: React.FC<Props> = ({ onSuccess }) => {
         <img
           src="/venice-by-blite.svg"
           alt="Venice by blite"
-          style={{ width: 150, marginBottom: '2.75rem', filter: 'brightness(0) invert(1)' }}
+          style={{ width: 150, marginBottom: '2.75rem', filter: dark ? 'brightness(0) invert(1)' : 'none' }}
         />
 
-        <h1 style={{ margin: '0 0 0.4rem', fontSize: '2rem', fontWeight: 700, letterSpacing: '-0.03em', color: '#fff' }}>
+        <h1 style={{ margin: '0 0 0.4rem', fontFamily: 'var(--font-serif)', fontSize: '3rem', fontWeight: 500, letterSpacing: '-0.01em', color: 'var(--text-primary)' }}>
           Bem-vindo(a)
         </h1>
         <p style={{ margin: '0 0 2rem', fontSize: '0.95rem', color: 'var(--text-secondary)' }}>
@@ -81,22 +84,27 @@ export const LoginScreen: React.FC<Props> = ({ onSuccess }) => {
         </p>
       </div>
 
-      {/* ── Lado hero (marca Venice) — "V" de vidro sobre PRETO ──
-         Fiel ao Figma (frame "Venice By Blite_Darck Bg" 2:137, fill #000):
-         o render do "V" (1183x1126 em x=548,y=-149) é composto com blend
-         HARD_LIGHT, o que apaga o backdrop cinza do render e mantém só o
-         vidro brilhando sobre o preto. Enquadramento em % relativas ao painel. */}
+      {/* ── Lado hero (marca Venice) — "V" de vidro ── */}
       <div style={{
-        flex: 1, position: 'relative', overflow: 'hidden', background: '#000',
+        flex: 1, position: 'relative', overflow: 'hidden',
+        background: dark ? '#000' : '#EAF4EE',
         isolation: 'isolate',
       }}>
+        {/* No light: glow radial verde + hachura diagonal sutil (fiel ao mockup) */}
+        {!dark && (
+          <>
+            <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'radial-gradient(120% 90% at 78% 50%, rgba(19,138,63,.10) 0%, rgba(19,138,63,0) 55%)' }} />
+            <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'repeating-linear-gradient(135deg, rgba(16,20,15,.022) 0 2px, transparent 2px 22px)' }} />
+          </>
+        )}
         <img
           src="/venice-v-glass.png"
           alt="Venice"
           style={{
             position: 'absolute', top: '-20%', left: '-6.2%',
             width: '140.8%', height: '151.1%', objectFit: 'fill',
-            mixBlendMode: 'hard-light',
+            mixBlendMode: dark ? 'hard-light' : 'multiply',
+            opacity: dark ? 1 : 0.55,
             pointerEvents: 'none', userSelect: 'none',
           }}
         />

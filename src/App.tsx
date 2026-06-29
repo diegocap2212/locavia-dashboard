@@ -18,7 +18,7 @@ import './App.css';
 const ReleaseDetail = lazy(() => import('./pages/ReleaseDetail'));
 const TeamDetail = lazy(() => import('./pages/TeamDetail'));
 const ReleaseDates = lazy(() => import('./pages/ReleaseDates'));
-const ProjectTracking = lazy(() => import('./pages/ProjectTracking'));
+const ApiDocs = lazy(() => import('./pages/ApiDocs'));
 
 const activeReleases = releaseConfig.releases.filter(r => r.active !== false && r.id !== 'DEFAULT');
 
@@ -324,10 +324,10 @@ const App: React.FC = () => (
         }
       />
       <Route
-        path="/projetos/:projectId?"
+        path="/api-docs"
         element={
           <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}><RefreshCw className="animate-spin" size={28} color="var(--primary)" /></div>}>
-            <ProjectTracking />
+            <ApiDocs />
           </Suspense>
         }
       />
