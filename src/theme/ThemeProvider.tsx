@@ -50,7 +50,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   );
 };
 
-/** Hook de acesso ao tema atual + controles. */
+/** Hook de acesso ao tema atual + controles. Co-locado com o Provider de propósito. */
+// eslint-disable-next-line react-refresh/only-export-components
 export function useTheme(): ThemeContextValue {
   const ctx = useContext(ThemeContext);
   if (!ctx) throw new Error('useTheme deve ser usado dentro de <ThemeProvider>');

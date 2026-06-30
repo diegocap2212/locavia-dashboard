@@ -41,7 +41,18 @@ function parseCookie(header: string | undefined, name: string): string | null {
   }
   return null;
 }
-function isAuthed(req: any): boolean {
+// Tipos mínimos do handler serverless (evita `any` e não exige @vercel/node).
+interface ApiRequest {
+  method?: string;
+  headers?: Record<string, string | undefined>;
+}
+interface ApiResponse {
+  setHeader(name: string, value: string): void;
+  status(code: number): ApiResponse;
+  json(body: unknown): void;
+}
+
+function isAuthed(req: ApiRequest): boolean {
   const secret = process.env.SESSION_SECRET || '';
   if (!secret || !process.env.DASHBOARD_PASSWORD) return true;
   const token = parseCookie(req?.headers?.cookie, SESSION_COOKIE);
@@ -78,7 +89,7 @@ async function latestRun(repo: string, workflow: string, token: string) {
   return data.workflow_runs?.[0] ?? null;
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: ApiRequest, res: ApiResponse) {
   // Mesma origem (a SPA chama o próprio domínio); não liberamos CORS para qualquer origem.
   res.setHeader('Cache-Control', 'no-store');
 
@@ -102,8 +113,8 @@ export default async function handler(req: any, res: any) {
         createdAt: run.created_at,
         url: run.html_url,
       });
-    } catch (e: any) {
-      return res.status(500).json({ error: 'Falha ao consultar status', details: e?.message });
+    } catch (e) {
+      return res.status(500).json({ error: 'Falha ao consultar status', details: e instanceof Error ? e.message : String(e) });
     }
   }
 
@@ -129,8 +140,8 @@ export default async function handler(req: any, res: any) {
       }
 
       return res.status(202).json({ ok: true, message: 'Sincronização iniciada.' });
-    } catch (e: any) {
-      return res.status(500).json({ error: 'Falha ao disparar sincronização', details: e?.message });
+    } catch (e) {
+      return res.status(500).json({ error: 'Falha ao disparar sincronização', details: e instanceof Error ? e.message : String(e) });
     }
   }
 

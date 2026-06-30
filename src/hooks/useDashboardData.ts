@@ -1,8 +1,9 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { fetchData, type JiraItem } from '../services/dataService';
 import releaseConfig from '../config/release-config.json';
 import { computeCone, type ConeItem, type ConeParams } from '../cone/computeCone';
 import { normalizeReleaseId } from '../lib/normalizeRelease';
+import { getCreatedReleases, type CreatedRelease } from '../services/releasesService';
 
 export interface ChartDataPoint {
   name: string;
@@ -58,8 +59,19 @@ const BF_CEM_EXCLUDED_STATUSES = [
   'NOGO',
 ];
 
-const LOCAVIA_RELEASES = new Set(['O4R1', 'O4R2', 'O4R3']);
-const BF_CEM_RELEASES = new Set(['BAF', 'BAF-QW', 'CEM', 'CEM-R1', 'CEM-R2']);
+// Os antigos sets fixos LOCAVIA_RELEASES/BF_CEM_RELEASES (O4R1.. / BAF..) eram redundantes com
+// o campo `cone` de cada entrada do release-config.json. Agora derivamos os ids por cone da
+// LISTA EFETIVA (config estático ∪ releases criadas na LM via Redis) — ver `effectiveReleases`.
+// Forma comum entre uma entrada do release-config.json e uma release criada (Redis).
+export interface EffectiveRelease {
+  id: string;
+  displayName: string;
+  deadline: string;
+  cone: string;
+  generation: string;
+  percentileWindow: number;
+  active?: boolean;
+}
 // Times capturados pela Jornada (Mapeados para alinhamento com os times de BI e Estoque/Mob na planilha)
 const BF_CEM_JORNADA_TEAMS = new Set([
   'Compras e Estoque',
@@ -239,6 +251,29 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
     loadData();
   }, []);
 
+  // Releases criadas pela LM (Redis) — somam-se às estáticas do release-config.
+  const [createdReleases, setCreatedReleases] = useState<CreatedRelease[]>([]);
+  const reloadCreatedReleases = useCallback(() => {
+    getCreatedReleases().then(setCreatedReleases).catch(() => {});
+  }, []);
+  useEffect(() => { reloadCreatedReleases(); }, [reloadCreatedReleases]);
+
+  // Lista EFETIVA de releases ativas = config estático ∪ criadas (criada não sobrescreve estática).
+  const effectiveReleases = useMemo((): EffectiveRelease[] => {
+    const base = (releaseConfig.releases as EffectiveRelease[])
+      .filter(r => r.active !== false && r.id !== 'DEFAULT');
+    const seen = new Set(base.map(r => r.id));
+    const extra = createdReleases.filter(r => r.active !== false && !seen.has(r.id));
+    return [...base, ...extra];
+  }, [createdReleases]);
+
+  // Ids da release do cone atual (deriva o antigo LOCAVIA_RELEASES/BF_CEM_RELEASES do campo `cone`).
+  const coneReleaseSet = useMemo(
+    () => new Set(effectiveReleases.filter(r => (r.cone || 'locavia') === coneType).map(r => r.id)),
+    [effectiveReleases, coneType]
+  );
+  const createdIds = useMemo(() => new Set(createdReleases.map(r => r.id)), [createdReleases]);
+
   // Normalização + mapeamento p/ ConeItem dependem SÓ de `data` (não dos filtros).
   // Memoizados aqui uma vez e reusados por dashboardState e releaseCones — antes o mesmo
   // .map() sobre ~4.9k itens rodava duas vezes (e a cada troca de filtro no dashboardState).
@@ -272,8 +307,8 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
   }), [rawItems]);
 
   const dashboardState = useMemo(() => {
-    // Pre-filter by cone type
-    const coneReleases = coneType === 'locavia' ? LOCAVIA_RELEASES : BF_CEM_RELEASES;
+    // Pre-filter by cone type (ids derivados da lista efetiva — inclui releases criadas)
+    const coneReleases = coneReleaseSet;
     const coneItems = rawItems.filter(i =>
       coneReleases.has(i.Release) ||
       (coneType === 'bf-cem' && i.Release === 'OUTROS' && BF_CEM_JORNADA_TEAMS.has(i.Team))
@@ -428,7 +463,7 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
 
     // 5. Temporal Matrix Data (Heatmap)
     const minD = filtered.length > 0 ? filtered.reduce((m, i) => { const d = excelToJSDate(i.Created); return (d && d < m) ? d : m; }, new Date()) : new Date(2025, 0, 1);
-    const maxDeadline = releaseConfig.releases
+    const maxDeadline = effectiveReleases
       .filter(r => coneReleases.has(r.id))
       .map(r => new Date(r.deadline))
       .reduce((a, b) => a > b ? a : b, new Date());
@@ -471,7 +506,8 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
          releaseCounts[r] = (releaseCounts[r] || 0) + 1;
       });
       const topReleaseId = Object.keys(releaseCounts).sort((a, b) => releaseCounts[b] - releaseCounts[a])[0] || 'DEFAULT';
-      const rConf = releaseConfig.releases.find(r => r.id === topReleaseId) || releaseConfig.releases.find(r => r.id === 'DEFAULT')!;
+      const rConf = effectiveReleases.find(r => r.id === topReleaseId)
+        || (releaseConfig.releases.find(r => r.id === 'DEFAULT') as EffectiveRelease);
       const deadline = new Date(rConf.deadline);
       const totalTeamItems = items.length;
       
@@ -597,7 +633,7 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
       releases: releasesList,
       temporalMatrixData
     };
-  }, [rawItems, allTypedItems, selectedTeams, selectedReleases, startDate, endDate, coneType]);
+  }, [rawItems, allTypedItems, selectedTeams, selectedReleases, startDate, endDate, coneType, coneReleaseSet, effectiveReleases]);
 
   const releaseCones = useMemo((): ReleaseConeData[] => {
     if (!allTypedItems.length) return [];
@@ -605,26 +641,38 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
     const today = new Date();
     const farFuture = new Date(today.getTime() + 2 * 365 * 86400000);
 
-    // Source of truth: active releases from config (excludes DEFAULT and inactive entries)
-    const activeReleases = releaseConfig.releases.filter(r => r.active !== false && r.id !== 'DEFAULT');
+    // Cone vazio (placeholder) p/ release recém-criada na LM que ainda não tem itens no Jira:
+    // aparece no seletor na hora; a área do cone mostra estado vazio até chegarem dados.
+    const emptyCone = (relConf: EffectiveRelease): ReleaseConeData => ({
+      releaseId: relConf.id,
+      displayName: relConf.displayName,
+      chartData: [],
+      bLabel: '', wLabel: '', vLabel: '',
+      summary: {
+        total: 0, done: 0, remaining: 0, velTrend: 0, velBest: 0, velWorst: 0,
+        entregaMelhor: null, entregaPior: null, weeksWithData: 0, confident: false,
+      },
+    });
 
-    return activeReleases.flatMap((relConf): ReleaseConeData[] => {
+    // Source of truth: lista efetiva (config estático ∪ releases criadas), exceto DEFAULT/inativas.
+    return effectiveReleases.flatMap((relConf): ReleaseConeData[] => {
       const releaseId = relConf.id;
       const generation = (relConf.generation || 'gen1') as 'gen1' | 'gen2';
       const percentileWindow = relConf.percentileWindow || 8;
       const EXCLUDED = generation === 'gen1' ? LOCAVIA_EXCLUDED_STATUSES : BF_CEM_EXCLUDED_STATUSES;
+      const isCreatedForCone = createdIds.has(releaseId) && (relConf.cone || 'locavia') === coneType;
 
       // Items for this specific release (used for anchor date and summary stats)
       const releaseItems = allTypedItems.filter(it => it.releases.includes(releaseId));
-      if (!releaseItems.length) return [];
+      if (!releaseItems.length) return isCreatedForCone ? [emptyCone(relConf)] : [];
 
       const activeItems = releaseItems.filter(it => !EXCLUDED.includes(it.status));
-      if (!activeItems.length) return [];
+      if (!activeItems.length) return isCreatedForCone ? [emptyCone(relConf)] : [];
 
       const anchorDates = activeItems
         .map(it => it.committed || it.created)
         .filter((d): d is Date => d !== null);
-      if (!anchorDates.length) return [];
+      if (!anchorDates.length) return isCreatedForCone ? [emptyCone(relConf)] : [];
 
       const anchor = anchorDates.reduce((min, d) => (d < min ? d : min));
       const releaseStartDate = getMon(anchor);
@@ -703,11 +751,13 @@ export const useDashboardData = (coneType: ConeType = 'locavia') => {
         }
       }];
     });
-  }, [allTypedItems]);
+  }, [allTypedItems, effectiveReleases, createdIds, coneType]);
 
   return {
     ...dashboardState,
     releaseCones,
+    createdReleases,
+    reloadCreatedReleases,
     loading,
     error,
     selectedTeams,

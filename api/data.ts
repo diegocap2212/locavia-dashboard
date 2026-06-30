@@ -37,7 +37,19 @@ function parseCookie(header: string | undefined, name: string): string | null {
   }
   return null;
 }
-function isAuthed(req: any): boolean {
+// Tipos mínimos do handler serverless (evita `any` e não exige @vercel/node).
+interface ApiRequest {
+  method?: string;
+  headers?: Record<string, string | undefined>;
+}
+interface ApiResponse {
+  setHeader(name: string, value: string): void;
+  status(code: number): ApiResponse;
+  json(body: unknown): void;
+  end(): void;
+}
+
+function isAuthed(req: ApiRequest): boolean {
   const secret = process.env.SESSION_SECRET || '';
   if (!secret || !process.env.DASHBOARD_PASSWORD) return true;
   const token = parseCookie(req?.headers?.cookie, SESSION_COOKIE);
@@ -80,7 +92,7 @@ async function getDataset(): Promise<Dataset> {
   return dataset;
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: ApiRequest, res: ApiResponse) {
   if (req.method !== 'GET') {
     res.setHeader('Allow', 'GET');
     return res.status(405).json({ error: 'Method not allowed' });

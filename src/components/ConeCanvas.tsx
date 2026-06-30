@@ -204,7 +204,7 @@ function drawCone(
       const v = chartData[i][wLabel] as number | null;
       if (v === null || v === undefined) continue;
       const x = xAt(i), y = yAt(Math.max(0, v));
-      started ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+      if (started) ctx.lineTo(x, y); else ctx.moveTo(x, y);
       started = true;
     }
     ctx.stroke();
@@ -225,7 +225,7 @@ function drawCone(
       const v = chartData[i][bLabel] as number | null;
       if (v === null || v === undefined) continue;
       const x = xAt(i), y = yAt(Math.max(0, v));
-      started ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+      if (started) ctx.lineTo(x, y); else ctx.moveTo(x, y);
       started = true;
     }
     ctx.stroke();
@@ -252,7 +252,7 @@ function drawCone(
   pastIdxs.slice(0, shown).forEach((pi, k) => {
     const v = chartData[pi]['A Fazer (Real)'] as number;
     const x = xAt(pi), y = yAt(v);
-    k === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
   });
   ctx.stroke();
   ctx.restore();

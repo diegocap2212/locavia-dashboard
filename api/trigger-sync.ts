@@ -12,11 +12,21 @@
 const GITHUB_REPO = 'diegocap2212/locavia-dashboard';
 const GITHUB_WORKFLOW = 'hourly-sync.yml';
 
-export default async function handler(req: any, res: any) {
+// Tipos mínimos do handler serverless (evita `any` e não exige @vercel/node).
+interface ApiRequest {
+  query?: Record<string, string | undefined>;
+  headers?: Record<string, string | undefined>;
+}
+interface ApiResponse {
+  status(code: number): ApiResponse;
+  json(body: unknown): void;
+}
+
+export default async function handler(req: ApiRequest, res: ApiResponse) {
   const secret = process.env.CRON_SECRET || '';
   const provided =
-    (req.query?.key as string) ||
-    (req.headers?.['x-cron-key'] as string) ||
+    req.query?.key ||
+    req.headers?.['x-cron-key'] ||
     '';
 
   if (!secret || provided !== secret) {
@@ -50,7 +60,7 @@ export default async function handler(req: any, res: any) {
     }
     const detail = await r.text().catch(() => '');
     return res.status(502).json({ ok: false, status: r.status, detail });
-  } catch (e: any) {
-    return res.status(500).json({ ok: false, error: e?.message || 'dispatch failed' });
+  } catch (e) {
+    return res.status(500).json({ ok: false, error: e instanceof Error ? e.message : 'dispatch failed' });
   }
 }

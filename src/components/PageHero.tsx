@@ -70,6 +70,7 @@ const PageHero: React.FC<Props> = ({ eyebrow, title, subtitle, leading, status, 
 );
 
 /** Deriva o status branded a partir das datas de projeção (mesma regra da home). */
+// eslint-disable-next-line react-refresh/only-export-components
 export function deriveStatus(remaining: number, entregaMelhor: Date | null, entregaPior: Date | null, now = new Date()): HeroStatus {
   const isDelivered = remaining === 0;
   const isLate = !isDelivered && !!entregaPior && entregaPior < now;

@@ -32,7 +32,21 @@ function parseCookie(header: string | undefined, name: string): string | null {
   }
   return null;
 }
-function isAuthed(req: any): boolean {
+// Tipos mínimos do handler serverless (evita `any` e não exige @vercel/node).
+interface ApiRequest {
+  method?: string;
+  headers?: Record<string, string | undefined>;
+  query?: Record<string, string | undefined>;
+  body?: Record<string, string | undefined>;
+}
+interface ApiResponse {
+  setHeader(name: string, value: string): void;
+  status(code: number): ApiResponse;
+  json(body: unknown): void;
+  end(): void;
+}
+
+function isAuthed(req: ApiRequest): boolean {
   const secret = process.env.SESSION_SECRET || '';
   if (!secret || !process.env.DASHBOARD_PASSWORD) return true;
   const token = parseCookie(req?.headers?.cookie, SESSION_COOKIE);
@@ -67,8 +81,9 @@ function encodeField(squadId: string, releaseId: string, quinzenaId: string, met
 }
 
 // Reconstrói a árvore aninhada que o frontend espera a partir dos campos planos do hash.
-function hashToTree(hash: Record<string, any>): Record<string, any> {
-  const tree: Record<string, any> = {};
+type CommentTree = Record<string, Record<string, Record<string, Record<string, unknown>>>>;
+function hashToTree(hash: Record<string, unknown>): CommentTree {
+  const tree: CommentTree = {};
   for (const [field, value] of Object.entries(hash)) {
     const parts = field.split(SEP).map(decodeURIComponent);
     if (parts.length !== 4) continue;
@@ -82,12 +97,12 @@ function hashToTree(hash: Record<string, any>): Record<string, any> {
   return tree;
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: ApiRequest, res: ApiResponse) {
   // CORS travado: só a origem do dashboard (env ALLOWED_ORIGIN) pode chamar de outro site.
   // Chamadas same-origin (a própria SPA) NÃO dependem de CORS e seguem funcionando mesmo sem
   // ALLOWED_ORIGIN setado. Sem `*`: outros sites não conseguem ler/escrever análises pelo browser.
   const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || '';
-  const origin = (req.headers?.origin as string) || '';
+  const origin = req.headers?.origin || '';
   if (ALLOWED_ORIGIN && origin === ALLOWED_ORIGIN) {
     res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
     res.setHeader('Vary', 'Origin');
@@ -114,7 +129,7 @@ export default async function handler(req: any, res: any) {
     if (req.method === 'GET') {
       const hashKey = hashKeyFor(req.query?.cadence);
       const hash = await redis.hgetall(hashKey);
-      return res.status(200).json(hash ? hashToTree(hash as Record<string, any>) : {});
+      return res.status(200).json(hash ? hashToTree(hash as Record<string, unknown>) : {});
     }
 
     if (req.method === 'POST') {
@@ -138,8 +153,8 @@ export default async function handler(req: any, res: any) {
     }
 
     res.status(405).json({ error: 'Method not allowed' });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Redis API Error:', error);
-    res.status(500).json({ error: 'Internal Server Error', details: error.message });
+    res.status(500).json({ error: 'Internal Server Error', details: error instanceof Error ? error.message : String(error) });
   }
 }

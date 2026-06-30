@@ -9,9 +9,21 @@ const redis = (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN)
 const RL_MAX = 8;             // tentativas falhas
 const RL_WINDOW = 15 * 60;    // por 15 min
 
-function clientIp(req: any): string {
-  const xf = (req.headers?.['x-forwarded-for'] as string) || '';
-  return xf.split(',')[0].trim() || (req.headers?.['x-real-ip'] as string) || 'unknown';
+// Tipos mínimos do handler serverless (evita `any` e não exige @vercel/node).
+interface ApiRequest {
+  method?: string;
+  headers?: Record<string, string | undefined>;
+  body?: Record<string, unknown>;
+}
+interface ApiResponse {
+  setHeader(name: string, value: string): void;
+  status(code: number): ApiResponse;
+  json(body: unknown): void;
+}
+
+function clientIp(req: ApiRequest): string {
+  const xf = req.headers?.['x-forwarded-for'] || '';
+  return xf.split(',')[0].trim() || req.headers?.['x-real-ip'] || 'unknown';
 }
 
 /**
@@ -73,14 +85,14 @@ function cookieHeader(token: string, maxAge: number): string {
   return `${SESSION_COOKIE}=${token}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${maxAge}`;
 }
 
-function isAuthed(req: any): boolean {
+function isAuthed(req: ApiRequest): boolean {
   const secret = process.env.SESSION_SECRET || '';
   if (!secret || !process.env.DASHBOARD_PASSWORD) return true;
   const token = parseCookie(req?.headers?.cookie, SESSION_COOKIE);
   return !!token && verifyToken(token, secret);
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: ApiRequest, res: ApiResponse) {
   res.setHeader('Cache-Control', 'no-store');
 
   if (req.method === 'GET') {
