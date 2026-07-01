@@ -1,6 +1,62 @@
 {
   "items": [
     {
+      "key": "SFMKT-185",
+      "summary": "Automação para Atualização da MDE de Leads",
+      "type": "História",
+      "status": "SPRINT BACKLOG",
+      "statusCategory": "TODO",
+      "assignee": "André Cacciatori",
+      "created": "2026-07-01T16:45:50.521-0300",
+      "resolved": null,
+      "sprint": "SFMKT-SP Sprint 19",
+      "sprintId": 22107,
+      "sprintState": "active",
+      "storyPoints": 3,
+      "priority": "Medium",
+      "labels": [],
+      "leadTimeDays": null,
+      "cycleTimeDays": null,
+      "timeInTodoDays": null,
+      "dq": {
+        "missingResolutionDate": false,
+        "missingAssignee": false,
+        "noStatusTransitions": false,
+        "noSprint": false,
+        "staleTodo": false,
+        "suspiciouslyLongLead": false,
+        "doneWithoutCycleData": false
+      }
+    },
+    {
+      "key": "SFMKT-184",
+      "summary": "Criação de Tabela (MDE) para Disponibilização dos Dados de Leads Sincronizados do FSC",
+      "type": "História",
+      "status": "SPRINT BACKLOG",
+      "statusCategory": "TODO",
+      "assignee": "Josivan Santos de Freitas",
+      "created": "2026-07-01T16:43:59.606-0300",
+      "resolved": null,
+      "sprint": "SFMKT-SP Sprint 19",
+      "sprintId": 22107,
+      "sprintState": "active",
+      "storyPoints": 3,
+      "priority": "Medium",
+      "labels": [],
+      "leadTimeDays": null,
+      "cycleTimeDays": null,
+      "timeInTodoDays": null,
+      "dq": {
+        "missingResolutionDate": false,
+        "missingAssignee": false,
+        "noStatusTransitions": false,
+        "noSprint": false,
+        "staleTodo": false,
+        "suspiciouslyLongLead": false,
+        "doneWithoutCycleData": false
+      }
+    },
+    {
       "key": "SFMKT-178",
       "summary": "Integração de Leads - Whatsapp x Blip via API",
       "type": "História",
@@ -1271,7 +1327,7 @@
       }
     }
   ],
-  "synced_at": "2026-07-01T19:31:56.569Z",
+  "synced_at": "2026-07-01T20:02:02.397Z",
   "project": "SFMKT",
-  "total_fetched": 45
+  "total_fetched": 47
 }
